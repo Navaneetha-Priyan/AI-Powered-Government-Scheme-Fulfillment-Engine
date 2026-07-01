@@ -1,0 +1,24 @@
+# Python
+backend/venv/
+backend/__pycache__/
+backend/.env
+
+# Flutter
+**/.dart_tool/
+**/.packages
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
+# Android
+**/.gradle/
+**/local.properties
+
+# VS Code
+.vscode/
+
+# Python
+*.pyc
+
+# Logs
+*.log
