@@ -1,0 +1,34 @@
+# Root EditorConfig
+root = true
+
+# All Files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Python Files
+[*.py]
+indent_style = space
+indent_size = 4
+max_line_length = 88
+
+# JSON Files
+[*.json]
+indent_style = space
+indent_size = 2
+
+# YAML Files
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Markdown Files
+[*.md]
+trim_trailing_whitespace = false
+
+# Dockerfile
+[Dockerfile]
+indent_style = space
+indent_size = 2
