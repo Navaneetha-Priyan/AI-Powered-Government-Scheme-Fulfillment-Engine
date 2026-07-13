@@ -22,6 +22,7 @@ from app.validators.validators import (
     NameValidator,
     PincodeValidator,
 )
+from app.services.india_location_service import is_valid_state_district_pair
 from app.exceptions.exceptions import (
     ValidationError,
     AuthenticationError,
@@ -117,6 +118,14 @@ class AuthenticationService:
             is_valid, error_msg = PincodeValidator.validate(register_data.pincode)
             if not is_valid:
                 raise ValidationError(error_msg, details={"field": "pincode"})
+
+        # Validate state and district pairing
+        is_valid, error_msg = is_valid_state_district_pair(
+            register_data.state,
+            register_data.district,
+        )
+        if not is_valid:
+            raise ValidationError(error_msg, details={"field": "district"})
 
         # Create citizen
         citizen_data = {
@@ -258,6 +267,14 @@ class AuthenticationService:
             # Check phone uniqueness
             if self.citizen_repo.phone_exists(update_data.phone, exclude_id=citizen_id):
                 raise DuplicatePhoneError(update_data.phone)
+
+        # Validate state/district combination when either field is updated.
+        if update_data.state or update_data.district:
+            state = update_data.state or citizen.state
+            district = update_data.district or citizen.district
+            is_valid, error_msg = is_valid_state_district_pair(state, district)
+            if not is_valid:
+                raise ValidationError(error_msg, details={"field": "district"})
 
         # Validate name if provided
         if update_data.full_name:

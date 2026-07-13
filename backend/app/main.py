@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.core.logging import setup_logging, get_logger
 from app.database.connection import init_db, close_db
 from app.api.auth_routes import router as auth_router
+from app.api.location_routes import router as location_router
 from app.api.health_routes import router as health_router
 from app.middleware.handlers import register_exception_handlers, register_middleware
 from app import __version__
@@ -63,6 +64,7 @@ register_exception_handlers(app)
 # Include routers
 app.include_router(health_router)
 app.include_router(auth_router)
+app.include_router(location_router)
 
 
 @app.get("/", tags=["Root"])
