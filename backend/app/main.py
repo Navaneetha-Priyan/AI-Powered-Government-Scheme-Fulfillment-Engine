@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.core.logging import setup_logging, get_logger
 from app.database.connection import init_db, close_db
 from app.api.auth_routes import router as auth_router
+from app.api.location_routes import router as location_router
 from app.api.health_routes import router as health_router
 from app.api.citizen_routes import router as citizen_router
 from app.api.digilocker_routes import router as digilocker_router
@@ -65,6 +66,7 @@ register_exception_handlers(app)
 # Include routers
 app.include_router(health_router)
 app.include_router(auth_router)
+app.include_router(location_router)
 app.include_router(citizen_router)
 app.include_router(digilocker_router)
 
