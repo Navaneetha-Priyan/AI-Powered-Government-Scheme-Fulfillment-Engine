@@ -8,6 +8,8 @@ from app.core.logging import setup_logging, get_logger
 from app.database.connection import init_db, close_db
 from app.api.auth_routes import router as auth_router
 from app.api.health_routes import router as health_router
+from app.api.citizen_routes import router as citizen_router
+from app.api.digilocker_routes import router as digilocker_router
 from app.middleware.handlers import register_exception_handlers, register_middleware
 from app import __version__
 
@@ -63,6 +65,8 @@ register_exception_handlers(app)
 # Include routers
 app.include_router(health_router)
 app.include_router(auth_router)
+app.include_router(citizen_router)
+app.include_router(digilocker_router)
 
 
 @app.get("/", tags=["Root"])
@@ -70,7 +74,7 @@ async def root():
     """Root endpoint"""
     return JSONResponse(
         {
-            "message": "Welcome to Citizen Registration & Authentication API",
+            "message": "Welcome to AI-Powered Government Scheme Fulfillment Engine API",
             "version": __version__,
             "docs": settings.DOCS_URL,
         }

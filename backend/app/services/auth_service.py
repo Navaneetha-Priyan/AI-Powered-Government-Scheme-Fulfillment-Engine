@@ -43,6 +43,17 @@ audit_logger = get_audit_logger()
 logger = get_logger(__name__)
 
 
+def _trigger_digilocker_sync(db, citizen_id: str) -> None:
+    """Trigger DigiLocker sync in background after login (non-blocking)"""
+    try:
+        from app.services.digilocker_service import DigiLockerService
+        service = DigiLockerService(db)
+        service.sync(citizen_id, force_refresh=False)
+        logger.info(f"Post-login DigiLocker sync completed for citizen: {citizen_id}")
+    except Exception as e:
+        logger.warning(f"Post-login DigiLocker sync skipped for citizen {citizen_id}: {str(e)}")
+
+
 class AuthenticationService:
     """Authentication and Authorization Service"""
 
@@ -211,6 +222,9 @@ class AuthenticationService:
         # Log successful login
         self._log_successful_login(citizen_id=citizen.id, ip_address=ip_address)
         auth_logger.info(f"Citizen logged in successfully: {citizen.id} ({citizen.email})")
+
+        # Trigger DigiLocker sync automatically after login
+        _trigger_digilocker_sync(self.db, citizen.id)
 
         return token_response
 

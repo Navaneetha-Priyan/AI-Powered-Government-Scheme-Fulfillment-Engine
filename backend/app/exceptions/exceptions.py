@@ -229,3 +229,61 @@ class InternalServerError(AppException):
             status_code=500,
             error_code="INTERNAL_SERVER_ERROR",
         )
+
+
+# ─── Module 2: Citizen Profile & DigiLocker Exceptions ────────────────────────
+
+class ProfileNotFoundError(NotFoundError):
+    """Citizen profile not found"""
+
+    def __init__(self, citizen_id: str = ""):
+        super().__init__(
+            message="Citizen profile not found",
+            resource="citizen_profile",
+        )
+        self.error_code = "PROFILE_NOT_FOUND"
+        if citizen_id:
+            self.details["citizen_id"] = citizen_id
+
+
+class DocumentNotFoundError(NotFoundError):
+    """Government document not found"""
+
+    def __init__(self, document_id: str = ""):
+        super().__init__(
+            message="Document not found",
+            resource="government_document",
+        )
+        self.error_code = "DOCUMENT_NOT_FOUND"
+        if document_id:
+            self.details["document_id"] = document_id
+
+
+class DigiLockerUnavailableError(AppException):
+    """DigiLocker service unavailable"""
+
+    def __init__(self, message: str = "DigiLocker service is currently unavailable"):
+        super().__init__(
+            message=message,
+            status_code=503,
+            error_code="DIGILOCKER_UNAVAILABLE",
+        )
+
+
+class SyncFailedError(AppException):
+    """DigiLocker sync failed"""
+
+    def __init__(self, reason: str = "Sync operation failed"):
+        super().__init__(
+            message=reason,
+            status_code=500,
+            error_code="SYNC_FAILED",
+        )
+
+
+class InvalidCitizenProfileError(ValidationError):
+    """Invalid or incomplete citizen profile data"""
+
+    def __init__(self, reason: str = "Invalid citizen profile data"):
+        super().__init__(message=reason)
+        self.error_code = "INVALID_CITIZEN_PROFILE"

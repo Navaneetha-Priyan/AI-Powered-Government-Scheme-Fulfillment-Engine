@@ -16,6 +16,8 @@ from app.database.connection import Base, get_db
 from app.core.config import settings
 from app.api.auth_routes import router as auth_router
 from app.api.health_routes import router as health_router
+from app.api.citizen_routes import router as citizen_router
+from app.api.digilocker_routes import router as digilocker_router
 from app.middleware.handlers import register_exception_handlers, register_middleware
 from app import __version__
 
@@ -76,6 +78,8 @@ def client(test_db: Session) -> TestClient:
     register_exception_handlers(app)
     app.include_router(auth_router)
     app.include_router(health_router)
+    app.include_router(citizen_router)
+    app.include_router(digilocker_router)
 
     app.dependency_overrides[get_db] = lambda: test_db
 
@@ -104,3 +108,40 @@ def auth_headers(client: TestClient) -> dict:
 
     token = response.json()["data"]["access_token"]
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture(scope="function")
+def auth_headers_with_aadhaar(client: TestClient) -> dict:
+    """Register a user with Aadhaar and return auth headers"""
+    register_data = {
+        "email": "farmer@example.com",
+        "phone": "9876543211",
+        "full_name": "Selvam Murugan",
+        "password": "TestPass123!",
+        "confirm_password": "TestPass123!",
+        "aadhaar_number": "234123456789",
+        "smart_ration_card": "TN1234567890",
+        "district": "Villupuram",
+        "state": "Tamil Nadu",
+        "village": "Periyakulam",
+        "taluk": "Villupuram",
+        "pincode": "605602",
+    }
+    response = client.post("/auth/register", json=register_data)
+    if response.status_code != 201:
+        print(f"Registration with Aadhaar failed: {response.json()}")
+    assert response.status_code == 201
+
+    token = response.json()["data"]["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture(scope="function")
+def synced_auth_headers(client: TestClient, auth_headers_with_aadhaar: dict) -> dict:
+    """Auth headers for a user who has completed DigiLocker sync"""
+    client.post(
+        "/digilocker/sync",
+        json={"force_refresh": False},
+        headers=auth_headers_with_aadhaar,
+    )
+    return auth_headers_with_aadhaar
