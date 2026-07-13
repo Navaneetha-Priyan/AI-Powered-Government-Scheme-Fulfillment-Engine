@@ -1,5 +1,6 @@
 """Configuration Management for FastAPI Application"""
 from typing import List
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 import os
@@ -16,6 +17,14 @@ class Settings(BaseSettings):
     # Environment
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
+
+    @field_validator("DEBUG", mode="before")
+    @classmethod
+    def normalize_debug_value(cls, value):
+        """Accept common deployment labels while preserving boolean settings."""
+        if isinstance(value, str) and value.lower() in {"release", "production"}:
+            return False
+        return value
 
     # Server Configuration
     SERVER_HOST: str = "0.0.0.0"
