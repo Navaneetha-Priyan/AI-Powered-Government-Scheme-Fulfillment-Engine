@@ -4,10 +4,14 @@ import '../core/network/api_exception.dart';
 import '../repositories/auth_repository.dart';
 import '../models/system_models.dart';
 
+import 'package:flutter/material.dart';
+
 class AppProvider extends ChangeNotifier {
   AppProvider(this._authRepository);
 
   final AuthRepository _authRepository;
+
+  ThemeMode _themeMode = ThemeMode.system;
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -15,12 +19,16 @@ class AppProvider extends ChangeNotifier {
   BackendInfo? _backendInfo;
   String? _version;
 
+
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   BackendHealth? get backendHealth => _backendHealth;
   BackendInfo? get backendInfo => _backendInfo;
+  ThemeMode get themeMode => _themeMode;
+
   String? get version => _version;
   bool get backendReachable => _backendHealth != null;
+
 
   Future<void> initialize() async {
     _setLoading(true);
@@ -42,6 +50,11 @@ class AppProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  void setThemeMode(ThemeMode mode) {
+    _themeMode = mode;
+    notifyListeners();
   }
 
   void _setLoading(bool value) {

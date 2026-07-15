@@ -6,9 +6,15 @@ import '../providers/auth_provider.dart';
 import '../screens/auth/forgot_password_placeholder.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
+import '../screens/digilocker/digilocker_status_screen.dart';
+import '../screens/digilocker/sync_screen.dart';
+import '../screens/documents/documents_screen.dart';
 import '../screens/home/home_screen.dart';
+import '../screens/profile/caste_screen.dart';
 import '../screens/profile/change_password_screen.dart';
 import '../screens/profile/edit_profile_screen.dart';
+import '../screens/profile/income_screen.dart';
+import '../screens/profile/land_records_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/splash/splash_screen.dart';
@@ -24,6 +30,12 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String editProfile = '/profile/edit';
   static const String changePassword = '/profile/change-password';
+  static const String income = '/profile/income';
+  static const String caste = '/profile/caste';
+  static const String landRecords = '/profile/land-records';
+  static const String documents = '/documents';
+  static const String digilockerStatus = '/digilocker/status';
+  static const String digilockerSync = '/digilocker/sync';
   static const String settings = '/settings';
 
   static Route<dynamic> generateRoute(RouteSettings routeSettings) {
@@ -50,6 +62,18 @@ class AppRoutes {
         );
       case changePassword:
         return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: ChangePasswordScreen()), settings: routeSettings);
+      case income:
+        return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: IncomeScreen()), settings: routeSettings);
+      case caste:
+        return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: CasteScreen()), settings: routeSettings);
+      case landRecords:
+        return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: LandRecordsScreen()), settings: routeSettings);
+      case documents:
+        return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: DocumentsScreen()), settings: routeSettings);
+      case digilockerStatus:
+        return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: DigiLockerStatusScreen()), settings: routeSettings);
+      case digilockerSync:
+        return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: SyncScreen()), settings: routeSettings);
       case AppRoutes.settings:
         return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: SettingsScreen()), settings: routeSettings);
       default:

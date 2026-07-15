@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../localization/app_strings.dart';
 import '../widgets/app_buttons.dart';
 
 class AppLoadingView extends StatelessWidget {
-  const AppLoadingView({super.key, this.message = 'Loading...'});
+  const AppLoadingView({super.key, this.message = AppStrings.loadingInformation});
 
   final String message;
 
@@ -20,7 +21,11 @@ class AppLoadingView extends StatelessWidget {
             child: CircularProgressIndicator(strokeWidth: 3),
           ),
           const SizedBox(height: 16),
-          Text(message),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
         ],
       ),
     );
@@ -49,13 +54,13 @@ class AppErrorView extends StatelessWidget {
             Icon(Icons.cloud_off_rounded, size: 56, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 16),
             Text(
-              message,
+              AppStrings.friendlyError(message),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 20),
-              PrimaryButton(label: 'Retry', onPressed: onRetry, icon: Icons.refresh_rounded),
+              PrimaryButton(label: AppStrings.retry, onPressed: onRetry, icon: Icons.refresh_rounded),
             ],
           ],
         ),
@@ -70,11 +75,15 @@ class EmptyStateView extends StatelessWidget {
     required this.message,
     this.subtitle,
     this.icon = Icons.inbox_rounded,
+    this.actionLabel,
+    this.onAction,
   });
 
   final String message;
   final String? subtitle;
   final IconData icon;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -85,12 +94,32 @@ class EmptyStateView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: Theme.of(context).colorScheme.secondary),
+            Container(
+              height: 96,
+              width: 96,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 52, color: Theme.of(context).colorScheme.secondary),
+            ),
             const SizedBox(height: 16),
-            Text(message, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             if (subtitle != null) ...[
               const SizedBox(height: 8),
-              Text(subtitle!, textAlign: TextAlign.center),
+              Text(
+                subtitle!,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ],
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: 20),
+              PrimaryButton(label: actionLabel!, onPressed: onAction, icon: Icons.arrow_forward_rounded),
             ],
           ],
         ),

@@ -26,4 +26,31 @@ class AppFormatters {
     }
     return value;
   }
+
+  static String money(num? value) {
+    if (value == null) {
+      return 'Not available';
+    }
+    return NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0).format(value);
+  }
+
+  static String number(num? value, {int decimalDigits = 2}) {
+    if (value == null) {
+      return '0';
+    }
+    final formatter = NumberFormat.decimalPattern('en_IN')
+      ..minimumFractionDigits = decimalDigits
+      ..maximumFractionDigits = decimalDigits;
+    return formatter.format(value);
+  }
+
+  static String titleCase(String? value, {String fallback = 'Not available'}) {
+    final text = displayValue(value, fallback: fallback).replaceAll('_', ' ');
+    return text
+        .split(' ')
+        .map((part) => part.isEmpty
+            ? part
+            : '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}')
+        .join(' ');
+  }
 }

@@ -1,5 +1,9 @@
 """Citizen Profile API Routes (Module 2)"""
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime
+from pathlib import Path
+from uuid import uuid4
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
@@ -9,10 +13,33 @@ from app.services.citizen_profile_service import CitizenProfileService
 from app.services.digilocker_service import DigiLockerService
 from app.exceptions.exceptions import AppException
 from app.api.dependencies import get_current_user
+from app.core.config import settings
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/citizen", tags=["Citizen Profile"])
+
+
+async def _save_upload(file: UploadFile, citizen_id: str, folder: str) -> str:
+    """Save a citizen upload and return a relative file path."""
+    content = await file.read()
+    max_size = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+    if len(content) > max_size:
+        raise HTTPException(
+            status_code=413,
+            detail={
+                "error": "FILE_TOO_LARGE",
+                "message": f"File must be {settings.MAX_UPLOAD_SIZE_MB} MB or smaller",
+            },
+        )
+
+    original_name = Path(file.filename or "upload.bin").name
+    safe_name = f"{uuid4()}{Path(original_name).suffix.lower()}"
+    upload_dir = Path(settings.UPLOAD_DIR) / folder / citizen_id
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    file_path = upload_dir / safe_name
+    file_path.write_bytes(content)
+    return str(file_path).replace("\\", "/")
 
 
 @router.get(
@@ -257,6 +284,74 @@ async def get_land_records(
         raise HTTPException(
             status_code=500,
             detail={"error": "INTERNAL_SERVER_ERROR", "message": "Failed to retrieve land records"},
+        )
+
+
+@router.post(
+    "/land-records/upload",
+    response_model=SuccessResponse,
+    status_code=201,
+    summary="Upload land record",
+    description="Add a citizen-submitted land record with supporting document",
+)
+async def upload_land_record(
+    survey_number: str = Form(...),
+    village: str = Form(...),
+    district: str = Form(...),
+    land_type: str = Form(...),
+    land_area: float = Form(...),
+    ownership_type: str = Form(...),
+    file: UploadFile = File(...),
+    taluk: str | None = Form(None),
+    state: str | None = Form(None),
+    patta_number: str | None = Form(None),
+    current_user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upload a land record and create a pending land-record document."""
+    try:
+        saved_path = await _save_upload(file, current_user_id, "land-records")
+        service = CitizenProfileService(db)
+        record = service.add_land_record(
+            current_user_id,
+            {
+                "survey_number": survey_number,
+                "land_area": land_area,
+                "land_area_unit": "acres",
+                "land_type": land_type,
+                "village": village,
+                "taluk": taluk,
+                "district": district,
+                "state": state,
+                "ownership_type": ownership_type,
+                "patta_number": patta_number,
+            },
+        )
+
+        digilocker_service = DigiLockerService(db)
+        doc = digilocker_service.add_uploaded_document(
+            citizen_id=current_user_id,
+            document_type="land_record",
+            document_name=f"Land Record - {survey_number}",
+            document_number=patta_number or survey_number,
+            download_url=saved_path,
+            metadata=f"Uploaded by citizen on {datetime.utcnow().isoformat()}",
+        )
+
+        return SuccessResponse(
+            success=True,
+            message="Land record uploaded successfully",
+            data={"land_record": _land_to_dict(record), "document": _doc_to_dict(doc)},
+        )
+    except AppException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.to_dict())
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Upload land record error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail={"error": "INTERNAL_SERVER_ERROR", "message": "Failed to upload land record"},
         )
 
 

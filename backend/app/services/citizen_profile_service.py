@@ -163,3 +163,12 @@ class CitizenProfileService:
             "total_land_area": total_area,
             "land_area_unit": "acres",
         }
+
+    def add_land_record(self, citizen_id: str, record_data: Dict[str, Any]):
+        """Add a citizen-submitted land record."""
+        citizen = self.citizen_repo.get_by_id(citizen_id)
+        if not citizen:
+            raise NotFoundError("Citizen not found", resource="citizen")
+
+        record_data["citizen_id"] = citizen_id
+        return self.land_repo.create(record_data)
