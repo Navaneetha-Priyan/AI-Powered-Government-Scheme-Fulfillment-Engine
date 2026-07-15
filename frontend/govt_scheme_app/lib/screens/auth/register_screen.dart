@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/localization/app_strings.dart';
 import '../../core/utils/validators.dart';
 import '../../core/widgets/app_buttons.dart';
 import '../../core/widgets/app_fields.dart';
@@ -32,6 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscureConfirmPassword = true;
   String? _selectedState;
   String? _selectedDistrict;
+  int _step = 0;
 
   @override
   void dispose() {
@@ -175,6 +177,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
+    if (_step == 0) {
+      setState(() => _step = 1);
+      return;
+    }
+
     try {
       final stateValue = _stateController?.text.trim() ?? _selectedState?.trim() ?? '';
       final districtValue = _districtController?.text.trim() ?? _selectedDistrict?.trim() ?? '';
@@ -238,12 +245,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
+        SnackBar(content: Text(AppStrings.friendlyError(error))),
       );
     }
   }
 
-  Widget _basicSection(BuildContext context) {
+  Widget _accountSection(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -305,6 +312,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
               suffixIcon: _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
               onSuffixTap: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _placeSection(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             const SizedBox(height: 16),
             Consumer<IndiaLocationProvider>(
               builder: (context, locationProvider, _) {
@@ -416,16 +436,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Create your citizen account', style: Theme.of(context).textTheme.headlineMedium),
+                          Text(AppStrings.createAccount, style: Theme.of(context).textTheme.headlineMedium),
                           const SizedBox(height: 8),
                           Text(
-                            'Start with the basic details. You can add the rest later if you want.',
+                            _step == 0
+                                ? 'Step 1 of 2: Your name and sign-in details.'
+                                : 'Step 2 of 2: Choose your state and district.',
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
+                          const SizedBox(height: 16),
+                          LinearProgressIndicator(value: _step == 0 ? 0.5 : 1),
                           const SizedBox(height: 24),
                           Form(
                             key: _formKey,
-                            child: _basicSection(context),
+                            child: _step == 0 ? _accountSection(context) : _placeSection(context),
                           ),
                           const SizedBox(height: 16),
                           Consumer<IndiaLocationProvider>(
@@ -448,7 +472,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Consumer<AuthProvider>(
                     builder: (context, authProvider, _) {
                       return PrimaryButton(
-                        label: 'Create account',
+                        label: _step == 0 ? AppStrings.continueText : AppStrings.createAccount,
                         onPressed: _submit,
                         isLoading: authProvider.isBusy,
                         icon: Icons.verified_user_rounded,
@@ -457,9 +481,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 12),
                   SecondaryButton(
-                    label: 'Already have an account? Sign in',
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: Icons.login_rounded,
+                    label: _step == 0 ? 'Already have an account? Sign In' : AppStrings.back,
+                    onPressed: () {
+                      if (_step == 0) {
+                        Navigator.of(context).pop();
+                      } else {
+                        setState(() => _step = 0);
+                      }
+                    },
+                    icon: _step == 0 ? Icons.login_rounded : Icons.arrow_back_rounded,
                   ),
                 ],
               ),

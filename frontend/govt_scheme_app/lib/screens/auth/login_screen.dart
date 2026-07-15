@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/localization/app_strings.dart';
 import '../../core/utils/validators.dart';
 import '../../core/widgets/app_buttons.dart';
 import '../../core/widgets/app_fields.dart';
@@ -57,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
+        SnackBar(content: Text(AppStrings.friendlyError(error))),
       );
     }
   }
@@ -102,10 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Log in', style: Theme.of(context).textTheme.headlineMedium),
+                                  Text(AppStrings.signIn, style: Theme.of(context).textTheme.headlineMedium),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Use the email and password you registered with.',
+                                    'Enter your email and password.',
                                     style: Theme.of(context).textTheme.bodyMedium,
                                   ),
                                 ],
@@ -130,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(height: 8),
                               const _StepLine(number: '2', text: 'Enter your password.'),
                               const SizedBox(height: 8),
-                              const _StepLine(number: '3', text: 'Tap Log in.'),
+                              const _StepLine(number: '3', text: 'Tap Sign In.'),
                             ],
                           ),
                         ),
@@ -171,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Consumer<AuthProvider>(
                           builder: (context, authProvider, _) {
                             return PrimaryButton(
-                              label: 'Log in',
+                              label: AppStrings.signIn,
                               onPressed: _submit,
                               isLoading: authProvider.isBusy,
                               icon: Icons.login_rounded,

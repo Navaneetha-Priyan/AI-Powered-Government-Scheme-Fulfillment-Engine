@@ -37,4 +37,20 @@ class ApiConstants {
   static const String changePassword = '/auth/change-password';
   static const String logout = '/auth/logout';
   static const String verifyToken = '/auth/verify-token';
+
+  static const String citizenProfile = '/citizen/profile';
+  static const String citizenProfileDetails = '/citizen/profile/details';
+  static const String citizenDashboard = '/citizen/dashboard';
+  static const String citizenIncome = '/citizen/income';
+  static const String citizenCaste = '/citizen/caste';
+  static const String citizenLandRecords = '/citizen/land-records';
+  static const String citizenDocuments = '/citizen/documents';
+
+  static const String digilockerSync = '/digilocker/sync';
+  static const String digilockerStatus = '/digilocker/status';
+  static const String digilockerDocuments = '/digilocker/documents';
+
+  static String digilockerDocument(String documentId) {
+    return '/digilocker/documents/$documentId';
+  }
 }

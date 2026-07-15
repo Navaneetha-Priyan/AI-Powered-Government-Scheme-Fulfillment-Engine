@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/localization/app_strings.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_buttons.dart';
 import '../../core/widgets/app_states.dart';
 import '../../core/widgets/cards.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/citizen_provider.dart';
 import '../../providers/profile_provider.dart';
 import '../../routes/app_routes.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({super.key, this.showBackButton = true});
+
+  final bool showBackButton;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -22,9 +26,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final profileProvider = context.read<ProfileProvider>();
+      final citizenProvider = context.read<CitizenProvider>();
       if (profileProvider.profile == null) {
         try {
           await profileProvider.loadProfile();
+        } catch (_) {
+          // handled by provider state
+        }
+      }
+      if (citizenProvider.profileDetails == null) {
+        try {
+          await citizenProvider.loadProfileDetails();
         } catch (_) {
           // handled by provider state
         }
@@ -34,17 +46,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<AuthProvider, ProfileProvider>(
-      builder: (context, authProvider, profileProvider, _) {
+    return Consumer3<AuthProvider, ProfileProvider, CitizenProvider>(
+      builder: (context, authProvider, profileProvider, citizenProvider, _) {
         final profile = profileProvider.profile ?? authProvider.currentUser;
+        final extendedProfile = citizenProvider.extendedProfile;
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Citizen Profile')),
+          appBar: AppBar(
+            title: const Text(AppStrings.myProfile),
+            automaticallyImplyLeading: widget.showBackButton,
+          ),
           body: profileProvider.isLoading && profile == null
-              ? const AppLoadingView(message: 'Loading profile...')
+              ? const AppLoadingView(message: 'Loading your profile...')
               : profile == null
                   ? AppErrorView(
-                      message: profileProvider.errorMessage ?? 'Profile not available.',
+                      message: profileProvider.errorMessage ?? AppStrings.somethingWrong,
                       onRetry: () => profileProvider.loadProfile(),
                     )
                   : SingleChildScrollView(
@@ -65,15 +81,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       const SizedBox(height: 8),
                                       Text(profile.email),
                                       const SizedBox(height: 12),
-                                      Text('Status: ${profile.status}'),
-                                      Text('Last login: ${AppFormatters.displayDateTime(profile.lastLogin)}'),
+                                      Text('Last sign in: ${AppFormatters.displayDateTime(profile.lastLogin)}'),
                                       const SizedBox(height: 20),
                                       Wrap(
                                         spacing: 12,
                                         runSpacing: 12,
                                         children: [
                                           PrimaryButton(
-                                            label: 'Edit Profile',
+                                            label: 'Edit My Profile',
                                             onPressed: () => Navigator.of(context).pushNamed(AppRoutes.editProfile),
                                             icon: Icons.edit_rounded,
                                           ),
@@ -89,6 +104,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               const SizedBox(height: 20),
+                              Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('More Details', style: Theme.of(context).textTheme.titleLarge),
+                                      const SizedBox(height: 12),
+                                      ProfileCard(
+                                        title: 'Income Details',
+                                        subtitle: 'Annual income, occupation, and farmer status',
+                                        icon: Icons.payments_outlined,
+                                        onTap: () => Navigator.of(context).pushNamed(AppRoutes.income),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      ProfileCard(
+                                        title: 'Community Details',
+                                        subtitle: 'Community, caste, and certificate status',
+                                        icon: Icons.diversity_3_outlined,
+                                        onTap: () => Navigator.of(context).pushNamed(AppRoutes.caste),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      ProfileCard(
+                                        title: AppStrings.myLand,
+                                        subtitle: 'Survey number, village, ownership, and area',
+                                        icon: Icons.landscape_outlined,
+                                        onTap: () => Navigator.of(context).pushNamed(AppRoutes.landRecords),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
                               Wrap(
                                 spacing: 16,
                                 runSpacing: 16,
@@ -96,6 +144,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   _ProfileInfoSection(profile: profile),
                                 ],
                               ),
+                              if (extendedProfile != null) ...[
+                                const SizedBox(height: 20),
+                                Card(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(20),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Records from Government', style: Theme.of(context).textTheme.titleLarge),
+                                        const SizedBox(height: 12),
+                                        InfoCard(label: 'Father Name', value: AppFormatters.displayValue(extendedProfile.fatherName), icon: Icons.person_outline),
+                                        const SizedBox(height: 12),
+                                        InfoCard(label: 'Mother Name', value: AppFormatters.displayValue(extendedProfile.motherName), icon: Icons.person_2_outlined),
+                                        const SizedBox(height: 12),
+                                        InfoCard(label: 'Occupation', value: AppFormatters.titleCase(extendedProfile.occupation), icon: Icons.work_outline),
+                                        const SizedBox(height: 12),
+                                        InfoCard(label: 'Education', value: AppFormatters.titleCase(extendedProfile.educationLevel), icon: Icons.school_outlined),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                               const SizedBox(height: 20),
                               Card(
                                 child: Padding(
@@ -103,13 +173,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('Account and verification', style: Theme.of(context).textTheme.titleLarge),
+                                      Text('Account Status', style: Theme.of(context).textTheme.titleLarge),
                                       const SizedBox(height: 12),
-                                      InfoCard(label: 'Email verified', value: profile.emailVerified ? 'Yes' : 'No', icon: Icons.mark_email_read_outlined),
+                                      InfoCard(label: 'Email Checked', value: profile.emailVerified ? 'Yes' : 'No', icon: Icons.mark_email_read_outlined),
                                       const SizedBox(height: 12),
-                                      InfoCard(label: 'Phone verified', value: profile.phoneVerified ? 'Yes' : 'No', icon: Icons.phone_android_outlined),
+                                      InfoCard(label: 'Phone Checked', value: profile.phoneVerified ? 'Yes' : 'No', icon: Icons.phone_android_outlined),
                                       const SizedBox(height: 12),
-                                      InfoCard(label: 'Account active', value: profile.accountActive ? 'Active' : 'Inactive', icon: Icons.verified_user_outlined),
+                                      InfoCard(label: 'Account', value: profile.accountActive ? 'Active' : 'Inactive', icon: Icons.verified_user_outlined),
                                       const SizedBox(height: 12),
                                       InfoCard(label: 'Preferred language', value: profile.preferredLanguage, icon: Icons.language_rounded),
                                     ],
@@ -135,7 +205,7 @@ class _ProfileInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = <Widget>[
-      InfoCard(label: 'Citizen ID', value: profile.id, icon: Icons.badge_outlined),
+      InfoCard(label: 'Account Number', value: profile.id, icon: Icons.badge_outlined),
       const SizedBox(height: 12),
       InfoCard(label: 'Phone', value: profile.phone, icon: Icons.phone_outlined),
       const SizedBox(height: 12),
@@ -161,9 +231,9 @@ class _ProfileInfoSection extends StatelessWidget {
       const SizedBox(height: 12),
       InfoCard(label: 'Pincode', value: AppFormatters.displayValue(profile.pincode), icon: Icons.local_post_office_outlined),
       const SizedBox(height: 12),
-      InfoCard(label: 'Created at', value: AppFormatters.displayDateTime(profile.createdAt), icon: Icons.event_available_outlined),
+      InfoCard(label: 'Created On', value: AppFormatters.displayDateTime(profile.createdAt), icon: Icons.event_available_outlined),
       const SizedBox(height: 12),
-      InfoCard(label: 'Updated at', value: AppFormatters.displayDateTime(profile.updatedAt), icon: Icons.update_outlined),
+      InfoCard(label: 'Updated On', value: AppFormatters.displayDateTime(profile.updatedAt), icon: Icons.update_outlined),
     ];
 
     return Column(

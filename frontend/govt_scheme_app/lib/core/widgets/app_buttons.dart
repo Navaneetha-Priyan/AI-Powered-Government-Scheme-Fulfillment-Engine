@@ -20,19 +20,19 @@ class PrimaryButton extends StatelessWidget {
       onPressed: isLoading ? null : onPressed,
       child: isLoading
           ? const SizedBox(
-              height: 22,
-              width: 22,
+              height: 26,
+              width: 26,
               child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
             )
           : Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: MainAxisSize.max,
               children: [
                 if (icon != null) ...[
-                  Icon(icon, size: 18),
-                  const SizedBox(width: 8),
+                  Icon(icon, size: 24),
+                  const SizedBox(width: 10),
                 ],
-                Text(label),
+                Flexible(child: Text(label, textAlign: TextAlign.center)),
               ],
             ),
     );
@@ -57,13 +57,13 @@ class SecondaryButton extends StatelessWidget {
       onPressed: onPressed,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 18),
-            const SizedBox(width: 8),
+            Icon(icon, size: 24),
+            const SizedBox(width: 10),
           ],
-          Text(label),
+          Flexible(child: Text(label, textAlign: TextAlign.center)),
         ],
       ),
     );

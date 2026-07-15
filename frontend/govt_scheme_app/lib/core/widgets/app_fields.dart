@@ -51,6 +51,7 @@ class AppTextField extends StatelessWidget {
       readOnly: readOnly,
       onTap: onTap,
       onChanged: onChanged,
+      style: Theme.of(context).textTheme.bodyLarge,
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,

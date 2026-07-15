@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'core/network/api_service.dart';
@@ -6,9 +7,15 @@ import 'core/services/storage_service.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/app_provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/citizen_provider.dart';
+import 'providers/dashboard_provider.dart';
+import 'providers/digilocker_provider.dart';
 import 'providers/india_location_provider.dart';
 import 'providers/profile_provider.dart';
 import 'repositories/auth_repository.dart';
+import 'repositories/citizen_repository.dart';
+import 'repositories/dashboard_repository.dart';
+import 'repositories/digilocker_repository.dart';
 import 'repositories/india_location_repository.dart';
 import 'repositories/profile_repository.dart';
 import 'routes/app_routes.dart';
@@ -21,6 +28,9 @@ Future<void> main() async {
   final authRepository = AuthRepository(apiService);
   final indiaLocationRepository = IndiaLocationRepository(apiService);
   final profileRepository = ProfileRepository(apiService);
+  final citizenRepository = CitizenRepository(apiService);
+  final dashboardRepository = DashboardRepository(apiService);
+  final digiLockerRepository = DigiLockerRepository(apiService);
 
   runApp(
     MultiProvider(
@@ -30,7 +40,13 @@ Future<void> main() async {
         Provider.value(value: authRepository),
         Provider.value(value: indiaLocationRepository),
         Provider.value(value: profileRepository),
+        Provider.value(value: citizenRepository),
+        Provider.value(value: dashboardRepository),
+        Provider.value(value: digiLockerRepository),
         ChangeNotifierProvider(create: (_) => AppProvider(authRepository)),
+        ChangeNotifierProvider(create: (_) => DashboardProvider(dashboardRepository)),
+        ChangeNotifierProvider(create: (_) => CitizenProvider(citizenRepository)),
+        ChangeNotifierProvider(create: (_) => DigiLockerProvider(digiLockerRepository)),
         ChangeNotifierProvider(
           create: (_) => IndiaLocationProvider(indiaLocationRepository),
         ),
@@ -56,12 +72,29 @@ class GovtSchemeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'AI-Powered Government Scheme Fulfillment Engine',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      initialRoute: AppRoutes.splash,
-      onGenerateRoute: AppRoutes.generateRoute,
+    return Consumer<AppProvider>(
+      builder: (context, appProvider, _) {
+        return MaterialApp(
+          title: 'AI-Powered Government Scheme Fulfillment Engine',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: appProvider.themeMode,
+          supportedLocales: const [
+            Locale('en'),
+            Locale('ta'),
+            Locale('hi'),
+          ],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          initialRoute: AppRoutes.splash,
+          onGenerateRoute: AppRoutes.generateRoute,
+        );
+      },
     );
   }
 }
+

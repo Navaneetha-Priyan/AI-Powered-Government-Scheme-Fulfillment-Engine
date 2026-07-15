@@ -1,8 +1,10 @@
-# AI-Powered Government Scheme Fulfillment Engine - Frontend
+# AI-Powered Government Scheme Fulfillment Engine - Flutter Frontend
 
-Flutter frontend for the citizen authentication and profile module.
+Production-oriented Flutter citizen portal for the backend modules that exist today: authentication, citizen profile, mock DigiLocker, land records, documents, income, community/caste, and dashboard.
 
-This app connects only to the backend endpoints that currently exist:
+The app intentionally does not call scheme recommendation, eligibility, search, applications, notifications, AI recommendation, or admin APIs.
+
+## Backend Endpoints Used
 
 - `GET /health`
 - `GET /version`
@@ -14,94 +16,84 @@ This app connects only to the backend endpoints that currently exist:
 - `PUT /auth/profile`
 - `PUT /auth/change-password`
 - `POST /auth/logout`
-
-It does not call any fake scheme, eligibility, recommendation, application, notification, or admin APIs.
+- `GET /citizen/dashboard`
+- `GET /citizen/profile`
+- `GET /citizen/profile/details`
+- `PUT /citizen/profile`
+- `GET /citizen/income`
+- `GET /citizen/caste`
+- `GET /citizen/land-records`
+- `GET /citizen/documents`
+- `GET /digilocker/status`
+- `POST /digilocker/sync`
+- `GET /digilocker/documents`
+- `GET /digilocker/documents/{document_id}`
 
 ## Tech Stack
 
-- Flutter
-- Material 3
-- Provider
-- Dio
-- SharedPreferences
+- Flutter with Material 3
+- Provider for state management
+- Dio with JWT and refresh-token interceptors
+- SharedPreferences for token/profile persistence
+- Responsive layouts with light and dark themes
 
 ## Project Structure
 
-The frontend is organized under `lib/` with these main areas:
-
-- `core/` - constants, networking, storage, theme, utilities, reusable widgets
-- `models/` - request and response models
-- `repositories/` - backend data access
-- `providers/` - app state management
-- `screens/` - splash, auth, home, profile, and settings screens
-- `routes/` - named route handling
+- `lib/core/constants/` - API paths and backend URL selection
+- `lib/core/network/` - Dio API service and exception mapping
+- `lib/core/services/` - local storage service
+- `lib/core/theme/` - Material 3 theme definitions
+- `lib/core/widgets/` - buttons, fields, cards, loading/error/empty states
+- `lib/models/` - auth, system, citizen, document, land, DigiLocker models
+- `lib/repositories/` - backend-facing data access classes
+- `lib/providers/` - Auth, App, Dashboard, Citizen, DigiLocker state
+- `lib/screens/` - splash, auth, dashboard, profile, documents, DigiLocker, settings
+- `lib/routes/` - named route table and protected route wrapper
 
 ## Configure Backend URL
 
-The app uses `http://10.80.26.147:8000` first on Android, then falls back to `http://10.0.2.2:8000`, `http://127.0.0.1:8000`, and `http://localhost:8000`. Desktop/web still use `http://localhost:8000`.
+By default, Android tries `http://10.80.26.147:8000`, then emulator/local fallbacks. Desktop and web use `http://localhost:8000`.
 
-To override it, run Flutter with a compile-time define:
+Override the backend URL at launch:
 
 ```bash
 flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000
 ```
 
-If your backend runs on another host or port, replace the value accordingly. For a physical Android device connected over USB debugging, either:
+For a physical Android device, either run:
 
 ```bash
 adb reverse tcp:8000 tcp:8000
-flutter run -d <your-device-id>
+flutter run -d <device-id>
 ```
 
-or point `API_BASE_URL` at the host machine's LAN IP, for example `http://10.80.26.147:8000`.
+or pass your machine LAN URL:
 
-## Run the App
+```bash
+flutter run --dart-define=API_BASE_URL=http://<host-lan-ip>:8000
+```
 
-From the Flutter project root:
+## Run
 
 ```bash
 flutter pub get
 flutter run
 ```
 
-For a custom backend URL:
+## Included Flows
+
+- Splash screen checks `GET /health`, then routes by token state.
+- Login and registration store access and refresh tokens.
+- Dio attaches `Authorization: Bearer <access_token>` automatically.
+- A `401` response triggers `POST /auth/refresh` and retries the request.
+- Dashboard displays profile completion, DigiLocker state, documents, land area, income, community, and farmer status.
+- Profile, income, caste/community, land records, documents, DigiLocker status/sync, settings, logout, and password change are implemented.
+
+## Verification
+
+Run:
 
 ```bash
-flutter run --dart-define=API_BASE_URL=http://localhost:8000
-```
-
-If Android Studio is launching an emulator, the app will fall back to the emulator-safe host automatically.
-
-## What the App Includes
-
-- Splash screen with backend health check
-- Login and registration forms with client-side validation
-- JWT token storage and refresh handling
-- Protected home screen
-- Citizen profile view
-- Edit profile screen
-- Change password screen
-- Logout flow
-- Backend status, version, and info display
-
-## Notes
-
-- Authenticated pages are protected by the current session state.
-- Access tokens are refreshed automatically when possible.
-- If refresh fails, the app clears local session data and returns to login.
-- The frontend is ready for future scheme modules once the backend exposes them.
-
-## Testing
-
-Run the smoke test:
-
-```bash
+flutter analyze
 flutter test
 ```
-
-## Validation
-
-The project currently passes:
-
-- `flutter analyze`
-- `flutter test`

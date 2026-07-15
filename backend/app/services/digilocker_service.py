@@ -8,6 +8,7 @@ from app.repositories.citizen_repository import CitizenRepository
 from app.repositories.citizen_profile_repository import CitizenProfileRepository, LandRecordRepository
 from app.repositories.digilocker_repository import DigiLockerRepository, GovernmentDocumentRepository
 from app.models.citizen_profile import ProfileSyncStatus
+from app.models.digilocker import DocumentType, DocumentVerificationStatus
 from app.utils.mock_digilocker_data import (
     get_mock_profile,
     get_mock_land_records,
@@ -177,6 +178,51 @@ class DigiLockerService:
         if not doc or doc.citizen_id != citizen_id:
             raise DocumentNotFoundError(document_id)
         return doc
+
+    def add_uploaded_document(
+        self,
+        citizen_id: str,
+        document_type: str,
+        document_name: str,
+        document_number: str | None,
+        download_url: str,
+        metadata: str | None = None,
+    ):
+        """Create a citizen-uploaded document entry."""
+        citizen = self.citizen_repo.get_by_id(citizen_id)
+        if not citizen:
+            raise NotFoundError("Citizen not found", resource="citizen")
+
+        digilocker = self.digilocker_repo.get_by_citizen_id(citizen_id)
+        if not digilocker:
+            digilocker = self.digilocker_repo.create(
+                {
+                    "citizen_id": citizen_id,
+                    "digilocker_id": f"UPLOAD-{citizen_id[:8].upper()}-{str(uuid4())[:4].upper()}",
+                    "is_active": True,
+                    "last_sync_at": None,
+                    "sync_count": "0",
+                }
+            )
+
+        try:
+            normalized_type = DocumentType(document_type)
+        except ValueError:
+            normalized_type = DocumentType.LAND_RECORD
+
+        return self.doc_repo.create(
+            {
+                "citizen_id": citizen_id,
+                "digilocker_record_id": digilocker.id,
+                "document_type": normalized_type,
+                "document_number": document_number,
+                "document_name": document_name,
+                "verification_status": DocumentVerificationStatus.PENDING,
+                "download_url": download_url,
+                "doc_metadata": metadata,
+                "is_active": True,
+            }
+        )
 
     def _calculate_completion(self, citizen, mock_profile: dict) -> int:
         """Calculate profile completion percentage"""
