@@ -8,6 +8,7 @@ from app.database.connection import Base
 from app.models.citizen import Citizen, LoginAudit
 from app.models.citizen_profile import CitizenProfile, LandRecord
 from app.models.digilocker import DigiLockerRecord, GovernmentDocument
+from app.models.government_scheme import GovernmentScheme, SchemeDocument, SchemeChunk
 
 # this is the Alembic Config object
 config = context.config

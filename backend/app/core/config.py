@@ -72,6 +72,13 @@ class Settings(BaseSettings):
     # File Upload Configuration (Future Module 7)
     MAX_UPLOAD_SIZE_MB: int = 10
     UPLOAD_DIR: str = "uploads"
+    SCHEME_STORAGE_DIR: str = "storage/schemes"
+    MAX_SCHEME_PDF_SIZE_BYTES: int = 10485760
+    SCHEME_CHUNK_SIZE: int = 900
+    SCHEME_CHUNK_OVERLAP: int = 120
+    CHROMA_PERSIST_DIRECTORY: str = "storage/chromadb"
+    CHROMA_COLLECTION_NAME: str = "government_scheme_chunks"
+    EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
 
     # API Documentation
     DOCS_URL: str = "/docs"

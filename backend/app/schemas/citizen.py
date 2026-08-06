@@ -1,7 +1,7 @@
 """Pydantic Schemas for Request/Response Validation"""
 from pydantic import BaseModel, Field, EmailStr, validator, field_validator
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 from enum import Enum
 
 # Enums
@@ -293,7 +293,7 @@ class SuccessResponse(BaseModel):
 
     success: bool = Field(default=True, description="Success flag")
     message: str = Field(..., description="Success message")
-    data: Optional[dict] = Field(None, description="Response data")
+    data: Optional[Any] = Field(None, description="Response data")
 
     class Config:
         json_schema_extra = {

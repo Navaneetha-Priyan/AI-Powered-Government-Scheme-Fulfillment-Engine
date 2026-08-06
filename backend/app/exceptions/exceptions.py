@@ -287,3 +287,39 @@ class InvalidCitizenProfileError(ValidationError):
     def __init__(self, reason: str = "Invalid citizen profile data"):
         super().__init__(message=reason)
         self.error_code = "INVALID_CITIZEN_PROFILE"
+
+class SchemeNotFoundError(NotFoundError):
+    def __init__(self, scheme_id: str = ""):
+        super().__init__("Government scheme not found", "government_scheme"); self.error_code="SCHEME_NOT_FOUND"; self.details["scheme_id"]=scheme_id
+
+
+class DuplicateSchemeError(ConflictError):
+    def __init__(self, scheme_name: str = ""):
+        super().__init__(message=f"Scheme '{scheme_name}' already exists", resource="government_scheme")
+        self.error_code = "DUPLICATE_SCHEME"
+
+
+class SchemeDocumentNotFoundError(NotFoundError):
+    def __init__(self, document_id: str = ""):
+        super().__init__("Scheme document not found", "scheme_document")
+        self.error_code = "SCHEME_DOCUMENT_NOT_FOUND"
+        if document_id:
+            self.details["document_id"] = document_id
+
+class InvalidPDFError(ValidationError):
+    def __init__(self, reason="Only valid PDF documents are accepted"):
+        super().__init__(reason); self.error_code="INVALID_PDF"
+
+class ProcessingFailedError(AppException):
+    def __init__(self, reason="Document processing failed"):
+        super().__init__(reason, 500, "PROCESSING_FAILED")
+
+
+class EmbeddingGenerationFailedError(AppException):
+    def __init__(self, reason: str = "Embedding generation failed"):
+        super().__init__(reason, 500, "EMBEDDING_GENERATION_FAILED")
+
+
+class VectorDatabaseError(AppException):
+    def __init__(self, reason: str = "Vector database operation failed"):
+        super().__init__(reason, 500, "VECTOR_DATABASE_ERROR")

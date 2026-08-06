@@ -1,24 +1,113 @@
-# Python
+# ==============================
+# Python Backend
+# ==============================
+
+# Virtual Environments
+venv/
+.venv/
+.venv311/
+.venv312/
 backend/venv/
-backend/__pycache__/
+backend/.venv/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment Variables
+.env
 backend/.env
 
-# Flutter
-**/.dart_tool/
-**/.packages
-**/build/
-**/.flutter-plugins
-**/.flutter-plugins-dependencies
+# Python build files
+build/
+dist/
+*.egg-info/
 
-# Android
-**/.gradle/
-**/local.properties
 
-# VS Code
-.vscode/
-
-# Python
-*.pyc
+# ==============================
+# FastAPI / Backend Generated Files
+# ==============================
 
 # Logs
 *.log
+
+# Test cache
+.pytest_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+
+# ==============================
+# Database
+# ==============================
+
+# SQLite databases
+*.sqlite
+*.sqlite3
+
+
+# ==============================
+# ChromaDB / Vector Database
+# ==============================
+
+# Generated vector database files
+backend/storage/chromadb/
+storage/chromadb/
+
+
+# ==============================
+# Generated Storage (Optional)
+# ==============================
+
+# Uncomment these if you don't want to store uploaded/generated files
+# backend/storage/
+
+
+# ==============================
+# Flutter
+# ==============================
+
+.dart_tool/
+.packages
+.pub/
+build/
+
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Flutter generated files
+pubspec.lock
+
+
+# ==============================
+# Android
+# ==============================
+
+.gradle/
+local.properties
+
+# Android Studio
+*.iml
+
+
+# ==============================
+# IDE
+# ==============================
+
+.vscode/
+.idea/
+
+
+# ==============================
+# OS Generated Files
+# ==============================
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Mac
+.DS_Store

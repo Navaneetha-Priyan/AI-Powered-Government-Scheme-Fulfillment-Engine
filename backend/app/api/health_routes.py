@@ -2,7 +2,8 @@
 from fastapi import APIRouter, Depends
 from datetime import datetime
 from sqlalchemy.orm import Session
-from app.database.connection import get_db, test_db_connection
+from sqlalchemy import text
+from app.database.connection import get_db
 from app.core.config import settings
 from app.schemas.citizen import HealthCheckResponse, SuccessResponse
 from app import __version__
@@ -22,9 +23,14 @@ router = APIRouter(tags=["System"])
 async def health_check(db: Session = Depends(get_db)):
     """Health check endpoint"""
     try:
-        # Test database connection
-        db_connected = test_db_connection()
-        
+        # Use the provided request-scoped DB session to verify connectivity.
+        # This respects test overrides that inject an in-memory test DB session.
+        try:
+            db.execute(text("SELECT 1"))
+            db_connected = True
+        except Exception:
+            db_connected = False
+
         health_data = HealthCheckResponse(
             status="healthy" if db_connected else "degraded",
             version=__version__,

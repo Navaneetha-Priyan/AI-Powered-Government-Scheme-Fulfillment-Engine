@@ -44,6 +44,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./uploads:/app/uploads
+      - ./storage:/app/storage
     depends_on:
       mysql:
         condition: service_healthy
