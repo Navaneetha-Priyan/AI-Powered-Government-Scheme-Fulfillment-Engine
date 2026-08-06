@@ -323,3 +323,34 @@ class EmbeddingGenerationFailedError(AppException):
 class VectorDatabaseError(AppException):
     def __init__(self, reason: str = "Vector database operation failed"):
         super().__init__(reason, 500, "VECTOR_DATABASE_ERROR")
+
+
+# ─── Module 4: Eligibility & Recommendation Exceptions ───────────────────────
+
+
+class EligibilityEngineError(AppException):
+    def __init__(self, reason: str = "Eligibility engine error"):
+        super().__init__(reason, 500, "ELIGIBILITY_ENGINE_ERROR")
+
+
+class RecommendationGenerationError(AppException):
+    def __init__(self, reason: str = "Recommendation generation failed"):
+        super().__init__(reason, 500, "RECOMMENDATION_GENERATION_ERROR")
+
+
+class RuleEvaluationError(AppException):
+    def __init__(self, reason: str = "Rule evaluation failed"):
+        super().__init__(reason, 500, "RULE_EVALUATION_ERROR")
+
+
+class KnowledgeBaseUnavailable(AppException):
+    def __init__(self, reason: str = "Knowledge base is unavailable"):
+        super().__init__(reason, 503, "KNOWLEDGE_BASE_UNAVAILABLE")
+
+
+class RecommendationNotFound(NotFoundError):
+    def __init__(self, recommendation_id: str = ""):
+        super().__init__(message="Recommendation not found", resource="recommendation")
+        self.error_code = "RECOMMENDATION_NOT_FOUND"
+        if recommendation_id:
+            self.details["recommendation_id"] = recommendation_id

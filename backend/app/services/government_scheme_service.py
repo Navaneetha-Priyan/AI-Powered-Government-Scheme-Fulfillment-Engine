@@ -47,7 +47,12 @@ class GovernmentSchemeService:
         self.documents = SchemeDocumentRepository(db)
         self.processing_service = SchemeProcessingService()
         self.embedding_service = get_scheme_embedding_service()
-        self.vector_store = VectorStoreService(self.embedding_service)
+        self._vector_store: VectorStoreService | None = None
+
+    def _get_vector_store(self) -> VectorStoreService:
+        if self._vector_store is None:
+            self._vector_store = VectorStoreService(self.embedding_service)
+        return self._vector_store
 
     def create_scheme(self, data: dict):
         if self.schemes.get_by_name(data["scheme_name"]):
@@ -81,7 +86,7 @@ class GovernmentSchemeService:
     def delete_scheme(self, scheme_id: str):
         scheme = self.get_scheme(scheme_id)
         try:
-            self.vector_store.delete_scheme(scheme_id)
+            self._get_vector_store().delete_scheme(scheme_id)
         except VectorDatabaseError:
             logger.exception("Vector cleanup failed for scheme delete: %s", scheme_id)
             raise
@@ -141,7 +146,7 @@ class GovernmentSchemeService:
         old_chunks = self.documents.get_chunks(document.id)
         old_chunk_ids = [chunk.embedding_id for chunk in old_chunks]
         if old_chunk_ids:
-            self.vector_store.delete_document(old_chunk_ids)
+            self._get_vector_store().delete_document(old_chunk_ids)
         self.documents.clear_chunks(document.id)
 
         self.documents.set_processing_status(document, ProcessingStatus.PROCESSING, None)
@@ -165,7 +170,7 @@ class GovernmentSchemeService:
             ]
 
             created_chunks = self.documents.add_chunks(chunk_payloads)
-            self.vector_store.upsert_chunks(created_chunks, scheme, document, embeddings)
+            self._get_vector_store().upsert_chunks(created_chunks, scheme, document, embeddings)
             self.documents.set_processing_status(document, ProcessingStatus.COMPLETED, None)
             logger.info(
                 "Completed document processing",
@@ -190,7 +195,7 @@ class GovernmentSchemeService:
 
     def semantic_search(self, query: str, limit: int = 5, category: str | None = None):
         try:
-            return self.vector_store.search(query=query, limit=limit, category=category)
+            return self._get_vector_store().search(query=query, limit=limit, category=category)
         except VectorDatabaseError:
             logger.exception("Semantic search failed")
             raise

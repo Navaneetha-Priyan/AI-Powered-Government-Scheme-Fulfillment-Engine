@@ -95,6 +95,14 @@ Complete documentation for the Citizen Registration & Authentication API (Module
 - Deployment options
 - Future extensibility
 
+### Module 3 and Module 4 Documentation
+- [MODULE_3_ARCHITECTURE.md](MODULE_3_ARCHITECTURE.md) - scheme knowledge base and semantic retrieval
+- [MODULE_3_DATABASE_SCHEMA.md](MODULE_3_DATABASE_SCHEMA.md) - Module 3 tables and indexing
+- [MODULE_3_INSTALLATION_AND_TESTING.md](MODULE_3_INSTALLATION_AND_TESTING.md) - Module 3 setup and validation
+- [MODULE_4_ARCHITECTURE.md](MODULE_4_ARCHITECTURE.md) - eligibility engine and recommendation APIs
+- [MODULE_4_DATABASE_SCHEMA.md](MODULE_4_DATABASE_SCHEMA.md) - recommendation tables, rules, history, and feedback
+- [MODULE_4_INSTALLATION_AND_TESTING.md](MODULE_4_INSTALLATION_AND_TESTING.md) - Module 4 setup and validation
+
 ## How to Use This Documentation
 
 ### For Developers
@@ -162,6 +170,8 @@ Documentation/
 ├── DATABASE_SCHEMA.md                 ← Data model
 ├── ENVIRONMENT_VARIABLES.md           ← Configuration
 ├── ARCHITECTURE.md                    ← System design
+├── MODULE_3_*.md                      ← Scheme knowledge base docs
+├── MODULE_4_*.md                      ← Eligibility and recommendations docs
 └── README.md (this file)             ← Navigation guide
 ```
 

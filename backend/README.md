@@ -521,7 +521,7 @@ All authentication events logged:
 - Profile updates
 - Registration events
 
-## Future Modules
+## Completed Modules
 
 ### Module 2: Mock DigiLocker Integration
 - Automatic profile retrieval using Aadhaar/Ration Card
@@ -537,6 +537,11 @@ All authentication events logged:
 - Rule-based eligibility checking
 - Personalized scheme recommendations
 - Benefit calculation
+
+### Module 4 Docs
+- API endpoints: `docs/MODULE_4_ARCHITECTURE.md`
+- Database tables: `docs/MODULE_4_DATABASE_SCHEMA.md`
+- Installation and tests: `docs/MODULE_4_INSTALLATION_AND_TESTING.md`
 
 ### Module 5: Flutter Mobile App
 - Mobile app integration
