@@ -336,6 +336,35 @@ ORDER BY count DESC;
 - ENUM for fixed-value fields
 - DATETIME for all timestamps (UTC)
 
+## Module 4 Schema
+
+The eligibility and recommendation engine adds the following tables:
+
+### eligibility_rules
+- Stores configurable eligibility conditions and scope metadata
+- Supports global, category, and state-scoped rules
+- Indexed by rule code, scope, priority, and active status
+
+### recommendation_history
+- Stores each recommendation generation or refresh request
+- Tracks query text, candidate counts, eligibility counts, and execution timing
+- Linked to the requesting citizen and the generated matches
+
+### eligibility_logs
+- Stores per-rule evaluation outcomes
+- Captures expected values, actual values, pass/fail state, and severity
+- Useful for audit trails and explanation generation
+
+### recommendation_feedback
+- Stores citizen feedback on recommended schemes
+- Captures rating, usefulness, and free-text comments
+- Linked to the originating history record and scheme
+
+### citizen_scheme_matches
+- Stores the ranked recommendation results presented to the citizen
+- Persists eligibility, similarity, confidence, and ranking scores
+- Captures the explanation payload used by the API response
+
 ## Future Extensibility
 
 The schema is designed to support:
@@ -346,9 +375,9 @@ The schema is designed to support:
 - Fields for document storage references
 
 ### Module 4: Eligibility
-- Could add citizenship status
-- Land ownership flags
-- Income category
+- Additional rule scopes and citizen attributes
+- Scheme-specific scoring factors
+- Richer feedback and analytics fields
 
 ### Module 6: Voice Processing
 - `preferred_voice_language`: Language for voice

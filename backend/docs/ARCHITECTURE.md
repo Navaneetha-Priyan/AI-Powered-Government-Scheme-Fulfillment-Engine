@@ -549,9 +549,9 @@ Test API endpoints with real database:
 └─────────────────┘
 ```
 
-## Future Extensibility
+## Module Extensibility
 
-The architecture supports easy addition of new modules:
+The architecture supports the following implemented and future modules:
 
 ### Module 2: DigiLocker
 - Add fields to Citizen model
@@ -559,18 +559,23 @@ The architecture supports easy addition of new modules:
 - Add DigiLockerService
 - Add new routes in api/
 
-### Module 4: Eligibility
-- Add EligibilityRepository
-- Add EligibilityService
-- Add eligibility rules engine
-- Use existing citizen data
+### Module 3: Government Scheme Knowledge Base
+- Add scheme master, document, and chunk repositories
+- Add PDF processing and semantic search services
+- Feed vector results into Module 4 recommendation flows
+
+### Module 4: Eligibility and Recommendations
+- Add eligibility rules, recommendation history, logs, feedback, and match tables
+- Add eligibility engine, ranking, explanation, and persistence services
+- Reuse existing citizen profile, DigiLocker, and scheme data
+- Expose authenticated recommendation and eligibility APIs under `/api/recommendations` and `/api/eligibility`
 
 ### Module 6: Voice Processing
 - Add VoiceRepository
 - Add VoiceService
 - Use existing authentication
 
-All modules follow the same layered architecture.
+All modules follow the same layered architecture and reuse the shared FastAPI, SQLAlchemy, and Pydantic patterns.
 
 ## Code Organization Best Practices
 

@@ -80,6 +80,16 @@ class Settings(BaseSettings):
     CHROMA_COLLECTION_NAME: str = "government_scheme_chunks"
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
 
+    # Recommendation Engine Configuration
+    RECOMMENDATION_TOP_K: int = 5
+    RECOMMENDATION_CANDIDATE_LIMIT: int = 20
+    RECOMMENDATION_MIN_ELIGIBILITY_SCORE: float = 0.55
+    RECOMMENDATION_ELIGIBILITY_WEIGHT: float = 0.45
+    RECOMMENDATION_SIMILARITY_WEIGHT: float = 0.25
+    RECOMMENDATION_BENEFIT_WEIGHT: float = 0.15
+    RECOMMENDATION_PROFILE_WEIGHT: float = 0.10
+    RECOMMENDATION_DOCUMENT_WEIGHT: float = 0.05
+
     # API Documentation
     DOCS_URL: str = "/docs"
     REDOC_URL: str = "/redoc"

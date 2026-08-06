@@ -19,7 +19,9 @@ from app.api.health_routes import router as health_router
 from app.api.citizen_routes import router as citizen_router
 from app.api.digilocker_routes import router as digilocker_router
 from app.api.scheme_routes import router as scheme_router
+from app.api.recommendation_routes import router as recommendation_router
 from app.models.government_scheme import GovernmentScheme, SchemeDocument, SchemeChunk
+from app.models.recommendation import EligibilityRule, RecommendationHistory, EligibilityLog, RecommendationFeedback, CitizenSchemeMatch
 from app.middleware.handlers import register_exception_handlers, register_middleware
 from app import __version__
 
@@ -83,6 +85,7 @@ def client(test_db: Session) -> TestClient:
     app.include_router(citizen_router)
     app.include_router(digilocker_router)
     app.include_router(scheme_router)
+    app.include_router(recommendation_router)
 
     app.dependency_overrides[get_db] = lambda: test_db
 
