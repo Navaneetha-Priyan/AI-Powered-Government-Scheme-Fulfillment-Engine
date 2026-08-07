@@ -2,11 +2,13 @@ import 'package:flutter/foundation.dart';
 
 import '../models/citizen_models.dart';
 import '../repositories/citizen_repository.dart';
+import 'eligibility_provider.dart';
 
 class CitizenProvider extends ChangeNotifier {
   CitizenProvider(this._repository);
 
   final CitizenRepository _repository;
+  EligibilityProvider? _eligibilityProvider;
 
   ExtendedProfile? _extendedProfile;
   IncomeDetails? _income;
@@ -25,6 +27,10 @@ class CitizenProvider extends ChangeNotifier {
   Map<String, dynamic>? get profileDetails => _profileDetails;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+
+  void attachEligibilityProvider(EligibilityProvider eligibilityProvider) {
+    _eligibilityProvider = eligibilityProvider;
+  }
 
   Future<void> loadProfileDetails() async {
     await _load(() async {
@@ -50,12 +56,19 @@ class CitizenProvider extends ChangeNotifier {
   }
 
   Future<void> loadDocuments() async {
-    await _load(() async => _documents = await _repository.getDocuments());
+    await _load(() async {
+      final previousSignature = _documentSignature(_documents);
+      _documents = await _repository.getDocuments();
+      if (_documentSignature(_documents) != previousSignature) {
+        _eligibilityProvider?.invalidateAll();
+      }
+    });
   }
 
   Future<void> updateExtendedProfile(Map<String, dynamic> payload) async {
     await _load(() async {
       _extendedProfile = await _repository.updateExtendedProfile(payload);
+      _eligibilityProvider?.invalidateAll();
     });
   }
 
@@ -75,5 +88,13 @@ class CitizenProvider extends ChangeNotifier {
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
+  }
+
+  String _documentSignature(DocumentSummary? summary) {
+    if (summary == null) {
+      return '';
+    }
+    final ids = summary.documents.map((document) => '${document.id}:${document.verificationStatus}').toList()..sort();
+    return ids.join('|');
   }
 }

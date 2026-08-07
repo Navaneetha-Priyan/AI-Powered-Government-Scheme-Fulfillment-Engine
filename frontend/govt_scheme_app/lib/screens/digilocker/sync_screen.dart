@@ -18,6 +18,10 @@ class _SyncScreenState extends State<SyncScreen> {
 
   Future<void> _sync() async {
     final provider = context.read<DigiLockerProvider>();
+    if (provider.isSyncing) {
+      return;
+    }
+
     try {
       final result = await provider.sync(forceRefresh: _forceRefresh);
       if (!mounted) {
@@ -27,21 +31,15 @@ class _SyncScreenState extends State<SyncScreen> {
       if (!mounted) {
         return;
       }
-      await showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Records Updated'),
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           content: Text(
-            'Your latest information has been checked.\n\nDocuments found: ${result.documentsSynced}\nProfile updated: ${result.profileUpdated ? 'Yes' : 'No'}',
+            'Sync completed. ${result.documentsSynced} documents checked and ${result.profileUpdated ? 'profile updated' : 'profile left unchanged'}.',
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
         ),
       );
+      Navigator.of(context).pop();
     } catch (error) {
       if (!mounted) {
         return;
@@ -92,11 +90,16 @@ class _SyncScreenState extends State<SyncScreen> {
                             secondary: const Icon(Icons.refresh_rounded),
                           ),
                           const SizedBox(height: 20),
+                          if (provider.isSyncing) ...[
+                            const SizedBox(height: 12),
+                            const LinearProgressIndicator(minHeight: 8),
+                          ],
+                          const SizedBox(height: 20),
                           PrimaryButton(
                             label: AppStrings.updateRecords,
                             icon: Icons.cloud_download_outlined,
                             isLoading: provider.isSyncing,
-                            onPressed: _sync,
+                            onPressed: provider.isSyncing ? null : _sync,
                           ),
                         ],
                       ),

@@ -5,12 +5,14 @@ import '../models/auth_models.dart';
 import '../models/user_profile.dart';
 import '../repositories/profile_repository.dart';
 import 'auth_provider.dart';
+import 'eligibility_provider.dart';
 
 class ProfileProvider extends ChangeNotifier {
   ProfileProvider(this._profileRepository);
 
   final ProfileRepository _profileRepository;
   late AuthProvider _authProvider;
+  EligibilityProvider? _eligibilityProvider;
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -23,6 +25,10 @@ class ProfileProvider extends ChangeNotifier {
   void attachAuthProvider(AuthProvider authProvider) {
     _authProvider = authProvider;
     _profile ??= authProvider.currentUser;
+  }
+
+  void attachEligibilityProvider(EligibilityProvider eligibilityProvider) {
+    _eligibilityProvider = eligibilityProvider;
   }
 
   Future<void> loadProfile() async {
@@ -44,6 +50,7 @@ class ProfileProvider extends ChangeNotifier {
     try {
       _profile = await _profileRepository.updateProfile(payload);
       _authProvider.updateCurrentUser(_profile!);
+      _eligibilityProvider?.invalidateAll();
       _errorMessage = null;
     } catch (error) {
       _errorMessage = error is ApiException ? error.message : error.toString();

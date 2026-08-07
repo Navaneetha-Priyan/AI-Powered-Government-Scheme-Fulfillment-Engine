@@ -35,7 +35,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _refresh() async {
-    await context.read<DashboardProvider>().refresh();
+    if (!mounted) {
+      return;
+    }
+
+    final provider = context.read<DashboardProvider>();
+    if (provider.isLoading) {
+      return;
+    }
+
+    await provider.refresh();
   }
 
   @override
@@ -168,6 +177,20 @@ class _DashboardContent extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               ProfileCard(
+                title: 'Discover Schemes',
+                subtitle: 'Browse available government schemes',
+                icon: Icons.search_rounded,
+                onTap: () => Navigator.of(context).pushNamed(AppRoutes.schemes),
+              ),
+              const SizedBox(height: 12),
+              ProfileCard(
+                title: 'Recommended Schemes',
+                subtitle: 'AI-powered matches for your profile',
+                icon: Icons.auto_awesome_rounded,
+                onTap: () => Navigator.of(context).pushNamed(AppRoutes.recommendations),
+              ),
+              const SizedBox(height: 12),
+              ProfileCard(
                 title: AppStrings.updateRecords,
                 subtitle: dashboard.digilockerSynced
                     ? 'Last updated: ${AppFormatters.displayDate(dashboard.lastSyncedAt)}'
@@ -177,10 +200,14 @@ class _DashboardContent extends StatelessWidget {
                   await Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const SyncScreen()),
                   );
-                  if (context.mounted) {
-                    await context.read<DashboardProvider>().refresh();
-                    await context.read<DigiLockerProvider>().loadStatus();
+                  if (!context.mounted) {
+                    return;
                   }
+
+                  final dashboardProvider = context.read<DashboardProvider>();
+                  final digilockerProvider = context.read<DigiLockerProvider>();
+                  await dashboardProvider.refresh();
+                  await digilockerProvider.loadStatus();
                 },
               ),
             ],

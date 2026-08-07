@@ -49,6 +49,20 @@ class ApiConstants {
   static const String digilockerSync = '/digilocker/sync';
   static const String digilockerStatus = '/digilocker/status';
   static const String digilockerDocuments = '/digilocker/documents';
+  static const String schemes = '/api/schemes';
+  static const String schemeSearch = '/api/search/schemes';
+  static const String eligibilityCheck = '/api/eligibility/check';
+  static const String eligibilityPreview = '/api/eligibility/preview';
+  static const String eligibilityRules = '/api/eligibility/rules';
+
+  static const String recommendations = '/api/recommendations';
+  static const String recommendationGenerate = '/api/recommendations/generate';
+  static const String recommendationRefresh = '/api/recommendations/refresh';
+  static const String recommendationHistory = '/api/recommendations/history';
+
+  static String recommendationDetail(String recommendationId) {
+    return '/api/recommendations/$recommendationId';
+  }
 
   static String digilockerDocument(String documentId) {
     return '/digilocker/documents/$documentId';
