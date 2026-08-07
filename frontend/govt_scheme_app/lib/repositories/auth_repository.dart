@@ -27,6 +27,14 @@ class AuthRepository {
     return AuthTokens.fromJson(_extractData(response));
   }
 
+  Future<Map<String, dynamic>> verifyToken(String token) async {
+    final response = await _apiService.post(
+      ApiConstants.verifyToken,
+      data: {'token': token},
+    );
+    return _extractData(response);
+  }
+
   Future<void> logout() async {
     await _apiService.post(ApiConstants.logout, data: {});
   }

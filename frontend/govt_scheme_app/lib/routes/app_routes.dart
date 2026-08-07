@@ -16,6 +16,8 @@ import '../screens/profile/edit_profile_screen.dart';
 import '../screens/profile/income_screen.dart';
 import '../screens/profile/land_records_screen.dart';
 import '../screens/profile/profile_screen.dart';
+import '../screens/recommendations/recommendations_screen.dart';
+import '../screens/schemes/schemes_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/splash/splash_screen.dart';
 
@@ -36,6 +38,8 @@ class AppRoutes {
   static const String documents = '/documents';
   static const String digilockerStatus = '/digilocker/status';
   static const String digilockerSync = '/digilocker/sync';
+  static const String schemes = '/schemes';
+  static const String recommendations = '/recommendations';
   static const String settings = '/settings';
 
   static Route<dynamic> generateRoute(RouteSettings routeSettings) {
@@ -74,6 +78,10 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: DigiLockerStatusScreen()), settings: routeSettings);
       case digilockerSync:
         return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: SyncScreen()), settings: routeSettings);
+      case schemes:
+        return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: SchemesScreen()), settings: routeSettings);
+      case recommendations:
+        return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: RecommendationsScreen()), settings: routeSettings);
       case AppRoutes.settings:
         return MaterialPageRoute(builder: (_) => const _ProtectedRoute(child: SettingsScreen()), settings: routeSettings);
       default:

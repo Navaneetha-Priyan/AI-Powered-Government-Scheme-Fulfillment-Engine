@@ -15,6 +15,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   bool _bootstrapping = true;
+  bool _bootstrapInProgress = false;
 
   @override
   void initState() {
@@ -23,39 +24,77 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _bootstrap() async {
+    if (_bootstrapInProgress) {
+      return;
+    }
+
+    _bootstrapInProgress = true;
     final appProvider = context.read<AppProvider>();
     final authProvider = context.read<AuthProvider>();
 
-    await appProvider.initialize();
-    if (!mounted) {
-      return;
-    }
+    try {
+      await appProvider.initialize();
+      if (!mounted) {
+        return;
+      }
 
-    if (!appProvider.backendReachable) {
-      setState(() {
-        _bootstrapping = false;
-      });
-      return;
-    }
+      if (!appProvider.backendReachable) {
+        if (mounted) {
+          setState(() {
+            _bootstrapping = false;
+          });
+        }
+        return;
+      }
 
-    await authProvider.bootstrap();
-    if (!mounted) {
-      return;
-    }
+      await authProvider.bootstrap();
+      if (!mounted) {
+        return;
+      }
 
-    final target = authProvider.isAuthenticated ? AppRoutes.home : AppRoutes.login;
-    Navigator.of(context).pushReplacementNamed(target);
+      if (authProvider.isAuthenticated) {
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+        }
+        return;
+      }
+
+      if (authProvider.errorMessage != null) {
+        if (mounted) {
+          setState(() {
+            _bootstrapping = false;
+          });
+        }
+        return;
+      }
+
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _bootstrapInProgress = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppProvider>(
-      builder: (context, appProvider, _) {
-        if (!_bootstrapping && appProvider.errorMessage != null) {
+    return Consumer2<AppProvider, AuthProvider>(
+      builder: (context, appProvider, authProvider, _) {
+        final errorMessage = appProvider.errorMessage ?? authProvider.errorMessage;
+
+        if (!_bootstrapping && errorMessage != null) {
           return Scaffold(
             body: AppErrorView(
-              message: appProvider.errorMessage!,
+              message: errorMessage,
               onRetry: () {
+                if (_bootstrapInProgress) {
+                  return;
+                }
+
                 setState(() {
                   _bootstrapping = true;
                 });
@@ -106,16 +145,18 @@ class _SplashScreenState extends State<SplashScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          appProvider.isLoading ? 'Connecting to backend...' : 'Preparing your secure session...',
+                          appProvider.isLoading || authProvider.isBusy
+                              ? 'Verifying your secure session...'
+                              : 'Preparing your secure session...',
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Colors.white.withValues(alpha: 0.88)),
                         ),
                         const SizedBox(height: 28),
                         const CircularProgressIndicator(color: Colors.white),
                         const SizedBox(height: 20),
-                        if (appProvider.errorMessage != null)
+                        if (errorMessage != null)
                           Text(
-                            appProvider.errorMessage!,
+                            errorMessage,
                             textAlign: TextAlign.center,
                             style: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
                           ),

@@ -6,7 +6,7 @@ import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_states.dart';
 import '../../core/widgets/cards.dart';
 import '../../models/citizen_models.dart';
-import '../../providers/citizen_provider.dart';
+import '../../providers/digilocker_provider.dart';
 import '../digilocker/sync_screen.dart';
 import 'document_detail_screen.dart';
 
@@ -25,12 +25,21 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Future<void> _load() async {
-    final provider = context.read<CitizenProvider>();
+    final provider = context.read<DigiLockerProvider>();
     if (provider.documents == null) {
       try {
         await provider.loadDocuments();
       } catch (_) {}
     }
+  }
+
+  Future<void> _refresh() async {
+    final provider = context.read<DigiLockerProvider>();
+    await provider.loadDocuments();
+    if (!mounted) {
+      return;
+    }
+    await provider.loadStatus();
   }
 
   IconData _iconFor(String type) {
@@ -49,7 +58,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CitizenProvider>(
+    return Consumer<DigiLockerProvider>(
       builder: (context, provider, _) {
         final summary = provider.documents;
         return Scaffold(
@@ -62,7 +71,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                       onRetry: () => provider.loadDocuments(),
                     )
                   : RefreshIndicator(
-                      onRefresh: provider.loadDocuments,
+                      onRefresh: _refresh,
                       child: summary.documents.isEmpty
                           ? EmptyStateView(
                               message: 'No documents found',
@@ -73,38 +82,71 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                 MaterialPageRoute(builder: (_) => const SyncScreen()),
                               ),
                             )
-                          : ListView.separated(
+                          : SingleChildScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
                               padding: const EdgeInsets.all(20),
-                              itemCount: summary.documents.length,
-                              separatorBuilder: (_, __) => const SizedBox(height: 12),
-                              itemBuilder: (context, index) {
-                                final doc = summary.documents[index];
-                                return DocumentCard(
-                                  name: doc.documentName,
-                                  type: AppFormatters.titleCase(doc.documentType),
-                                  status:
-                                      AppFormatters.titleCase(doc.verificationStatus),
-                                  issueDate: doc.issueDate == null
-                                      ? null
-                                      : AppFormatters.displayDate(doc.issueDate),
-                                  expiryDate: doc.expiryDate == null
-                                      ? null
-                                      : AppFormatters.displayDate(doc.expiryDate),
-                                  icon: _iconFor(doc.documentType),
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => DocumentDetailScreen(
-                                        documentId: doc.id,
-                                        initialDocument: doc,
-                                      ),
-                                    ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SectionHeader(
+                                    title: 'DigiLocker documents',
+                                    subtitle: '${summary.documents.length} document${summary.documents.length == 1 ? '' : 's'} found',
                                   ),
-                                );
-                              },
+                                  const SizedBox(height: 16),
+                                  ..._buildGroupedDocuments(context, summary.documents),
+                                ],
+                              ),
                             ),
                     ),
         );
       },
     );
+  }
+
+  List<Widget> _buildGroupedDocuments(BuildContext context, List<GovernmentDocument> documents) {
+    final grouped = <String, List<GovernmentDocument>>{};
+    for (final document in documents) {
+      final type = document.documentType.toString();
+      grouped.putIfAbsent(type, () => <GovernmentDocument>[]).add(document);
+    }
+
+    return grouped.entries.expand((entry) {
+      final docs = entry.value;
+      return [
+        SectionHeader(
+          title: AppFormatters.titleCase(entry.key),
+          subtitle: '${docs.length} item${docs.length == 1 ? '' : 's'}',
+        ),
+        const SizedBox(height: 12),
+        ...docs.map((doc) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: DocumentCard(
+              name: doc.documentName,
+              type: AppFormatters.titleCase(doc.documentType),
+              status: AppFormatters.titleCase(doc.verificationStatus),
+              issueDate: doc.issueDate == null
+                  ? null
+                  : AppFormatters.displayDate(doc.issueDate),
+              expiryDate: doc.expiryDate == null
+                  ? null
+                  : AppFormatters.displayDate(doc.expiryDate),
+              authority: doc.verifiedBy ?? 'Government records',
+              metadata: doc.metadata,
+              icon: _iconFor(doc.documentType),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => DocumentDetailScreen(
+                    documentId: doc.id,
+                    initialDocument: doc,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+        const SizedBox(height: 16),
+      ];
+    }).toList();
   }
 }

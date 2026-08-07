@@ -31,22 +31,52 @@ class AuthProvider extends ChangeNotifier {
   UserProfile? get currentUser => _currentUser;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
 
-  Future<void> bootstrap() async {
+  Future<bool> bootstrap() async {
     if (!_storageService.hasTokens) {
-      _status = AuthStatus.unauthenticated;
-      _currentUser = null;
-      notifyListeners();
-      return;
+      _clearLocalSession(notify: true);
+      return false;
     }
 
     _setBusy(true);
     try {
-      _currentUser = await _profileRepository.getProfile();
-      await _storageService.saveCachedProfile(_currentUser!);
+      final accessToken = _storageService.accessToken;
+      if (accessToken == null || accessToken.isEmpty) {
+        _clearLocalSession(notify: true);
+        return false;
+      }
+
+      final verification = await _authRepository.verifyToken(accessToken);
+      final isValid = verification['valid'] == true;
+      if (!isValid) {
+        _clearLocalSession(notify: true);
+        return false;
+      }
+
+      _currentUser = _storageService.getCachedProfile();
+      try {
+        _currentUser = await _profileRepository.getProfile();
+        await _storageService.saveCachedProfile(_currentUser!);
+      } on ApiException catch (error) {
+        if (_currentUser == null) {
+          _errorMessage = error.message;
+        }
+      } catch (error) {
+        if (_currentUser == null) {
+          _errorMessage = error.toString();
+        }
+      }
+
       _status = AuthStatus.authenticated;
       _errorMessage = null;
-    } catch (_) {
-      await logout(silent: true);
+      return true;
+    } on ApiException catch (error) {
+      _errorMessage = error.message;
+      _clearLocalSession(notify: true);
+      return false;
+    } catch (error) {
+      _errorMessage = error.toString();
+      _clearLocalSession(notify: true);
+      return false;
     } finally {
       _setBusy(false);
     }
@@ -111,13 +141,9 @@ class AuthProvider extends ChangeNotifier {
       // Logout should always clear the local session even if the backend call fails.
     } finally {
       await _storageService.clearSession();
-      _currentUser = null;
-      _status = AuthStatus.unauthenticated;
-      _errorMessage = null;
+      _clearLocalSession(notify: !silent);
       if (!silent) {
         _setBusy(false);
-      } else {
-        notifyListeners();
       }
     }
   }
@@ -132,6 +158,15 @@ class AuthProvider extends ChangeNotifier {
   void clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  void _clearLocalSession({required bool notify}) {
+    _currentUser = null;
+    _status = AuthStatus.unauthenticated;
+    _errorMessage = null;
+    if (notify) {
+      notifyListeners();
+    }
   }
 
   void _setBusy(bool value) {

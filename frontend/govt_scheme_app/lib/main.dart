@@ -10,14 +10,20 @@ import 'providers/auth_provider.dart';
 import 'providers/citizen_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/digilocker_provider.dart';
+import 'providers/eligibility_provider.dart';
 import 'providers/india_location_provider.dart';
 import 'providers/profile_provider.dart';
+import 'providers/recommendation_provider.dart';
+import 'providers/scheme_provider.dart';
 import 'repositories/auth_repository.dart';
 import 'repositories/citizen_repository.dart';
 import 'repositories/dashboard_repository.dart';
 import 'repositories/digilocker_repository.dart';
+import 'repositories/eligibility_repository.dart';
 import 'repositories/india_location_repository.dart';
 import 'repositories/profile_repository.dart';
+import 'repositories/recommendation_repository.dart';
+import 'repositories/scheme_repository.dart';
 import 'routes/app_routes.dart';
 
 Future<void> main() async {
@@ -31,6 +37,9 @@ Future<void> main() async {
   final citizenRepository = CitizenRepository(apiService);
   final dashboardRepository = DashboardRepository(apiService);
   final digiLockerRepository = DigiLockerRepository(apiService);
+  final schemeRepository = SchemeRepository(apiService);
+  final eligibilityRepository = EligibilityRepository(apiService);
+  final recommendationRepository = RecommendationRepository(apiService);
 
   runApp(
     MultiProvider(
@@ -43,21 +52,41 @@ Future<void> main() async {
         Provider.value(value: citizenRepository),
         Provider.value(value: dashboardRepository),
         Provider.value(value: digiLockerRepository),
+        Provider.value(value: schemeRepository),
+        Provider.value(value: eligibilityRepository),
+        Provider.value(value: recommendationRepository),
         ChangeNotifierProvider(create: (_) => AppProvider(authRepository)),
         ChangeNotifierProvider(create: (_) => DashboardProvider(dashboardRepository)),
-        ChangeNotifierProvider(create: (_) => CitizenProvider(citizenRepository)),
-        ChangeNotifierProvider(create: (_) => DigiLockerProvider(digiLockerRepository)),
+        ChangeNotifierProvider(create: (_) => EligibilityProvider(eligibilityRepository)),
+        ChangeNotifierProxyProvider<EligibilityProvider, RecommendationProvider>(
+          create: (_) => RecommendationProvider(recommendationRepository),
+          update: (_, eligibilityProvider, recommendationProvider) {
+            final provider = recommendationProvider ?? RecommendationProvider(recommendationRepository);
+            eligibilityProvider.onInvalidateAll = provider.invalidateAll;
+            return provider;
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CitizenProvider(citizenRepository)
+            ..attachEligibilityProvider(context.read<EligibilityProvider>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => DigiLockerProvider(digiLockerRepository)
+            ..attachEligibilityProvider(context.read<EligibilityProvider>()),
+        ),
+        ChangeNotifierProvider(create: (_) => SchemeProvider(schemeRepository)),
         ChangeNotifierProvider(
           create: (_) => IndiaLocationProvider(indiaLocationRepository),
         ),
         ChangeNotifierProvider(
           create: (_) => AuthProvider(authRepository, profileRepository, storageService),
         ),
-        ChangeNotifierProxyProvider<AuthProvider, ProfileProvider>(
+        ChangeNotifierProxyProvider2<AuthProvider, EligibilityProvider, ProfileProvider>(
           create: (_) => ProfileProvider(profileRepository),
-          update: (_, authProvider, profileProvider) {
+          update: (_, authProvider, eligibilityProvider, profileProvider) {
             final provider = profileProvider ?? ProfileProvider(profileRepository);
             provider.attachAuthProvider(authProvider);
+            provider.attachEligibilityProvider(eligibilityProvider);
             return provider;
           },
         ),

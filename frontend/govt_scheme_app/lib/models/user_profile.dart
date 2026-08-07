@@ -93,6 +93,55 @@ class UserProfile {
     );
   }
 
+  factory UserProfile.fromCitizenProfileDetails({
+    required UserProfile baseProfile,
+    required Map<String, dynamic> citizenProfileDetails,
+  }) {
+    final source = Map<String, dynamic>.from(citizenProfileDetails);
+    final preferredName = source['full_name']?.toString();
+    final preferredPhone = source['phone']?.toString();
+    final preferredGender = source['gender']?.toString();
+    final preferredDateOfBirth = _parseDate(source['date_of_birth']);
+    final preferredAddressLine1 = source['address_line1']?.toString();
+    final preferredAddressLine2 = source['address_line2']?.toString();
+    final preferredVillage = source['village']?.toString();
+    final preferredTaluk = source['taluk']?.toString();
+    final preferredDistrict = source['district']?.toString();
+    final preferredState = source['state']?.toString();
+    final preferredPincode = source['pincode']?.toString();
+    final preferredPhotoUrl = source['profile_photo_url']?.toString();
+    final preferredEmail = source['email']?.toString();
+    final preferredAadhaar = source['aadhaar_number']?.toString();
+    final preferredRationCard = source['smart_ration_card']?.toString();
+
+    return UserProfile(
+      id: baseProfile.id,
+      email: preferredEmail ?? baseProfile.email,
+      phone: preferredPhone ?? baseProfile.phone,
+      fullName: preferredName ?? baseProfile.fullName,
+      district: preferredDistrict ?? baseProfile.district,
+      state: preferredState ?? baseProfile.state,
+      emailVerified: baseProfile.emailVerified,
+      phoneVerified: baseProfile.phoneVerified,
+      accountActive: baseProfile.accountActive,
+      status: baseProfile.status,
+      preferredLanguage: baseProfile.preferredLanguage,
+      createdAt: baseProfile.createdAt,
+      updatedAt: baseProfile.updatedAt,
+      aadhaarNumber: preferredAadhaar ?? baseProfile.aadhaarNumber,
+      smartRationCard: preferredRationCard ?? baseProfile.smartRationCard,
+      gender: preferredGender ?? baseProfile.gender,
+      dateOfBirth: preferredDateOfBirth ?? baseProfile.dateOfBirth,
+      addressLine1: preferredAddressLine1 ?? baseProfile.addressLine1,
+      addressLine2: preferredAddressLine2 ?? baseProfile.addressLine2,
+      village: preferredVillage ?? baseProfile.village,
+      taluk: preferredTaluk ?? baseProfile.taluk,
+      pincode: preferredPincode ?? baseProfile.pincode,
+      profilePhotoUrl: preferredPhotoUrl ?? baseProfile.profilePhotoUrl,
+      lastLogin: baseProfile.lastLogin,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

@@ -207,6 +207,8 @@ class DocumentCard extends StatelessWidget {
     required this.icon,
     this.issueDate,
     this.expiryDate,
+    this.metadata,
+    this.authority,
     this.onTap,
   });
 
@@ -216,6 +218,8 @@ class DocumentCard extends StatelessWidget {
   final IconData icon;
   final String? issueDate;
   final String? expiryDate;
+  final String? metadata;
+  final String? authority;
   final VoidCallback? onTap;
 
   @override
@@ -250,6 +254,17 @@ class DocumentCard extends StatelessWidget {
                           if (expiryDate != null) Text('Valid till: $expiryDate'),
                         ],
                       ),
+                      if ((authority ?? '').isNotEmpty || (metadata ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          [if ((authority ?? '').isNotEmpty) authority, if ((metadata ?? '').isNotEmpty) metadata]
+                              .where((value) => value != null && value.isNotEmpty)
+                              .join(' • '),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
                     ],
                   ),
                 ),

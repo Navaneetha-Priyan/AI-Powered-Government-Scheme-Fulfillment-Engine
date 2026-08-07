@@ -6,6 +6,7 @@ import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_buttons.dart';
 import '../../core/widgets/app_states.dart';
 import '../../core/widgets/cards.dart';
+import '../../models/user_profile.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/citizen_provider.dart';
 import '../../providers/profile_provider.dart';
@@ -27,19 +28,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final profileProvider = context.read<ProfileProvider>();
       final citizenProvider = context.read<CitizenProvider>();
+      final futures = <Future<void>>[];
+
       if (profileProvider.profile == null) {
-        try {
-          await profileProvider.loadProfile();
-        } catch (_) {
-          // handled by provider state
-        }
+        futures.add(
+          Future<void>(() async {
+            try {
+              await profileProvider.loadProfile();
+            } catch (_) {
+              // handled by provider state
+            }
+          }),
+        );
       }
+
       if (citizenProvider.profileDetails == null) {
-        try {
-          await citizenProvider.loadProfileDetails();
-        } catch (_) {
-          // handled by provider state
-        }
+        futures.add(
+          Future<void>(() async {
+            try {
+              await citizenProvider.loadProfileDetails();
+            } catch (_) {
+              // handled by provider state
+            }
+          }),
+        );
+      }
+
+      if (futures.isNotEmpty) {
+        await Future.wait(futures);
       }
     });
   }
@@ -48,16 +64,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Consumer3<AuthProvider, ProfileProvider, CitizenProvider>(
       builder: (context, authProvider, profileProvider, citizenProvider, _) {
-        final profile = profileProvider.profile ?? authProvider.currentUser;
+        final baseProfile = profileProvider.profile ?? authProvider.currentUser;
+        final mergedProfile = baseProfile != null && citizenProvider.profileDetails != null
+            ? UserProfile.fromCitizenProfileDetails(
+                baseProfile: baseProfile,
+                citizenProfileDetails: Map<String, dynamic>.from(
+                  citizenProvider.profileDetails!,
+                ),
+              )
+            : baseProfile;
+        final profile = mergedProfile;
         final extendedProfile = citizenProvider.extendedProfile;
+        final isProfileLoading = (profileProvider.isLoading && baseProfile == null) ||
+            (citizenProvider.isLoading && citizenProvider.profileDetails == null);
 
         return Scaffold(
           appBar: AppBar(
             title: const Text(AppStrings.myProfile),
             automaticallyImplyLeading: widget.showBackButton,
           ),
-          body: profileProvider.isLoading && profile == null
-              ? const AppLoadingView(message: 'Loading your profile...')
+          body: isProfileLoading
+              ? AppLoadingView(
+                  message: baseProfile == null
+                      ? 'Loading your profile...'
+                      : 'Loading your profile details...',
+                )
               : profile == null
                   ? AppErrorView(
                       message: profileProvider.errorMessage ?? AppStrings.somethingWrong,
@@ -200,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 class _ProfileInfoSection extends StatelessWidget {
   const _ProfileInfoSection({required this.profile});
 
-  final dynamic profile;
+  final UserProfile profile;
 
   @override
   Widget build(BuildContext context) {

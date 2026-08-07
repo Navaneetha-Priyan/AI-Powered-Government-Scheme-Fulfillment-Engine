@@ -77,6 +77,11 @@ class _DigiLockerStatusScreenState extends State<DigiLockerStatusScreen> {
                                   Text(
                                     'Last update: ${AppFormatters.displayDateTime(status.lastSyncAt)}',
                                   ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Connection state: ${status.isActive ? 'Connected' : 'Not connected'}',
+                                    style: Theme.of(context).textTheme.bodyLarge,
+                                  ),
                                   const SizedBox(height: 18),
                                   PrimaryButton(
                                     label: AppStrings.updateRecords,
@@ -117,9 +122,9 @@ class _DigiLockerStatusScreenState extends State<DigiLockerStatusScreen> {
                           ),
                           const SizedBox(height: 12),
                           InfoCard(
-                            label: 'Profile Updated',
-                            value: status.isActive ? 'Yes' : 'No',
-                            icon: Icons.person_pin_circle_outlined,
+                            label: 'Connection State',
+                            value: status.isActive ? 'Connected' : 'Not connected',
+                            icon: Icons.link_rounded,
                           ),
                         ],
                       ),

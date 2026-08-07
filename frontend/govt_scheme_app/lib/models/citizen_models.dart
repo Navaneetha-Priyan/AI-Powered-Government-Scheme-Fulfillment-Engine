@@ -200,6 +200,7 @@ class GovernmentDocument {
     this.verifiedAt,
     this.downloadUrl,
     this.metadata,
+    this.createdAt,
   });
 
   final String id;
@@ -213,6 +214,7 @@ class GovernmentDocument {
   final DateTime? verifiedAt;
   final String? downloadUrl;
   final String? metadata;
+  final DateTime? createdAt;
   final bool isActive;
 
   factory GovernmentDocument.fromJson(Map<String, dynamic> json) {
@@ -229,6 +231,7 @@ class GovernmentDocument {
       verifiedAt: parseApiDate(json['verified_at']),
       downloadUrl: optionalString(json['download_url']),
       metadata: optionalString(json['doc_metadata']),
+      createdAt: parseApiDate(json['created_at']),
       isActive: json['is_active'] != false,
     );
   }
