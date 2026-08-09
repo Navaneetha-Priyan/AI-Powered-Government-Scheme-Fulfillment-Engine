@@ -288,6 +288,49 @@ class InvalidCitizenProfileError(ValidationError):
         super().__init__(message=reason)
         self.error_code = "INVALID_CITIZEN_PROFILE"
 
+
+# ─── Step 2: Document Profile Extraction Exceptions ──────────────────────────
+
+class DocumentMetadataInvalidError(ValidationError):
+    """Raised when a document's doc_metadata cannot be parsed or lacks the
+    required ``document_type`` / ``data`` structure.
+
+    This is a controlled extraction error: the caller can choose to skip the
+    document gracefully rather than crash the whole pipeline.
+    """
+
+    def __init__(self, reason: str = "Document metadata is invalid", document_id: str = ""):
+        super().__init__(message=reason)
+        self.error_code = "DOCUMENT_METADATA_INVALID"
+        self.details["document_type"] = "government_document"
+        if document_id:
+            self.details["document_id"] = document_id
+
+
+class UnsupportedDocumentTypeError(ValidationError):
+    """Raised when the metadata declares a document type the extractor does not
+    currently support (or an unrecognized/unknown type)."""
+
+    def __init__(self, document_type: str = "", reason: str = ""):
+        message = reason or f"Unsupported document type: {document_type or 'unknown'}"
+        super().__init__(message=message)
+        self.error_code = "UNSUPPORTED_DOCUMENT_TYPE"
+        if document_type:
+            self.details["document_type"] = document_type
+
+
+class DocumentExtractionError(AppException):
+    """Raised when a government document cannot be processed at all.
+
+    This is a generic, non-validation extraction failure (e.g. the object passed
+    to extract() is not a GovernmentDocument).
+    """
+
+    def __init__(self, reason: str = "Document extraction failed", document_id: str = ""):
+        super().__init__(reason, 500, "DOCUMENT_EXTRACTION_ERROR")
+        if document_id:
+            self.details["document_id"] = document_id
+
 class SchemeNotFoundError(NotFoundError):
     def __init__(self, scheme_id: str = ""):
         super().__init__("Government scheme not found", "government_scheme"); self.error_code="SCHEME_NOT_FOUND"; self.details["scheme_id"]=scheme_id
@@ -320,6 +363,59 @@ class EmbeddingGenerationFailedError(AppException):
         super().__init__(reason, 500, "EMBEDDING_GENERATION_FAILED")
 
 
+# ─── Real Document Processing (OCR / PDF Text Extraction) Exceptions ───────────
+
+class DocumentTextExtractionError(AppException):
+    """Raised when a PDF's text layer cannot be extracted (malformed PDF,
+    encrypted PDF, or an empty text layer that requires OCR)."""
+
+    def __init__(
+        self,
+        reason: str = "Could not extract text from the document",
+        filename: str = "",
+        document_id: str = "",
+    ):
+        super().__init__(reason, 500, "DOCUMENT_TEXT_EXTRACTION_ERROR")
+        if filename:
+            self.details["filename"] = filename
+        if document_id:
+            self.details["document_id"] = document_id
+
+
+class DocumentOcrError(AppException):
+    """Raised when OCR fails (Tesseract missing, invalid image, or the OCR
+    engine produced no usable text)."""
+
+    def __init__(
+        self,
+        reason: str = "Could not read the document with OCR",
+        filename: str = "",
+        document_id: str = "",
+    ):
+        super().__init__(reason, 500, "DOCUMENT_OCR_ERROR")
+        if filename:
+            self.details["filename"] = filename
+        if document_id:
+            self.details["document_id"] = document_id
+
+
+class DocumentProcessingError(AppException):
+    """Raised when the document processing orchestration fails in a way that
+    cannot be recovered (e.g. unsupported file type, no extraction method)."""
+
+    def __init__(
+        self,
+        reason: str = "Document processing failed",
+        document_type: str = "",
+        document_id: str = "",
+    ):
+        super().__init__(reason, 500, "DOCUMENT_PROCESSING_ERROR")
+        if document_type:
+            self.details["document_type"] = document_type
+        if document_id:
+            self.details["document_id"] = document_id
+
+
 class VectorDatabaseError(AppException):
     def __init__(self, reason: str = "Vector database operation failed"):
         super().__init__(reason, 500, "VECTOR_DATABASE_ERROR")
@@ -328,9 +424,40 @@ class VectorDatabaseError(AppException):
 # ─── Module 4: Eligibility & Recommendation Exceptions ───────────────────────
 
 
+# ─── Phase 4: Text Normalization Exceptions ────────────────────────────────
+
+
+class LLMUnavailableError(AppException):
+    """Raised when the LLM (Ollama) endpoint is unreachable or times out."""
+
+    def __init__(self, reason: str = "LLM service is unavailable"):
+        super().__init__(reason, 503, "LLM_UNAVAILABLE")
+
+
+class InvalidNormalizationResponseError(AppException):
+    """Raised when the LLM returns a malformed or invalid structured response."""
+
+    def __init__(self, reason: str = "LLM returned an invalid normalization response"):
+        super().__init__(reason, 500, "INVALID_NORMALIZATION_RESPONSE")
+
+
+class NormalizationError(AppException):
+    """Raised when text normalization fails unexpectedly."""
+
+    def __init__(self, reason: str = "Text normalization failed"):
+        super().__init__(reason, 500, "NORMALIZATION_ERROR")
+
+
 class EligibilityEngineError(AppException):
     def __init__(self, reason: str = "Eligibility engine error"):
         super().__init__(reason, 500, "ELIGIBILITY_ENGINE_ERROR")
+
+
+class UnsupportedIntentError(AppException):
+    """Raised when a voice intent is not supported by the recommendation flow."""
+
+    def __init__(self, reason: str = "This intent is not supported yet"):
+        super().__init__(reason, 400, "UNSUPPORTED_INTENT")
 
 
 class RecommendationGenerationError(AppException):

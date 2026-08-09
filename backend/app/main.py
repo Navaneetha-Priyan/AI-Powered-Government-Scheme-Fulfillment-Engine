@@ -1,4 +1,6 @@
 """FastAPI Application Entry Point"""
+import asyncio
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
@@ -13,6 +15,8 @@ from app.api.citizen_routes import router as citizen_router
 from app.api.digilocker_routes import router as digilocker_router
 from app.api.scheme_routes import router as scheme_router
 from app.api.recommendation_routes import router as recommendation_router
+from app.api.voice_routes import router as voice_router
+from app.services.speech_to_text_service import get_speech_to_text_service
 from app.middleware.handlers import register_exception_handlers, register_middleware
 from app import __version__
 
@@ -37,6 +41,17 @@ async def lifespan(app: FastAPI):
         logger.info("Database initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize database: {str(e)}")
+        raise
+
+    # Load the Faster-Whisper speech-to-text model once at startup.
+    # It is reused for every request and never reloaded per request.
+    speech_service = get_speech_to_text_service()
+    app.state.speech_service = speech_service
+    try:
+        await asyncio.to_thread(speech_service.load_model)
+        logger.info("Speech-to-text model loaded successfully at startup")
+    except Exception as e:
+        logger.error(f"Failed to load speech-to-text model: {str(e)}")
         raise
 
     yield
@@ -73,6 +88,7 @@ app.include_router(citizen_router)
 app.include_router(digilocker_router)
 app.include_router(scheme_router)
 app.include_router(recommendation_router)
+app.include_router(voice_router)
 
 
 @app.get("/", tags=["Root"])

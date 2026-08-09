@@ -7,9 +7,7 @@ import '../../core/widgets/app_states.dart';
 import '../../core/widgets/cards.dart';
 import '../../models/citizen_models.dart';
 import '../../providers/dashboard_provider.dart';
-import '../../providers/digilocker_provider.dart';
 import '../../routes/app_routes.dart';
-import '../digilocker/sync_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -191,24 +189,10 @@ class _DashboardContent extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               ProfileCard(
-                title: AppStrings.updateRecords,
-                subtitle: dashboard.digilockerSynced
-                    ? 'Last updated: ${AppFormatters.displayDate(dashboard.lastSyncedAt)}'
-                    : 'Get your latest government records',
-                icon: Icons.cloud_sync_outlined,
-                onTap: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const SyncScreen()),
-                  );
-                  if (!context.mounted) {
-                    return;
-                  }
-
-                  final dashboardProvider = context.read<DashboardProvider>();
-                  final digilockerProvider = context.read<DigiLockerProvider>();
-                  await dashboardProvider.refresh();
-                  await digilockerProvider.loadStatus();
-                },
+                title: 'Voice Assistant',
+                subtitle: 'Record a voice query',
+                icon: Icons.mic_rounded,
+                onTap: () => Navigator.of(context).pushNamed(AppRoutes.chat),
               ),
             ],
           ),

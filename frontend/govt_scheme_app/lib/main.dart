@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import 'core/network/api_service.dart';
 import 'core/services/storage_service.dart';
+import 'core/services/voice_api_service.dart';
+import 'core/services/voice_recorder_service.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/app_provider.dart';
 import 'providers/auth_provider.dart';
@@ -40,6 +42,7 @@ Future<void> main() async {
   final schemeRepository = SchemeRepository(apiService);
   final eligibilityRepository = EligibilityRepository(apiService);
   final recommendationRepository = RecommendationRepository(apiService);
+  final voiceApiService = VoiceApiService(apiService: apiService);
 
   runApp(
     MultiProvider(
@@ -55,13 +58,24 @@ Future<void> main() async {
         Provider.value(value: schemeRepository),
         Provider.value(value: eligibilityRepository),
         Provider.value(value: recommendationRepository),
+        Provider.value(value: voiceApiService),
+        ChangeNotifierProvider(create: (_) => VoiceRecorderService()),
         ChangeNotifierProvider(create: (_) => AppProvider(authRepository)),
-        ChangeNotifierProvider(create: (_) => DashboardProvider(dashboardRepository)),
-        ChangeNotifierProvider(create: (_) => EligibilityProvider(eligibilityRepository)),
-        ChangeNotifierProxyProvider<EligibilityProvider, RecommendationProvider>(
+        ChangeNotifierProvider(
+          create: (_) => DashboardProvider(dashboardRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => EligibilityProvider(eligibilityRepository),
+        ),
+        ChangeNotifierProxyProvider<
+          EligibilityProvider,
+          RecommendationProvider
+        >(
           create: (_) => RecommendationProvider(recommendationRepository),
           update: (_, eligibilityProvider, recommendationProvider) {
-            final provider = recommendationProvider ?? RecommendationProvider(recommendationRepository);
+            final provider =
+                recommendationProvider ??
+                RecommendationProvider(recommendationRepository);
             eligibilityProvider.onInvalidateAll = provider.invalidateAll;
             return provider;
           },
@@ -79,12 +93,18 @@ Future<void> main() async {
           create: (_) => IndiaLocationProvider(indiaLocationRepository),
         ),
         ChangeNotifierProvider(
-          create: (_) => AuthProvider(authRepository, profileRepository, storageService),
+          create: (_) =>
+              AuthProvider(authRepository, profileRepository, storageService),
         ),
-        ChangeNotifierProxyProvider2<AuthProvider, EligibilityProvider, ProfileProvider>(
+        ChangeNotifierProxyProvider2<
+          AuthProvider,
+          EligibilityProvider,
+          ProfileProvider
+        >(
           create: (_) => ProfileProvider(profileRepository),
           update: (_, authProvider, eligibilityProvider, profileProvider) {
-            final provider = profileProvider ?? ProfileProvider(profileRepository);
+            final provider =
+                profileProvider ?? ProfileProvider(profileRepository);
             provider.attachAuthProvider(authProvider);
             provider.attachEligibilityProvider(eligibilityProvider);
             return provider;
@@ -109,11 +129,7 @@ class GovtSchemeApp extends StatelessWidget {
           theme: AppTheme.light(),
           darkTheme: AppTheme.dark(),
           themeMode: appProvider.themeMode,
-          supportedLocales: const [
-            Locale('en'),
-            Locale('ta'),
-            Locale('hi'),
-          ],
+          supportedLocales: const [Locale('en'), Locale('ta'), Locale('hi')],
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -126,4 +142,3 @@ class GovtSchemeApp extends StatelessWidget {
     );
   }
 }
-

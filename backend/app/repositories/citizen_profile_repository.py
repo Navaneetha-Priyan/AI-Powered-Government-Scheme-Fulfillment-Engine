@@ -141,6 +141,31 @@ class LandRecordRepository:
             logger.error(f"Error fetching land record: {str(e)}")
             raise DatabaseError(f"Failed to fetch land record: {str(e)}")
 
+    def get_by_citizen_and_survey(
+        self, citizen_id: str, survey_number: str
+    ) -> Optional[LandRecord]:
+        """Find an existing land record for a citizen by survey number.
+
+        Used by :class:`ProfileEnrichmentService` to achieve idempotency: when
+        the same land document is processed more than once, the survey number
+        (the strongest available existing identifier) lets us update the
+        existing record instead of inserting a duplicate.
+        """
+        try:
+            return (
+                self.db.query(LandRecord)
+                .filter(
+                    and_(
+                        LandRecord.citizen_id == citizen_id,
+                        LandRecord.survey_number == survey_number,
+                    )
+                )
+                .first()
+            )
+        except Exception as e:
+            logger.error(f"Error fetching land record by survey: {str(e)}")
+            raise DatabaseError(f"Failed to fetch land record by survey: {str(e)}")
+
     def delete_by_citizen_id(self, citizen_id: str) -> int:
         """Delete all land records for a citizen (used during re-sync)"""
         try:

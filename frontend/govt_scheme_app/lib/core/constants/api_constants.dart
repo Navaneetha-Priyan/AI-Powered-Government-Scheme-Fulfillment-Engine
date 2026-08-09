@@ -12,7 +12,7 @@ class ApiConstants {
 
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
       return const [
-        'http://10.80.26.147:8000',
+        'http://10.124.204.147:8000',
         'http://10.0.2.2:8000',
         'http://127.0.0.1:8000',
         'http://localhost:8000',
@@ -44,7 +44,9 @@ class ApiConstants {
   static const String citizenIncome = '/citizen/income';
   static const String citizenCaste = '/citizen/caste';
   static const String citizenLandRecords = '/citizen/land-records';
+  static const String citizenLandRecordUpload = '/citizen/land-records/upload';
   static const String citizenDocuments = '/citizen/documents';
+  static const String citizenDocumentUpload = '/citizen/documents/upload';
 
   static const String digilockerSync = '/digilocker/sync';
   static const String digilockerStatus = '/digilocker/status';
@@ -59,6 +61,9 @@ class ApiConstants {
   static const String recommendationGenerate = '/api/recommendations/generate';
   static const String recommendationRefresh = '/api/recommendations/refresh';
   static const String recommendationHistory = '/api/recommendations/history';
+
+  static const String voiceTranscribe = '/voice/transcribe';
+  static const String voiceRecommend = '/voice/recommend';
 
   static String recommendationDetail(String recommendationId) {
     return '/api/recommendations/$recommendationId';

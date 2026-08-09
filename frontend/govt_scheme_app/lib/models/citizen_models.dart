@@ -467,6 +467,102 @@ class DigiLockerSyncResult {
 }
 
 @immutable
+class LandRecordUploadResult {
+  const LandRecordUploadResult({
+    required this.record,
+    required this.processingStatus,
+    this.processingError,
+  });
+
+  final LandRecord record;
+
+  /// Backend document-processing status: 'processed', 'failed', or
+  /// 'not_processed'.
+  final String processingStatus;
+  final String? processingError;
+
+  bool get isProcessed => processingStatus == 'processed';
+  bool get isFailed => processingStatus == 'failed';
+}
+
+@immutable
+class DocumentUploadResult {
+  const DocumentUploadResult({
+    required this.processingStatus,
+    this.document,
+    this.processing,
+    this.processingError,
+  });
+
+  final String processingStatus;
+
+  /// The created GovernmentDocument (from the backend).
+  final GovernmentDocument? document;
+
+  /// The backend's [DocumentProcessingData] (extraction_method, extracted
+  /// fields, mapped fields, enrichment). Null when processing did not run.
+  final DocumentProcessingData? processing;
+
+  /// A user-friendly message when processing partially failed.
+  final String? processingError;
+
+  bool get isProcessed => processingStatus == 'processed';
+  bool get isFailed => processingStatus == 'failed';
+  bool get isPartiallyProcessed => processingStatus == 'partially_processed';
+}
+
+@immutable
+class DocumentProcessingData {
+  const DocumentProcessingData({
+    this.documentId,
+    this.documentType,
+    this.extractionMethod,
+    this.extractedFields = const <String, dynamic>{},
+    this.mappedFields = const <String, dynamic>{},
+    this.enrichment,
+    this.warnings = const <String>[],
+    this.errors = const <String>[],
+  });
+
+  final String? documentId;
+  final String? documentType;
+
+  /// 'pdf_text' or 'ocr'.
+  final String? extractionMethod;
+  final Map<String, dynamic> extractedFields;
+  final Map<String, dynamic> mappedFields;
+  final Map<String, dynamic>? enrichment;
+  final List<String> warnings;
+  final List<String> errors;
+
+  bool get usedOcr => extractionMethod == 'ocr';
+  bool get usedPdfText => extractionMethod == 'pdf_text';
+
+  factory DocumentProcessingData.fromJson(Map<String, dynamic> json) {
+    return DocumentProcessingData(
+      documentId: optionalString(json['document_id']),
+      documentType: optionalString(json['document_type']),
+      extractionMethod: optionalString(json['extraction_method']),
+      extractedFields: json['extracted_fields'] is Map
+          ? Map<String, dynamic>.from(json['extracted_fields'] as Map)
+          : <String, dynamic>{},
+      mappedFields: json['mapped_fields'] is Map
+          ? Map<String, dynamic>.from(json['mapped_fields'] as Map)
+          : <String, dynamic>{},
+      enrichment: json['enrichment'] is Map
+          ? Map<String, dynamic>.from(json['enrichment'] as Map)
+          : null,
+      warnings: (json['warnings'] as List? ?? const [])
+          .map((item) => item.toString())
+          .toList(),
+      errors: (json['errors'] as List? ?? const [])
+          .map((item) => item.toString())
+          .toList(),
+    );
+  }
+}
+
+@immutable
 class LandRecordSummary {
   const LandRecordSummary({
     required this.totalLandArea,
