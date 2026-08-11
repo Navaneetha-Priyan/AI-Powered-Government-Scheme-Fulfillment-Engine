@@ -82,7 +82,11 @@ class LLMClient:
         if not content:
             logger.warning("LLM returned an empty completion")
             raise LLMUnavailableError("LLM returned an empty completion")
-
+        print("\n" + "=" * 60)
+        print("🧠 QWEN RAW RESPONSE")
+        print("=" * 60)
+        print(content)
+        print("=" * 60 + "\n")
         return content.strip()
 
 

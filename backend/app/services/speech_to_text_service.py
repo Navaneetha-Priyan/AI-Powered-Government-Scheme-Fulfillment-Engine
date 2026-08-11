@@ -166,6 +166,11 @@ class SpeechToTextService:
                 condition_on_previous_text=self.condition_on_previous_text,
             )
             text = " ".join(segment.text.strip() for segment in segments).strip()
+            print("\n" + "=" * 60)
+            print("🎤 WHISPER TRANSCRIPTION")
+            print("=" * 60)
+            print(text)
+            print("=" * 60 + "\n")
         except Exception as exc:
             logger.exception("Transcription failed for %s", audio_path)
             raise SpeechToTextError(f"Transcription failed: {exc}") from exc
