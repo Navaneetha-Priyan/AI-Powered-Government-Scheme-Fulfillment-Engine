@@ -17,7 +17,10 @@ class CitizenProvider extends ChangeNotifier {
   DocumentSummary? _documents;
   Map<String, dynamic>? _profileDetails;
   bool _isLoading = false;
+  bool _isUploadingLandRecord = false;
+  bool _isUploadingDocument = false;
   String? _errorMessage;
+  String? _uploadErrorMessage;
 
   ExtendedProfile? get extendedProfile => _extendedProfile;
   IncomeDetails? get income => _income;
@@ -26,7 +29,10 @@ class CitizenProvider extends ChangeNotifier {
   DocumentSummary? get documents => _documents;
   Map<String, dynamic>? get profileDetails => _profileDetails;
   bool get isLoading => _isLoading;
+  bool get isUploadingLandRecord => _isUploadingLandRecord;
+  bool get isUploadingDocument => _isUploadingDocument;
   String? get errorMessage => _errorMessage;
+  String? get uploadErrorMessage => _uploadErrorMessage;
 
   void attachEligibilityProvider(EligibilityProvider eligibilityProvider) {
     _eligibilityProvider = eligibilityProvider;
@@ -70,6 +76,88 @@ class CitizenProvider extends ChangeNotifier {
       _extendedProfile = await _repository.updateExtendedProfile(payload);
       _eligibilityProvider?.invalidateAll();
     });
+  }
+
+  /// Uploads a land record with a supporting file, then refreshes the
+  /// displayed land records so the new record appears immediately.
+  ///
+  /// The manually supplied fields remain the source of truth. The backend may
+  /// also attempt real-document processing (PDF text extraction or OCR); its
+  /// outcome is returned in [LandRecordUploadResult.processingStatus].
+  Future<LandRecordUploadResult> uploadLandRecord({
+    required String filePath,
+    required String fileName,
+    required String surveyNumber,
+    required String village,
+    required String district,
+    required String landType,
+    required double landArea,
+    required String ownershipType,
+    String? taluk,
+    String? state,
+    String? pattaNumber,
+    String documentType = 'land_record',
+  }) async {
+    _isUploadingLandRecord = true;
+    _uploadErrorMessage = null;
+    notifyListeners();
+    try {
+      final result = await _repository.uploadLandRecord(
+        filePath: filePath,
+        fileName: fileName,
+        surveyNumber: surveyNumber,
+        village: village,
+        district: district,
+        landType: landType,
+        landArea: landArea,
+        ownershipType: ownershipType,
+        taluk: taluk,
+        state: state,
+        pattaNumber: pattaNumber,
+        documentType: documentType,
+      );
+      await loadLandRecords();
+      _eligibilityProvider?.invalidateAll();
+      return result;
+    } catch (error) {
+      _uploadErrorMessage = error.toString();
+      rethrow;
+    } finally {
+      _isUploadingLandRecord = false;
+      notifyListeners();
+    }
+  }
+
+  /// Uploads a generic government document and processes it through the real
+  /// backend document pipeline. After a successful upload, the document list
+  /// and land records are refreshed so the UI reflects the enriched profile.
+  Future<DocumentUploadResult> uploadDocument({
+    required String filePath,
+    required String fileName,
+    required String documentType,
+  }) async {
+    _isUploadingDocument = true;
+    _uploadErrorMessage = null;
+    notifyListeners();
+    try {
+      final result = await _repository.uploadDocument(
+        filePath: filePath,
+        fileName: fileName,
+        documentType: documentType,
+      );
+      await Future.wait<void>([
+        loadDocuments(),
+        loadLandRecords(),
+      ]);
+      _eligibilityProvider?.invalidateAll();
+      return result;
+    } catch (error) {
+      _uploadErrorMessage = error.toString();
+      rethrow;
+    } finally {
+      _isUploadingDocument = false;
+      notifyListeners();
+    }
   }
 
   Future<void> _load(Future<void> Function() action) async {

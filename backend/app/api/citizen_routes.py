@@ -11,7 +11,13 @@ from app.schemas.citizen import SuccessResponse
 from app.schemas.citizen_profile import CitizenProfileUpdateRequest
 from app.services.citizen_profile_service import CitizenProfileService
 from app.services.digilocker_service import DigiLockerService
-from app.exceptions.exceptions import AppException
+from app.services.document_processing_service import DocumentProcessingService
+from app.exceptions.exceptions import (
+    AppException,
+    DocumentOcrError,
+    DocumentProcessingError,
+    UnsupportedDocumentTypeError,
+)
 from app.api.dependencies import get_current_user
 from app.core.config import settings
 from app.core.logging import get_logger
@@ -305,10 +311,19 @@ async def upload_land_record(
     taluk: str | None = Form(None),
     state: str | None = Form(None),
     patta_number: str | None = Form(None),
+    document_type: str = Form("land_record"),
     current_user_id: str = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Upload a land record and create a pending land-record document."""
+    """Upload a land record and create a pending land-record document.
+
+    ``document_type`` is supplied explicitly by the client (defaults to
+    ``land_record``). When the uploaded file is a real PDF/image, the new
+    document processing pipeline (PDF text extraction or OCR → field extraction
+    → existing mapper → existing enrichment) attempts to read the file. The
+    manually supplied land fields remain the source of truth and are preserved
+    even when automatic extraction fails (backward compatible).
+    """
     try:
         saved_path = await _save_upload(file, current_user_id, "land-records")
         service = CitizenProfileService(db)
@@ -338,10 +353,62 @@ async def upload_land_record(
             metadata=f"Uploaded by citizen on {datetime.utcnow().isoformat()}",
         )
 
+        # Route the created GovernmentDocument through the canonical
+        # document → profile enrichment pipeline. The raw upload has no
+        # OCR-derived structured metadata yet, so this is a no-op unless the
+        # document carries structured metadata. The manually supplied land
+        # fields remain the source of truth for this upload (backward
+        # compatible). No duplicate land record is created because the
+        # enrichment service dedupes on citizen_id + survey_number.
+        digilocker_service.enrich_document(doc)
+
+        # Real-document processing: attempt PDF text extraction or OCR, then
+        # feed the extracted fields through the existing Step 3 mapper and
+        # Step 4 enrichment. Failures are non-fatal — the manual record above
+        # remains the source of truth and the upload still succeeds.
+        processing_status = "not_processed"
+        processing_result = None
+        processing_error = None
+        try:
+            processing_service = DocumentProcessingService(db)
+            processing_result = processing_service.process_file(
+                file_path=saved_path,
+                document_type=document_type,
+                citizen_id=current_user_id,
+                document_id=doc.id,
+            )
+            processing_status = "processed"
+        except (DocumentProcessingError, DocumentOcrError) as e:
+            logger.warning(
+                "Document processing failed for upload %s: %s",
+                saved_path,
+                e.message,
+            )
+            processing_status = "failed"
+            processing_error = "Document uploaded, but we could not read all details automatically."
+        except UnsupportedDocumentTypeError as e:
+            logger.warning(
+                "Unsupported document type for upload %s: %s",
+                saved_path,
+                e.message,
+            )
+            processing_status = "failed"
+            processing_error = "Document uploaded, but its type is not supported yet."
+
         return SuccessResponse(
             success=True,
             message="Land record uploaded successfully",
-            data={"land_record": _land_to_dict(record), "document": _doc_to_dict(doc)},
+            data={
+                "land_record": _land_to_dict(record),
+                "document": _doc_to_dict(doc),
+                "processing_status": processing_status,
+                "processing": (
+                    processing_result.model_dump(mode="json")
+                    if processing_result
+                    else None
+                ),
+                "processing_error": processing_error,
+            },
         )
     except AppException as e:
         raise HTTPException(status_code=e.status_code, detail=e.to_dict())
@@ -352,6 +419,123 @@ async def upload_land_record(
         raise HTTPException(
             status_code=500,
             detail={"error": "INTERNAL_SERVER_ERROR", "message": "Failed to upload land record"},
+        )
+
+
+@router.post(
+    "/documents/upload",
+    response_model=SuccessResponse,
+    status_code=201,
+    summary="Upload a government document",
+    description=(
+        "Upload a citizen-submitted government document (Aadhaar, Income "
+        "Certificate, Caste Certificate, Ration Card, Residence Certificate, "
+        "Farmer ID, Disability Certificate, or Land Record). The backend runs "
+        "the real document processing pipeline (PDF text extraction or OCR → "
+        "field extraction → mapper → profile enrichment) and returns the "
+        "processing result."
+    ),
+)
+async def upload_document(
+    document_type: str = Form(...),
+    file: UploadFile = File(...),
+    current_user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upload a generic government document and process it through the real
+    document pipeline.
+
+    The citizen identity comes from the authenticated session. Only the
+    document type and file are required — no manual profile fields are needed.
+    The backend's ``DocumentProcessingService`` reads the file (PDF text or
+    OCR), extracts normalized fields, maps them to canonical domain fields,
+    and enriches the citizen profile via ``ProfileEnrichmentService``.
+    """
+    try:
+        # Validate document type against the canonical enum.
+        try:
+            from app.schemas.citizen_profile import DocumentTypeEnum
+
+            resolved_type = DocumentTypeEnum(document_type.strip().lower())
+        except (ValueError, AttributeError):
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "error": "UNSUPPORTED_DOCUMENT_TYPE",
+                    "message": f"Unsupported document type: {document_type}",
+                },
+            )
+
+        saved_path = await _save_upload(file, current_user_id, "documents")
+        digilocker_service = DigiLockerService(db)
+
+        # Create the GovernmentDocument row so it appears in My Documents.
+        doc = digilocker_service.add_uploaded_document(
+            citizen_id=current_user_id,
+            document_type=resolved_type.value,
+            document_name=f"{resolved_type.value.replace('_', ' ').title()}",
+            document_number=None,
+            download_url=saved_path,
+            metadata=f"Uploaded by citizen on {datetime.utcnow().isoformat()}",
+        )
+
+        # Run the real document processing pipeline.
+        processing_status = "not_processed"
+        processing_result = None
+        processing_error = None
+        try:
+            processing_service = DocumentProcessingService(db)
+            processing_result = processing_service.process_file(
+                file_path=saved_path,
+                document_type=resolved_type.value,
+                citizen_id=current_user_id,
+                document_id=doc.id,
+            )
+            processing_status = "processed"
+        except (DocumentProcessingError, DocumentOcrError) as e:
+            logger.warning(
+                "Document processing failed for upload %s: %s",
+                saved_path,
+                e.message,
+            )
+            processing_status = "failed"
+            processing_error = "Document uploaded, but we could not read all details automatically."
+        except UnsupportedDocumentTypeError as e:
+            logger.warning(
+                "Unsupported document type for upload %s: %s",
+                saved_path,
+                e.message,
+            )
+            processing_status = "failed"
+            processing_error = "Document uploaded, but its type is not supported yet."
+
+        return SuccessResponse(
+            success=True,
+            message=(
+                "Document processed successfully"
+                if processing_status == "processed"
+                else "Document uploaded successfully"
+            ),
+            data={
+                "document": _doc_to_dict(doc),
+                "processing_status": processing_status,
+                "processing": (
+                    processing_result.model_dump(mode="json")
+                    if processing_result
+                    else None
+                ),
+                "processing_error": processing_error,
+            },
+        )
+    except AppException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.to_dict())
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Upload document error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail={"error": "INTERNAL_SERVER_ERROR", "message": "Failed to upload document"},
         )
 
 

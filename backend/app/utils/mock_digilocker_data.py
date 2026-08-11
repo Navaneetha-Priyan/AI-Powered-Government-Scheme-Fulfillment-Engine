@@ -4,6 +4,7 @@ Each citizen's Aadhaar or Ration Card maps to a realistic mock profile
 and a set of linked government documents. This is the single source of
 truth for the DigiLocker sync operation.
 """
+import json
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
@@ -204,12 +205,39 @@ def get_mock_documents(
     aadhaar: Optional[str],
     ration_card: Optional[str],
     full_name: str,
+    gender: Optional[str] = None,
+    date_of_birth: Optional[str] = None,
+    address_line1: Optional[str] = None,
+    village: Optional[str] = None,
+    taluk: Optional[str] = None,
+    district: Optional[str] = None,
+    state: Optional[str] = None,
+    pincode: Optional[str] = None,
 ) -> list:
     """
     Build mock government documents for a citizen.
     Every citizen gets a base set; specific Aadhaar numbers get additional docs.
+
+    Each document's ``doc_metadata`` (a JSON string) contains realistic,
+    structured fields matching what would actually be present on that document.
+    This structured data is the foundation for the document → citizen-profile
+    enrichment pipeline (Steps 2–4). Metadata is the document-level source of
+    truth for profile enrichment; it is never read directly by the API layer.
     """
     docs = []
+
+    # ── Resolve profile + land records for consistent structured metadata ──
+    resolved_aadhaar = aadhaar
+    if not resolved_aadhaar and ration_card:
+        resolved_aadhaar = RATION_CARD_TO_AADHAAR.get(ration_card.upper())
+    profile = get_mock_profile(resolved_aadhaar, ration_card) or _build_generic_profile()
+    mock_land = get_mock_land_records(resolved_aadhaar, ration_card)
+    first_land = mock_land[0] if mock_land else {}
+
+    # Document-type labels kept in lowercase to match DocumentType enum values.
+    metadata = lambda doc_type, data: json.dumps(
+        {"document_type": doc_type, "data": data}
+    )
 
     # Aadhaar card — always present if aadhaar is registered
     if aadhaar:
@@ -225,7 +253,17 @@ def get_mock_documents(
             "verified_by": "UIDAI",
             "verified_at": _NOW - timedelta(days=365 * 5),
             "download_url": f"{_BASE_URL}/aadhaar/{aadhaar}.pdf",
-            "doc_metadata": f'{{"issuing_authority":"UIDAI","holder_name":"{full_name}"}}',
+            "doc_metadata": metadata("aadhaar", {
+                "full_name": full_name,
+                "date_of_birth": date_of_birth,
+                "gender": gender,
+                "address_line1": address_line1,
+                "village": village or first_land.get("village"),
+                "taluk": taluk or first_land.get("taluk"),
+                "district": district or first_land.get("district"),
+                "state": state or first_land.get("state"),
+                "pincode": pincode,
+            }),
             "is_active": True,
         })
 
@@ -243,14 +281,15 @@ def get_mock_documents(
             "verified_by": "Tamil Nadu Civil Supplies Corporation",
             "verified_at": _NOW - timedelta(days=365 * 3),
             "download_url": f"{_BASE_URL}/ration-card/{ration_card}.pdf",
-            "doc_metadata": f'{{"issuing_authority":"TNCSC","card_type":"PHH"}}',
+            "doc_metadata": metadata("ration_card", {
+                "card_number": ration_card,
+                "holder_name": full_name,
+                "card_type": (profile.get("income_category") or "PHH").upper(),
+                "family_size": profile.get("family_member_count"),
+                "district": district or first_land.get("district"),
+            }),
             "is_active": True,
         })
-
-    # Resolve aadhaar for additional docs
-    resolved_aadhaar = aadhaar
-    if not resolved_aadhaar and ration_card:
-        resolved_aadhaar = RATION_CARD_TO_AADHAAR.get(ration_card.upper())
 
     # Income Certificate
     docs.append({
@@ -265,7 +304,12 @@ def get_mock_documents(
         "verified_by": "Tahsildar Office",
         "verified_at": _NOW - timedelta(days=180),
         "download_url": f"{_BASE_URL}/income/{citizen_id}.pdf",
-        "doc_metadata": '{"issuing_authority":"Revenue Department","purpose":"General"}',
+        "doc_metadata": metadata("income_certificate", {
+            "holder_name": full_name,
+            "annual_income": profile.get("annual_income"),
+            "income_category": profile.get("income_category"),
+            "financial_year": "2025-2026",
+        }),
         "is_active": True,
     })
 
@@ -282,7 +326,14 @@ def get_mock_documents(
         "verified_by": "Tahsildar Office",
         "verified_at": _NOW - timedelta(days=365),
         "download_url": f"{_BASE_URL}/community/{citizen_id}.pdf",
-        "doc_metadata": '{"issuing_authority":"Revenue Department"}',
+        "doc_metadata": metadata("caste_certificate", {
+            "holder_name": full_name,
+            "caste": profile.get("caste"),
+            "community": profile.get("community"),
+            "sub_caste": profile.get("sub_caste"),
+            "religion": profile.get("religion"),
+            "issuing_authority": "Revenue Department",
+        }),
         "is_active": True,
     })
 
@@ -299,13 +350,18 @@ def get_mock_documents(
         "verified_by": "Village Administrative Officer",
         "verified_at": _NOW - timedelta(days=90),
         "download_url": f"{_BASE_URL}/residence/{citizen_id}.pdf",
-        "doc_metadata": '{"issuing_authority":"VAO Office"}',
+        "doc_metadata": metadata("residence_certificate", {
+            "holder_name": full_name,
+            "village": village or first_land.get("village"),
+            "taluk": taluk or first_land.get("taluk"),
+            "district": district or first_land.get("district"),
+            "state": state or first_land.get("state"),
+        }),
         "is_active": True,
     })
 
     # Farmer-specific documents
-    profile = get_mock_profile(resolved_aadhaar, ration_card)
-    if profile and profile.get("is_farmer"):
+    if profile.get("is_farmer"):
         docs.append({
             "citizen_id": citizen_id,
             "digilocker_record_id": digilocker_record_id,
@@ -318,27 +374,48 @@ def get_mock_documents(
             "verified_by": "Department of Agriculture",
             "verified_at": _NOW - timedelta(days=365 * 2),
             "download_url": f"{_BASE_URL}/farmer-id/{citizen_id}.pdf",
-            "doc_metadata": '{"issuing_authority":"Department of Agriculture, Tamil Nadu"}',
+            "doc_metadata": metadata("farmer_id", {
+                "farmer_id": profile.get("farmer_id"),
+                "holder_name": full_name,
+                "is_farmer": True,
+                "occupation": profile.get("occupation"),
+            }),
             "is_active": True,
         })
-        docs.append({
-            "citizen_id": citizen_id,
-            "digilocker_record_id": digilocker_record_id,
-            "document_type": "land_record",
-            "document_number": f"LR-{citizen_id[:8].upper()}",
-            "document_name": "Land Record (Patta)",
-            "issue_date": _NOW - timedelta(days=365 * 2),
-            "expiry_date": None,
-            "verification_status": "verified",
-            "verified_by": "Revenue Department",
-            "verified_at": _NOW - timedelta(days=365 * 2),
-            "download_url": f"{_BASE_URL}/land-record/{citizen_id}.pdf",
-            "doc_metadata": '{"issuing_authority":"Revenue Department, Tamil Nadu"}',
-            "is_active": True,
-        })
+        # One land_record document per owned parcel so the enrichment pipeline
+        # creates/updates each parcel individually. The existing aggregation
+        # (sum of land_area) then yields the correct total (e.g. 2.5 + 1.0).
+        for land in mock_land:
+            docs.append({
+                "citizen_id": citizen_id,
+                "digilocker_record_id": digilocker_record_id,
+                "document_type": "land_record",
+                "document_number": land.get("patta_number") or land.get("survey_number"),
+                "document_name": f"Land Record (Patta) - {land.get('survey_number')}",
+                "issue_date": _NOW - timedelta(days=365 * 2),
+                "expiry_date": None,
+                "verification_status": "verified",
+                "verified_by": "Revenue Department",
+                "verified_at": _NOW - timedelta(days=365 * 2),
+                "download_url": f"{_BASE_URL}/land-record/{citizen_id}.pdf",
+                "doc_metadata": metadata("land_record", {
+                    "owner_name": full_name,
+                    "survey_number": land.get("survey_number"),
+                    "land_area": land.get("land_area"),
+                    "unit": land.get("land_area_unit"),
+                    "land_type": land.get("land_type"),
+                    "village": land.get("village"),
+                    "taluk": land.get("taluk"),
+                    "district": land.get("district"),
+                    "state": land.get("state"),
+                    "ownership_type": land.get("ownership_type"),
+                    "patta_number": land.get("patta_number"),
+                }),
+                "is_active": True,
+            })
 
     # Disability certificate
-    if profile and profile.get("is_disabled"):
+    if profile.get("is_disabled"):
         docs.append({
             "citizen_id": citizen_id,
             "digilocker_record_id": digilocker_record_id,
@@ -351,7 +428,11 @@ def get_mock_documents(
             "verified_by": "District Medical Board",
             "verified_at": _NOW - timedelta(days=365),
             "download_url": f"{_BASE_URL}/disability/{citizen_id}.pdf",
-            "doc_metadata": '{"issuing_authority":"District Medical Board"}',
+            "doc_metadata": metadata("disability_certificate", {
+                "holder_name": full_name,
+                "is_disabled": profile.get("is_disabled"),
+                "disability_percentage": profile.get("disability_percentage") or 0,
+            }),
             "is_active": True,
         })
 

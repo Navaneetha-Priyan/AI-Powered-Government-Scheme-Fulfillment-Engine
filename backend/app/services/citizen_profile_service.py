@@ -12,6 +12,68 @@ from app.core.logging import get_logger
 logger = get_logger(__name__)
 
 
+def calculate_profile_completion(
+    citizen: Any, profile_data: Optional[Dict[str, Any]] = None
+) -> int:
+    """Calculate the citizen's profile completion percentage.
+
+    This is the single source of truth for profile-completion scoring. It was
+    extracted from :class:`DigiLockerService._calculate_completion` so that the
+    Step 4 ``ProfileEnrichmentService`` can reuse the exact same algorithm
+    (no duplicate completion logic is introduced).
+
+    ``profile_data`` may be a ``CitizenProfile`` ORM instance, a plain dict of
+    candidate profile fields, or ``None``. When it is a dict the keys are the
+    canonical ``citizen_profiles`` column names.
+    """
+    # Normalize a profile ORM/dict into a lookup that tolerates missing keys.
+    if profile_data is None:
+        profile_lookup: Dict[str, Any] = {}
+    elif isinstance(profile_data, dict):
+        profile_lookup = profile_data
+    else:
+        profile_lookup = {
+            key: getattr(profile_data, key)
+            for key in (
+                "father_name",
+                "occupation",
+                "annual_income",
+                "caste",
+                "religion",
+                "education_level",
+                "blood_group",
+                "marital_status",
+                "family_member_count",
+            )
+            if hasattr(profile_data, key)
+        }
+
+    fields = [
+        citizen.full_name,
+        citizen.email,
+        citizen.phone,
+        citizen.gender,
+        citizen.date_of_birth,
+        citizen.aadhaar_number,
+        citizen.smart_ration_card,
+        citizen.district,
+        citizen.state,
+        citizen.village,
+        citizen.pincode,
+        profile_lookup.get("father_name"),
+        profile_lookup.get("occupation"),
+        profile_lookup.get("annual_income"),
+        profile_lookup.get("caste"),
+        profile_lookup.get("religion"),
+        profile_lookup.get("education_level"),
+        profile_lookup.get("blood_group"),
+        profile_lookup.get("marital_status"),
+        profile_lookup.get("family_member_count"),
+    ]
+    filled = sum(1 for f in fields if f is not None and f != "")
+    return int((filled / len(fields)) * 100)
+
+
 class CitizenProfileService:
     """Handles citizen profile retrieval, update, and dashboard assembly"""
 

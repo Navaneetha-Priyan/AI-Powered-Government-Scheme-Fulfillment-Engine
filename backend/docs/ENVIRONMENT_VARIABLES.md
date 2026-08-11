@@ -224,6 +224,83 @@ The application uses environment variables for configuration. Copy `.env.example
 - **Description**: OpenAPI schema URL
 - **Disable**: Set to `None` to disable
 
+## Speech-to-Text Configuration (Phase 3.5 - Tamil ASR)
+
+These variables control the Faster-Whisper engine used by `POST /voice/transcribe`.
+
+### WHISPER_MODEL
+- **Type**: String
+- **Default**: `medium`
+- **Values**: `small`, `medium`
+- **Description**: Faster-Whisper model size. Defaults to `medium` for higher
+  Tamil ASR accuracy. Switch to `small` for lower memory/CPU usage. The model
+  does not auto-switch at runtime.
+- **Example**: `WHISPER_MODEL=medium`
+
+### WHISPER_LANGUAGE
+- **Type**: String
+- **Default**: `ta`
+- **Description**: Language code for transcription. Tamil-only recordings use
+  `ta` so automatic language detection is never relied on.
+- **Example**: `WHISPER_LANGUAGE=ta`
+
+### WHISPER_VAD_FILTER
+- **Type**: Boolean
+- **Default**: `True`
+- **Description**: Enable Faster-Whisper's built-in Silero Voice Activity
+  Detection to better handle pauses, silence, and background noise.
+- **Values**: `True` or `False`
+- **Example**: `WHISPER_VAD_FILTER=True`
+
+> Note: Decoding parameters such as `beam_size=5` and
+> `condition_on_previous_text=False` are code-level defaults in
+> `SpeechToTextService` and are intentionally not exposed as environment
+> variables (per project convention).
+
+## Normalization / LLM Configuration (Phase 4 - Multilingual & Intent Normalization)
+
+These variables control the local Ollama LLM used by `POST /voice/normalize`.
+The client calls Ollama's OpenAI-compatible `/v1/chat/completions` endpoint via
+the already-installed `httpx` dependency. No external API key or extra SDK is
+required. If Ollama is unavailable, times out, or returns invalid JSON, the
+`TextNormalizationService` automatically falls back to a deterministic
+heuristic analyzer, so the endpoint always returns a structured result.
+
+### OLLAMA_BASE_URL
+- **Type**: String
+- **Default**: `http://localhost:11434`
+- **Description**: Base URL of the local Ollama server.
+- **Example**: `OLLAMA_BASE_URL=http://localhost:11434`
+
+### OLLAMA_MODEL
+- **Type**: String
+- **Default**: `qwen2.5:7b`
+- **Description**: The Ollama model used for normalization. Use a model that
+  performs well on Tamil, English, and Tanglish.
+- **Example**: `OLLAMA_MODEL=qwen2.5:7b`
+
+### OLLAMA_TIMEOUT
+- **Type**: Float (seconds)
+- **Default**: `15.0`
+- **Description**: Request timeout for the Ollama HTTP call. If exceeded, the
+  service falls back to heuristics.
+- **Example**: `OLLAMA_TIMEOUT=15.0`
+
+### NORMALIZE_MAX_TEXT_LENGTH
+- **Type**: Integer
+- **Default**: `2000`
+- **Description**: Maximum accepted length (in characters) for the `text`
+  field of `POST /voice/normalize`. Larger inputs are rejected with HTTP 422.
+- **Example**: `NORMALIZE_MAX_TEXT_LENGTH=2000`
+
+### NORMALIZE_ENABLE_HEURISTIC_FALLBACK
+- **Type**: Boolean
+- **Default**: `True`
+- **Description**: Whether the deterministic heuristic fallback is enabled when
+  the LLM is unavailable or returns an invalid response.
+- **Values**: `True` or `False`
+- **Example**: `NORMALIZE_ENABLE_HEURISTIC_FALLBACK=True`
+
 ## Feature Flags
 
 ### ENABLE_AADHAAR_VALIDATION

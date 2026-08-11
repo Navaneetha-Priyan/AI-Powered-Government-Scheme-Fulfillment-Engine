@@ -153,6 +153,28 @@ class ApiService {
     return _executeWithFallback(() => _dio.post(path, data: data), path);
   }
 
+  /// Posts [FormData] (e.g. multipart file upload) to [path].
+  ///
+  /// Reuses the same authenticated [_dio] client and its JWT interceptor so
+  /// the `Authorization` header is attached exactly like other API calls.
+  /// The content type is set to `multipart/form-data` for this request only;
+  /// the client's default JSON content type is left untouched.
+  Future<dynamic> postMultipart(
+    String path, {
+    required FormData formData,
+  }) async {
+    return _executeWithFallback(
+      () => _dio.post(
+        path,
+        data: formData,
+        options: Options(
+          contentType: Headers.multipartFormDataContentType,
+        ),
+      ),
+      path,
+    );
+  }
+
   Future<dynamic> put(
     String path, {
     Object? data,

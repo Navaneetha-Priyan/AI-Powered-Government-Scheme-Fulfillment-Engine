@@ -9,18 +9,19 @@ from app.repositories.citizen_profile_repository import CitizenProfileRepository
 from app.repositories.digilocker_repository import DigiLockerRepository, GovernmentDocumentRepository
 from app.models.citizen_profile import ProfileSyncStatus
 from app.models.digilocker import DocumentType, DocumentVerificationStatus
-from app.utils.mock_digilocker_data import (
-    get_mock_profile,
-    get_mock_land_records,
-    get_mock_documents,
-)
+from app.utils.mock_digilocker_data import get_mock_documents
 from app.exceptions.exceptions import (
     NotFoundError,
     SyncFailedError,
     DigiLockerUnavailableError,
     ProfileNotFoundError,
     DocumentNotFoundError,
+    DocumentMetadataInvalidError,
+    UnsupportedDocumentTypeError,
 )
+from app.services.document_profile_extractor import DocumentProfileExtractor
+from app.services.document_profile_mapper import DocumentProfileMapper
+from app.services.profile_enrichment_service import ProfileEnrichmentService
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -81,44 +82,78 @@ class DigiLockerService:
                 },
             )
 
-            # Step 2: Fetch mock profile data
-            mock_profile = get_mock_profile(citizen.aadhaar_number, citizen.smart_ration_card)
-
-            # Step 3: Calculate profile completion
-            completion = self._calculate_completion(citizen, mock_profile)
-
-            # Step 4: Upsert citizen profile
-            profile_data = {**mock_profile} if mock_profile else {}
-            profile_data["profile_completion_percentage"] = completion
-            profile_data["sync_status"] = ProfileSyncStatus.SYNCED.value
-            profile_data["last_synced_at"] = datetime.utcnow()
-
-            self.profile_repo.upsert(citizen_id, profile_data)
-
-            # Step 5: Sync land records (delete old, insert new)
-            self.land_repo.delete_by_citizen_id(citizen_id)
-            mock_land = get_mock_land_records(citizen.aadhaar_number, citizen.smart_ration_card)
-            for land_data in mock_land:
-                land_data["citizen_id"] = citizen_id
-                self.land_repo.create(land_data)
-
-            # Step 6: Sync documents (soft-delete old, insert new)
-            self.doc_repo.delete_by_citizen_id(citizen_id)
+            # Step 2: Build mock government documents. These structured
+            # documents (with doc_metadata from Step 1) are the sole source for
+            # the document → profile enrichment pipeline. The legacy
+            # get_mock_profile/get_mock_land_records direct assignment is no
+            # longer used for persistence.
             mock_docs = get_mock_documents(
                 citizen_id=citizen_id,
                 digilocker_record_id=digilocker_record.id,
                 aadhaar=citizen.aadhaar_number,
                 ration_card=citizen.smart_ration_card,
                 full_name=citizen.full_name,
+                gender=citizen.gender.value if citizen.gender else None,
+                date_of_birth=citizen.date_of_birth.isoformat() if citizen.date_of_birth else None,
+                address_line1=citizen.address_line1,
+                village=citizen.village,
+                taluk=citizen.taluk,
+                district=citizen.district,
+                state=citizen.state,
+                pincode=citizen.pincode,
             )
-            self.doc_repo.bulk_create(mock_docs)
+
+            # Step 3: Persist the documents so they can be consumed by the
+            # canonical pipeline (soft-delete old rows, insert new ones).
+            self.doc_repo.delete_by_citizen_id(citizen_id)
+            created_docs = self.doc_repo.bulk_create(mock_docs)
+
+            # Step 4: Document → profile enrichment pipeline.
+            extractor = DocumentProfileExtractor()
+            mapper = DocumentProfileMapper()
+            enrichment = ProfileEnrichmentService(self.db)
+
+            extracted = []
+            extracted_count = 0
+            for doc in created_docs:
+                try:
+                    extracted.append(extractor.extract(doc))
+                    extracted_count += 1
+                except (DocumentMetadataInvalidError, UnsupportedDocumentTypeError) as exc:
+                    # Controlled, document-level error. Skip this document and
+                    # report it rather than silently fabricating data or
+                    # crashing the whole sync (existing sync error convention
+                    # allows the sync to continue when a single document is
+                    # invalid while reporting what happened).
+                    logger.warning(
+                        f"Skipping document {getattr(doc, 'id', '')} "
+                        f"({getattr(doc, 'document_type', '')}): {exc}"
+                    )
+
+            mapped = mapper.map_many(extracted)
+
+            # Step 5: Enrich citizen profile + land records. The enrichment
+            # service handles land-record deduplication (citizen_id +
+            # survey_number) and never creates duplicates on re-sync.
+            result = enrichment.enrich_many(citizen_id, mapped)
+
+            # Step 6: Mark profile as synced.
+            self.profile_repo.upsert(
+                citizen_id,
+                {
+                    "sync_status": ProfileSyncStatus.SYNCED.value,
+                    "last_synced_at": datetime.utcnow(),
+                },
+            )
 
             # Step 7: Update citizen's digilocker_sync_at
             self.citizen_repo.update(citizen_id, {"digilocker_sync_at": datetime.utcnow()})
 
             logger.info(
                 f"DigiLocker sync completed for citizen: {citizen_id} — "
-                f"{len(mock_docs)} documents, {len(mock_land)} land records"
+                f"{len(mock_docs)} documents, {extracted_count} extracted, "
+                f"{len(result.created_land_records)} land created, "
+                f"{len(result.updated_land_records)} land updated"
             )
 
             return {
@@ -179,6 +214,35 @@ class DigiLockerService:
             raise DocumentNotFoundError(document_id)
         return doc
 
+    def enrich_document(self, document):
+        """Run one created GovernmentDocument through the canonical pipeline.
+
+        Extracts structured ``doc_metadata`` (Step 2), maps it (Step 3), and
+        enriches the citizen profile/land records (Step 4). This reuses the
+        exact same extractor/mapper/enrichment services as the DigiLocker sync
+        — no second implementation is introduced here.
+
+        Returns the ``EnrichmentResult``, or ``None`` when the document has no
+        structured metadata that can be extracted (e.g. a raw citizen upload
+        without OCR-derived structured fields). Controlled document-level
+        extraction errors are logged and skipped rather than fabricating data.
+        """
+        extractor = DocumentProfileExtractor()
+        mapper = DocumentProfileMapper()
+        enrichment = ProfileEnrichmentService(self.db)
+
+        try:
+            extracted = extractor.extract(document)
+        except (DocumentMetadataInvalidError, UnsupportedDocumentTypeError) as exc:
+            logger.info(
+                f"No structured metadata to enrich for document "
+                f"{getattr(document, 'id', '')}: {exc}"
+            )
+            return None
+
+        mapped = mapper.map(extracted)
+        return enrichment.enrich(document.citizen_id, mapped)
+
     def add_uploaded_document(
         self,
         citizen_id: str,
@@ -224,29 +288,3 @@ class DigiLockerService:
             }
         )
 
-    def _calculate_completion(self, citizen, mock_profile: dict) -> int:
-        """Calculate profile completion percentage"""
-        fields = [
-            citizen.full_name,
-            citizen.email,
-            citizen.phone,
-            citizen.gender,
-            citizen.date_of_birth,
-            citizen.aadhaar_number,
-            citizen.smart_ration_card,
-            citizen.district,
-            citizen.state,
-            citizen.village,
-            citizen.pincode,
-            mock_profile.get("father_name") if mock_profile else None,
-            mock_profile.get("occupation") if mock_profile else None,
-            mock_profile.get("annual_income") if mock_profile else None,
-            mock_profile.get("caste") if mock_profile else None,
-            mock_profile.get("religion") if mock_profile else None,
-            mock_profile.get("education_level") if mock_profile else None,
-            mock_profile.get("blood_group") if mock_profile else None,
-            mock_profile.get("marital_status") if mock_profile else None,
-            mock_profile.get("family_member_count") if mock_profile else None,
-        ]
-        filled = sum(1 for f in fields if f is not None and f != "")
-        return int((filled / len(fields)) * 100)

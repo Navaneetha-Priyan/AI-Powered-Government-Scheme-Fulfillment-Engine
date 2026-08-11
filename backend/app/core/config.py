@@ -90,10 +90,46 @@ class Settings(BaseSettings):
     RECOMMENDATION_PROFILE_WEIGHT: float = 0.10
     RECOMMENDATION_DOCUMENT_WEIGHT: float = 0.05
 
-    # API Documentation
+# API Documentation
     DOCS_URL: str = "/docs"
     REDOC_URL: str = "/redoc"
     OPENAPI_URL: str = "/openapi.json"
+
+    # Speech-to-Text Configuration (Phase 3.5 - Tamil ASR accuracy optimization)
+    # WHISPER_MODEL: Faster-Whisper model size. Supported: "small", "medium".
+    # Defaults to "medium" for higher Tamil ASR accuracy. Switch to "small"
+    # for lower memory/CPU usage.
+    WHISPER_MODEL: str = "medium"
+    # WHISPER_LANGUAGE: Language code for transcription. Tamil-only recordings
+    # use "ta" so we never rely on automatic language detection.
+    WHISPER_LANGUAGE: str = "ta"
+    # WHISPER_VAD_FILTER: Enable Faster-Whisper's built-in Silero Voice Activity
+    # Detection to better handle pauses, silence, and background noise.
+    WHISPER_VAD_FILTER: bool = True
+
+    @field_validator("WHISPER_MODEL")
+    @classmethod
+    def validate_whisper_model(cls, value: str) -> str:
+        """Restrict Whisper model to supported sizes."""
+        allowed = {"small", "medium"}
+        if value not in allowed:
+            raise ValueError(
+                f"WHISPER_MODEL must be one of {sorted(allowed)}, got '{value}'"
+            )
+        return value
+
+# Normalization / LLM Configuration (Phase 4 - Multilingual & Intent Normalization)
+    # A local Ollama endpoint is used (OpenAI-compatible /v1/chat/completions).
+    # No external API key or extra SDK is required; httpx is already a dependency.
+    # If Ollama is unavailable/times out/returns invalid JSON, the
+    # TextNormalizationService falls back to a deterministic heuristic analyzer.
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    OLLAMA_MODEL: str = "qwen2.5:7b"
+    OLLAMA_TIMEOUT: float = 15.0
+    # Maximum accepted length (characters) for POST /voice/normalize input.
+    NORMALIZE_MAX_TEXT_LENGTH: int = 2000
+    # Whether the heuristic fallback is enabled when Ollama fails.
+    NORMALIZE_ENABLE_HEURISTIC_FALLBACK: bool = True
 
     # Feature Flags
     ENABLE_AADHAAR_VALIDATION: bool = True
