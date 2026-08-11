@@ -111,3 +111,9 @@ Desktop.ini
 
 # Mac
 .DS_Store
+
+# Temporary test files
+backend/.test-tmp/
+
+# Uploaded citizen documents
+backend/storage/citizen_documents/
