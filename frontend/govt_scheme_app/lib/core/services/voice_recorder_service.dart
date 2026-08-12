@@ -72,7 +72,8 @@ class VoiceRecorderService extends ChangeNotifier {
 
       final directory = await _recordingDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final path = '${directory.path}${Platform.pathSeparator}rec_$timestamp.m4a';
+      final path =
+          '${directory.path}${Platform.pathSeparator}rec_$timestamp.m4a';
 
       final config = const RecordConfig(
         encoder: AudioEncoder.aacLc,
@@ -121,8 +122,7 @@ class VoiceRecorderService extends ChangeNotifier {
     }
   }
 
-
-/// Deletes a previously saved recording file.
+  /// Deletes a previously saved recording file.
   ///
   /// Used after a successful upload so the local file is cleaned up.
   /// Returns `true` when the file was removed (or did not exist).
@@ -147,7 +147,9 @@ class VoiceRecorderService extends ChangeNotifier {
   /// Resolves the directory used to store recordings, creating it if needed.
   Future<Directory> _recordingDirectory() async {
     final base = await getApplicationDocumentsDirectory();
-    final directory = Directory('${base.path}${Platform.pathSeparator}recordings');
+    final directory = Directory(
+      '${base.path}${Platform.pathSeparator}recordings',
+    );
     if (!directory.existsSync()) {
       await directory.create(recursive: true);
     }
@@ -166,4 +168,3 @@ class VoiceRecorderService extends ChangeNotifier {
     super.dispose();
   }
 }
-

@@ -114,7 +114,11 @@ class DigiLockerProvider extends ChangeNotifier {
     if (summary == null) {
       return '';
     }
-    final ids = summary.documents.map((document) => '${document.id}:${document.verificationStatus}').toList()..sort();
+    final ids =
+        summary.documents
+            .map((document) => '${document.id}:${document.verificationStatus}')
+            .toList()
+          ..sort();
     return ids.join('|');
   }
 }

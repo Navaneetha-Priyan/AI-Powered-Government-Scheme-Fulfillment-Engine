@@ -88,7 +88,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return exactMatch;
     }
 
-    if (_selectedState != null && states.any((state) => state == _selectedState)) {
+    if (_selectedState != null &&
+        states.any((state) => state == _selectedState)) {
       return _selectedState;
     }
 
@@ -116,23 +117,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return optionsBuilder(textEditingValue.text);
       },
       onSelected: onSelected,
-      fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-        onControllerReady(textEditingController);
+      fieldViewBuilder:
+          (context, textEditingController, focusNode, onFieldSubmitted) {
+            onControllerReady(textEditingController);
 
-        return TextFormField(
-          controller: textEditingController,
-          focusNode: focusNode,
-          enabled: enabled,
-          decoration: InputDecoration(
-            labelText: label,
-            helperText: helperText,
-            prefixIcon: Icon(prefixIcon),
-          ),
-          validator: (value) => validator(value ?? ''),
-          onChanged: onChanged,
-          onFieldSubmitted: (_) => onFieldSubmitted(),
-        );
-      },
+            return TextFormField(
+              controller: textEditingController,
+              focusNode: focusNode,
+              enabled: enabled,
+              decoration: InputDecoration(
+                labelText: label,
+                helperText: helperText,
+                prefixIcon: Icon(prefixIcon),
+              ),
+              validator: (value) => validator(value ?? ''),
+              onChanged: onChanged,
+              onFieldSubmitted: (_) => onFieldSubmitted(),
+            );
+          },
       optionsViewBuilder: (context, onSelectedOption, options) {
         return Align(
           alignment: Alignment.topLeft,
@@ -183,8 +185,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     try {
-      final stateValue = _stateController?.text.trim() ?? _selectedState?.trim() ?? '';
-      final districtValue = _districtController?.text.trim() ?? _selectedDistrict?.trim() ?? '';
+      final stateValue =
+          _stateController?.text.trim() ?? _selectedState?.trim() ?? '';
+      final districtValue =
+          _districtController?.text.trim() ?? _selectedDistrict?.trim() ?? '';
 
       await authProvider.register(
         RegisterRequest(
@@ -202,51 +206,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return;
       }
 
-      final completeProfileNow = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Complete your profile now?'),
-            content: const Text(
-              'You can fill the rest of your details now or go straight to the dashboard and finish later.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Go to dashboard'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Complete profile now'),
-              ),
-            ],
-          );
-        },
-      );
-
-      if (!mounted) {
-        return;
-      }
-
-      if (completeProfileNow == true) {
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          AppRoutes.editProfile,
-          (route) => false,
-          arguments: true,
-        );
-        return;
-      }
-
-      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRoutes.documents, (route) => false);
     } catch (error) {
       if (!mounted) {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.friendlyError(error))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(AppStrings.friendlyError(error))));
     }
   }
 
@@ -296,21 +266,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
               textInputAction: TextInputAction.next,
               autofillHints: const [AutofillHints.newPassword],
               prefixIcon: Icons.lock_outline,
-              suffixIcon: _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-              onSuffixTap: () => setState(() => _obscurePassword = !_obscurePassword),
+              suffixIcon: _obscurePassword
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+              onSuffixTap: () =>
+                  setState(() => _obscurePassword = !_obscurePassword),
             ),
             const SizedBox(height: 16),
             AppTextField(
               controller: _confirmPasswordController,
               label: 'Confirm password',
-              validator: (value) => Validators.confirmPassword(value, _passwordController.text),
+              validator: (value) =>
+                  Validators.confirmPassword(value, _passwordController.text),
               obscureText: _obscureConfirmPassword,
               keyboardType: TextInputType.visiblePassword,
               textInputAction: TextInputAction.next,
               autofillHints: const [AutofillHints.newPassword],
               prefixIcon: Icons.lock_reset_rounded,
-              suffixIcon: _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-              onSuffixTap: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+              suffixIcon: _obscureConfirmPassword
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+              onSuffixTap: () => setState(
+                () => _obscureConfirmPassword = !_obscureConfirmPassword,
+              ),
             ),
           ],
         ),
@@ -330,14 +308,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
               builder: (context, locationProvider, _) {
                 final states = locationProvider.states;
                 final resolvedState = _currentStateName(states);
-                final districts = resolvedState == null ? const <String>[] : locationProvider.districtsFor(resolvedState);
+                final districts = resolvedState == null
+                    ? const <String>[]
+                    : locationProvider.districtsFor(resolvedState);
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _buildAutocompleteField(
                       label: 'State',
-                      helperText: 'Type a few letters to see matching states first.',
+                      helperText:
+                          'Type a few letters to see matching states first.',
                       prefixIcon: Icons.map_outlined,
                       enabled: states.isNotEmpty,
                       optionsBuilder: (query) => _rankedMatches(states, query),
@@ -367,7 +348,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           return 'State is required';
                         }
 
-                        return _matchedOption(states, value) == null ? 'Pick a valid state from the list' : null;
+                        return _matchedOption(states, value) == null
+                            ? 'Pick a valid state from the list'
+                            : null;
                       },
                     ),
                     const SizedBox(height: 16),
@@ -378,7 +361,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           : 'Type a few letters to see matching districts first.',
                       prefixIcon: Icons.location_city_outlined,
                       enabled: resolvedState != null && districts.isNotEmpty,
-                      optionsBuilder: (query) => _rankedMatches(districts, query),
+                      optionsBuilder: (query) =>
+                          _rankedMatches(districts, query),
                       onControllerReady: (controller) {
                         _districtController = controller;
                       },
@@ -394,7 +378,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           return 'District is required';
                         }
 
-                        return _matchedOption(districts, value) == null ? 'Pick a valid district from the list' : null;
+                        return _matchedOption(districts, value) == null
+                            ? 'Pick a valid district from the list'
+                            : null;
                       },
                     ),
                     if (locationProvider.isLoading) ...[
@@ -436,7 +422,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(AppStrings.createAccount, style: Theme.of(context).textTheme.headlineMedium),
+                          Text(
+                            AppStrings.createAccount,
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
                           const SizedBox(height: 8),
                           Text(
                             _step == 0
@@ -449,7 +438,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 24),
                           Form(
                             key: _formKey,
-                            child: _step == 0 ? _accountSection(context) : _placeSection(context),
+                            child: _step == 0
+                                ? _accountSection(context)
+                                : _placeSection(context),
                           ),
                           const SizedBox(height: 16),
                           Consumer<IndiaLocationProvider>(
@@ -472,7 +463,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Consumer<AuthProvider>(
                     builder: (context, authProvider, _) {
                       return PrimaryButton(
-                        label: _step == 0 ? AppStrings.continueText : AppStrings.createAccount,
+                        label: _step == 0
+                            ? AppStrings.continueText
+                            : AppStrings.createAccount,
                         onPressed: _submit,
                         isLoading: authProvider.isBusy,
                         icon: Icons.verified_user_rounded,
@@ -481,7 +474,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 12),
                   SecondaryButton(
-                    label: _step == 0 ? 'Already have an account? Sign In' : AppStrings.back,
+                    label: _step == 0
+                        ? 'Already have an account? Sign In'
+                        : AppStrings.back,
                     onPressed: () {
                       if (_step == 0) {
                         Navigator.of(context).pop();
@@ -489,7 +484,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         setState(() => _step = 0);
                       }
                     },
-                    icon: _step == 0 ? Icons.login_rounded : Icons.arrow_back_rounded,
+                    icon: _step == 0
+                        ? Icons.login_rounded
+                        : Icons.arrow_back_rounded,
                   ),
                 ],
               ),

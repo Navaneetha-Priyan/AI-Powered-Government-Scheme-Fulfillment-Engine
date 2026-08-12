@@ -73,7 +73,8 @@ class SchemeProvider extends ChangeNotifier {
   SchemeSort get sort => _sort;
   bool get hasMore => _hasMore;
   String? get selectedSchemeId => _selectedSchemeId;
-  GovernmentScheme? get selectedScheme => _selectedSchemeId == null ? null : _schemeCache[_selectedSchemeId];
+  GovernmentScheme? get selectedScheme =>
+      _selectedSchemeId == null ? null : _schemeCache[_selectedSchemeId];
 
   GovernmentScheme? schemeById(String schemeId) => _schemeCache[schemeId];
 
@@ -168,7 +169,10 @@ class SchemeProvider extends ChangeNotifier {
       try {
         _isLoading = true;
         notifyListeners();
-        final response = await _repository.searchSchemes(_query, limit: _pageSize);
+        final response = await _repository.searchSchemes(
+          _query,
+          limit: _pageSize,
+        );
         if (requestVersion != _requestVersion) {
           return;
         }
@@ -271,35 +275,71 @@ class SchemeProvider extends ChangeNotifier {
     if (_query.isNotEmpty) {
       final query = _query.toLowerCase();
       items = items.where((scheme) {
-        final haystack = '${scheme.schemeName} ${scheme.description} ${scheme.department} ${scheme.category}'.toLowerCase();
+        final haystack =
+            '${scheme.schemeName} ${scheme.description} ${scheme.department} ${scheme.category}'
+                .toLowerCase();
         return haystack.contains(query);
       }).toList();
     }
 
     if (_filters.category != null && _filters.category!.isNotEmpty) {
-      items = items.where((scheme) => scheme.category.toLowerCase() == _filters.category!.toLowerCase()).toList();
+      items = items
+          .where(
+            (scheme) =>
+                scheme.category.toLowerCase() ==
+                _filters.category!.toLowerCase(),
+          )
+          .toList();
     }
 
     if (_filters.state != null && _filters.state!.isNotEmpty) {
-      items = items.where((scheme) => (scheme.state ?? '').toLowerCase() == _filters.state!.toLowerCase()).toList();
+      items = items
+          .where(
+            (scheme) =>
+                (scheme.state ?? '').toLowerCase() ==
+                _filters.state!.toLowerCase(),
+          )
+          .toList();
     }
 
     if (_filters.department != null && _filters.department!.isNotEmpty) {
-      items = items.where((scheme) => scheme.department.toLowerCase() == _filters.department!.toLowerCase()).toList();
+      items = items
+          .where(
+            (scheme) =>
+                scheme.department.toLowerCase() ==
+                _filters.department!.toLowerCase(),
+          )
+          .toList();
     }
 
-    if (_filters.beneficiaryType != null && _filters.beneficiaryType!.isNotEmpty) {
-      items = items.where((scheme) => (scheme.description).toLowerCase().contains(_filters.beneficiaryType!.toLowerCase())).toList();
+    if (_filters.beneficiaryType != null &&
+        _filters.beneficiaryType!.isNotEmpty) {
+      items = items
+          .where(
+            (scheme) => (scheme.description).toLowerCase().contains(
+              _filters.beneficiaryType!.toLowerCase(),
+            ),
+          )
+          .toList();
     }
 
-    if (_filters.eligibilityStatus != null && _filters.eligibilityStatus!.isNotEmpty) {
-      items = items.where((scheme) => scheme.status.toLowerCase() == _filters.eligibilityStatus!.toLowerCase()).toList();
+    if (_filters.eligibilityStatus != null &&
+        _filters.eligibilityStatus!.isNotEmpty) {
+      items = items
+          .where(
+            (scheme) =>
+                scheme.status.toLowerCase() ==
+                _filters.eligibilityStatus!.toLowerCase(),
+          )
+          .toList();
     }
 
     items.sort((a, b) {
       switch (_sort) {
         case SchemeSort.nameAsc:
-          return a.schemeName.toLowerCase().compareTo(b.schemeName.toLowerCase());
+          return a.schemeName.toLowerCase().compareTo(
+            b.schemeName.toLowerCase(),
+          );
         case SchemeSort.recentlyUpdated:
           final aDate = a.updatedAt ?? a.createdAt;
           final bDate = b.updatedAt ?? b.createdAt;

@@ -60,9 +60,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
     }
   }
 
@@ -83,7 +83,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('Update password', style: Theme.of(context).textTheme.headlineMedium),
+                      Text(
+                        'Update password',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
                       const SizedBox(height: 20),
                       AppTextField(
                         controller: _currentPasswordController,
@@ -91,8 +94,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         validator: Validators.requiredField,
                         obscureText: _obscureCurrent,
                         prefixIcon: Icons.lock_outline,
-                        suffixIcon: _obscureCurrent ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        onSuffixTap: () => setState(() => _obscureCurrent = !_obscureCurrent),
+                        suffixIcon: _obscureCurrent
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        onSuffixTap: () =>
+                            setState(() => _obscureCurrent = !_obscureCurrent),
                       ),
                       const SizedBox(height: 16),
                       AppTextField(
@@ -101,18 +107,27 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         validator: Validators.password,
                         obscureText: _obscureNew,
                         prefixIcon: Icons.password_rounded,
-                        suffixIcon: _obscureNew ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        onSuffixTap: () => setState(() => _obscureNew = !_obscureNew),
+                        suffixIcon: _obscureNew
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        onSuffixTap: () =>
+                            setState(() => _obscureNew = !_obscureNew),
                       ),
                       const SizedBox(height: 16),
                       AppTextField(
                         controller: _confirmPasswordController,
                         label: 'Confirm New Password',
-                        validator: (value) => Validators.confirmPassword(value, _newPasswordController.text),
+                        validator: (value) => Validators.confirmPassword(
+                          value,
+                          _newPasswordController.text,
+                        ),
                         obscureText: _obscureConfirm,
                         prefixIcon: Icons.lock_reset_rounded,
-                        suffixIcon: _obscureConfirm ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        onSuffixTap: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                        suffixIcon: _obscureConfirm
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        onSuffixTap: () =>
+                            setState(() => _obscureConfirm = !_obscureConfirm),
                       ),
                       const SizedBox(height: 24),
                       Consumer<ProfileProvider>(

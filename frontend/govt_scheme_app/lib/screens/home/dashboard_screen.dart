@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/localization/app_strings.dart';
-import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_states.dart';
-import '../../core/widgets/cards.dart';
 import '../../models/citizen_models.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../routes/app_routes.dart';
@@ -33,15 +30,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _refresh() async {
-    if (!mounted) {
-      return;
-    }
-
+    if (!mounted) return;
     final provider = context.read<DashboardProvider>();
-    if (provider.isLoading) {
-      return;
-    }
-
+    if (provider.isLoading) return;
     await provider.refresh();
   }
 
@@ -52,26 +43,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final dashboard = provider.dashboard;
         return Scaffold(
           appBar: AppBar(
-            title: const Text(AppStrings.myInformation),
+            title: const Text('Home'),
             actions: [
               IconButton(
                 tooltip: 'Refresh',
                 onPressed: provider.isLoading ? null : _refresh,
-                icon: const Icon(Icons.refresh_rounded, size: 30),
+                icon: const Icon(Icons.refresh_rounded),
               ),
             ],
           ),
           body: provider.isLoading && dashboard == null
-              ? const AppLoadingView(message: AppStrings.loadingInformation)
+              ? const AppLoadingView(message: 'Loading your information...')
               : dashboard == null
-                  ? AppErrorView(
-                      message: provider.errorMessage ?? AppStrings.somethingWrong,
-                      onRetry: () => provider.loadDashboard(),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: _refresh,
-                      child: _DashboardContent(dashboard: dashboard),
-                    ),
+              ? AppErrorView(
+                  message: provider.errorMessage ?? 'Something went wrong.',
+                  onRetry: () => provider.loadDashboard(),
+                )
+              : RefreshIndicator(
+                  onRefresh: _refresh,
+                  child: _DashboardContent(dashboard: dashboard),
+                ),
         );
       },
     );
@@ -83,119 +74,370 @@ class _DashboardContent extends StatelessWidget {
 
   final CitizenDashboard dashboard;
 
-  void _go(BuildContext context, String route) {
-    Navigator.of(context).pushNamed(route);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final profile = dashboard.extendedProfile;
+    final cs = Theme.of(context).colorScheme;
+    final completion = dashboard.profileCompletionPercentage;
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(22),
+              // ── Greeting card ──────────────────────────────────────────
+              _GreetingCard(dashboard: dashboard, completion: completion),
+              const SizedBox(height: 20),
+
+              // ── Profile setup CTA (if incomplete) ─────────────────────
+              if (completion < 80) ...[
+                _SetupCta(
+                  completion: completion,
+                  onTap: () => Navigator.of(context).pushNamed(
+                    AppRoutes.documents,
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+
+              // ── Quick actions ──────────────────────────────────────────
+              Text(
+                'What would you like to do?',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              _QuickAction(
+                icon: Icons.auto_awesome_rounded,
+                label: 'Check My Eligibility',
+                subtitle: 'AI-powered scheme recommendations for you',
+                color: cs.primary,
+                onTap: () => Navigator.of(context).pushNamed(
+                  AppRoutes.recommendations,
+                ),
+              ),
+              const SizedBox(height: 10),
+              _QuickAction(
+                icon: Icons.folder_copy_outlined,
+                label: 'My Documents',
+                subtitle: '${dashboard.totalDocuments} documents linked',
+                color: const Color(0xFF1B8A5A),
+                onTap: () => Navigator.of(context).pushNamed(AppRoutes.documents),
+              ),
+              const SizedBox(height: 10),
+              _QuickAction(
+                icon: Icons.search_rounded,
+                label: 'Browse Schemes',
+                subtitle: 'Explore all available government schemes',
+                color: const Color(0xFF6A3DE8),
+                onTap: () => Navigator.of(context).pushNamed(AppRoutes.schemes),
+              ),
+              const SizedBox(height: 10),
+              _QuickAction(
+                icon: Icons.mic_rounded,
+                label: 'Voice Assistant',
+                subtitle: 'Ask about schemes using your voice',
+                color: const Color(0xFFD97706),
+                onTap: () => Navigator.of(context).pushNamed(AppRoutes.chat),
+              ),
+
+              // ── Document summary ───────────────────────────────────────
+              const SizedBox(height: 24),
+              Text(
+                'Document Summary',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _StatCard(
+                      label: 'Total',
+                      value: '${dashboard.totalDocuments}',
+                      icon: Icons.description_outlined,
+                      color: cs.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _StatCard(
+                      label: 'Verified',
+                      value: '${dashboard.verifiedDocuments}',
+                      icon: Icons.verified_outlined,
+                      color: const Color(0xFF16803C),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _StatCard(
+                      label: 'Pending',
+                      value:
+                          '${dashboard.totalDocuments - dashboard.verifiedDocuments}',
+                      icon: Icons.pending_outlined,
+                      color: const Color(0xFF9A6B00),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Greeting card ─────────────────────────────────────────────────────────────
+
+class _GreetingCard extends StatelessWidget {
+  const _GreetingCard({required this.dashboard, required this.completion});
+  final CitizenDashboard dashboard;
+  final int completion;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  height: 52,
+                  width: 52,
+                  decoration: BoxDecoration(
+                    color: cs.primary.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.person_rounded,
+                    color: cs.primary,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hello, ${dashboard.fullName}',
-                        style: Theme.of(context).textTheme.headlineMedium,
+                        'Hello, ${dashboard.fullName.split(' ').first}',
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      const SizedBox(height: 8),
                       Text(
                         '${dashboard.district}, ${dashboard.state}',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 18),
-                      Text(
-                        'Your profile is ${dashboard.profileCompletionPercentage}% complete.',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 10),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: LinearProgressIndicator(
-                          minHeight: 12,
-                          value: dashboard.profileCompletionPercentage / 100,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Profile $completion% complete',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                ),
+                Text(
+                  '$completion%',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: cs.primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: LinearProgressIndicator(
+                minHeight: 10,
+                value: completion / 100,
+                backgroundColor: cs.surfaceContainerHighest,
               ),
-              const SizedBox(height: 20),
-              const SectionHeader(
-                title: 'What do you want to see?',
-                subtitle: 'Choose one option.',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Setup CTA ─────────────────────────────────────────────────────────────────
+
+class _SetupCta extends StatelessWidget {
+  const _SetupCta({required this.completion, required this.onTap});
+  final int completion;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              cs.primary,
+              const Color(0xFF1B8A5A),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.upload_file_rounded,
+              color: Colors.white,
+              size: 32,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Complete Your Profile',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 17,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Upload your documents to unlock scheme recommendations.',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.88),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              ProfileCard(
-                title: AppStrings.myProfile,
-                subtitle: 'Name, phone, address and family details',
-                icon: Icons.person_outline,
-                onTap: () => _go(context, AppRoutes.profile),
+            ),
+            const Icon(
+              Icons.arrow_forward_rounded,
+              color: Colors.white,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Quick action card ─────────────────────────────────────────────────────────
+
+class _QuickAction extends StatelessWidget {
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+  });
+  final IconData icon;
+  final String label, subtitle;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              Container(
+                height: 52,
+                width: 52,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: color, size: 26),
               ),
-              const SizedBox(height: 12),
-              ProfileCard(
-                title: AppStrings.myDocuments,
-                subtitle: '${dashboard.totalDocuments} documents linked',
-                icon: Icons.description_outlined,
-                onTap: () => _go(context, AppRoutes.documents),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 12),
-              ProfileCard(
-                title: AppStrings.myLand,
-                subtitle:
-                    '${dashboard.landRecords.length} records, ${AppFormatters.number(dashboard.totalLandArea)} total area',
-                icon: Icons.agriculture_outlined,
-                onTap: () => _go(context, AppRoutes.landRecords),
-              ),
-              const SizedBox(height: 12),
-              ProfileCard(
-                title: AppStrings.incomeDetails,
-                subtitle: AppFormatters.money(profile.annualIncome),
-                icon: Icons.payments_outlined,
-                onTap: () => _go(context, AppRoutes.income),
-              ),
-              const SizedBox(height: 12),
-              ProfileCard(
-                title: 'Community Details',
-                subtitle: AppFormatters.titleCase(profile.community),
-                icon: Icons.groups_outlined,
-                onTap: () => _go(context, AppRoutes.caste),
-              ),
-              const SizedBox(height: 12),
-              ProfileCard(
-                title: 'Discover Schemes',
-                subtitle: 'Browse available government schemes',
-                icon: Icons.search_rounded,
-                onTap: () => Navigator.of(context).pushNamed(AppRoutes.schemes),
-              ),
-              const SizedBox(height: 12),
-              ProfileCard(
-                title: 'Recommended Schemes',
-                subtitle: 'AI-powered matches for your profile',
-                icon: Icons.auto_awesome_rounded,
-                onTap: () => Navigator.of(context).pushNamed(AppRoutes.recommendations),
-              ),
-              const SizedBox(height: 12),
-              ProfileCard(
-                title: 'Voice Assistant',
-                subtitle: 'Record a voice query',
-                icon: Icons.mic_rounded,
-                onTap: () => Navigator.of(context).pushNamed(AppRoutes.chat),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: Theme.of(context).colorScheme.outline,
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Stat card ─────────────────────────────────────────────────────────────────
+
+class _StatCard extends StatelessWidget {
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+  final String label, value;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 26),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );

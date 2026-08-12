@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../core/localization/app_strings.dart';
-import '../digilocker/digilocker_status_screen.dart';
 import '../documents/documents_screen.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
@@ -35,38 +33,25 @@ class _HomeScreenState extends State<HomeScreen> {
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home_rounded),
-            label: AppStrings.home,
+            label: 'Home',
           ),
           NavigationDestination(
             icon: Icon(Icons.folder_copy_outlined),
             selectedIcon: Icon(Icons.folder_copy_rounded),
-            label: AppStrings.myDocuments,
+            label: 'Documents',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person_rounded),
-            label: AppStrings.myProfile,
+            label: 'Profile',
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings_rounded),
-            label: AppStrings.settings,
+            label: 'Settings',
           ),
         ],
       ),
-      floatingActionButton: _index == 0
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const DigiLockerStatusScreen(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.cloud_sync_rounded),
-              label: const Text(AppStrings.updateRecords),
-            )
-          : null,
     );
   }
 }

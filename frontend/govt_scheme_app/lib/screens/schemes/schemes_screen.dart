@@ -84,7 +84,9 @@ class _SchemesScreenState extends State<SchemesScreen> {
                         suffixIcon: _searchController.text.isEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.tune_rounded),
-                                onPressed: () => setState(() => _filtersExpanded = !_filtersExpanded),
+                                onPressed: () => setState(
+                                  () => _filtersExpanded = !_filtersExpanded,
+                                ),
                               )
                             : IconButton(
                                 icon: const Icon(Icons.clear_rounded),
@@ -93,7 +95,9 @@ class _SchemesScreenState extends State<SchemesScreen> {
                                   provider.search('');
                                 },
                               ),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                     ),
                   ),
@@ -104,83 +108,123 @@ class _SchemesScreenState extends State<SchemesScreen> {
                         spacing: 12,
                         runSpacing: 12,
                         children: [
-                          _FilterChip(label: 'Category', value: provider.filters.category, onTap: () => _showFilterSheet(provider)),
-                          _FilterChip(label: 'State', value: provider.filters.state, onTap: () => _showFilterSheet(provider)),
-                          _FilterChip(label: 'Department', value: provider.filters.department, onTap: () => _showFilterSheet(provider)),
-                          _FilterChip(label: 'Status', value: provider.filters.eligibilityStatus, onTap: () => _showFilterSheet(provider)),
+                          _FilterChip(
+                            label: 'Category',
+                            value: provider.filters.category,
+                            onTap: () => _showFilterSheet(provider),
+                          ),
+                          _FilterChip(
+                            label: 'State',
+                            value: provider.filters.state,
+                            onTap: () => _showFilterSheet(provider),
+                          ),
+                          _FilterChip(
+                            label: 'Department',
+                            value: provider.filters.department,
+                            onTap: () => _showFilterSheet(provider),
+                          ),
+                          _FilterChip(
+                            label: 'Status',
+                            value: provider.filters.eligibilityStatus,
+                            onTap: () => _showFilterSheet(provider),
+                          ),
                         ],
                       ),
                     ),
                   Expanded(
-                child: provider.isLoading && provider.schemes.isEmpty
-                    ? const AppLoadingView(message: 'Loading schemes...')
-                    : provider.errorMessage != null && provider.schemes.isEmpty
+                    child: provider.isLoading && provider.schemes.isEmpty
+                        ? const AppLoadingView(message: 'Loading schemes...')
+                        : provider.errorMessage != null &&
+                              provider.schemes.isEmpty
                         ? AppErrorView(
-                            message: AppStrings.friendlyError(provider.errorMessage!),
+                            message: AppStrings.friendlyError(
+                              provider.errorMessage!,
+                            ),
                             onRetry: () => provider.loadSchemes(refresh: true),
                           )
                         : provider.schemes.isEmpty
-                            ? EmptyStateView(
-                                message: 'No schemes found',
-                                subtitle: 'Try a different keyword or filter.',
-                                icon: Icons.description_outlined,
-                              )
-                            : RefreshIndicator(
-                                onRefresh: _refresh,
-                                child: ListView.separated(
-                                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                                  itemCount: provider.schemes.length + (provider.hasMore ? 1 : 0),
-                                  separatorBuilder: (_, _) => const SizedBox(height: 12),
-                                  itemBuilder: (context, index) {
-                                    if (index == provider.schemes.length) {
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                        child: Center(
-                                          child: provider.isLoadingMore
-                                              ? const CircularProgressIndicator()
-                                              : TextButton(
-                                                  onPressed: _loadMore,
-                                                  child: const Text('Load more'),
-                                                ),
-                                        ),
-                                      );
-                                    }
+                        ? EmptyStateView(
+                            message: 'No schemes found',
+                            subtitle: 'Try a different keyword or filter.',
+                            icon: Icons.description_outlined,
+                          )
+                        : RefreshIndicator(
+                            onRefresh: _refresh,
+                            child: ListView.separated(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                              itemCount:
+                                  provider.schemes.length +
+                                  (provider.hasMore ? 1 : 0),
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: 12),
+                              itemBuilder: (context, index) {
+                                if (index == provider.schemes.length) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
+                                    child: Center(
+                                      child: provider.isLoadingMore
+                                          ? const CircularProgressIndicator()
+                                          : TextButton(
+                                              onPressed: _loadMore,
+                                              child: const Text('Load more'),
+                                            ),
+                                    ),
+                                  );
+                                }
 
-                                    final scheme = provider.schemes[index];
-                                    return Card(
-                                      child: ListTile(
-                                        contentPadding: const EdgeInsets.all(16),
-                                        title: Text(scheme.schemeName, style: Theme.of(context).textTheme.titleMedium),
-                                        subtitle: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                final scheme = provider.schemes[index];
+                                return Card(
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.all(16),
+                                    title: Text(
+                                      scheme.schemeName,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
+                                    ),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          scheme.description,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 6,
                                           children: [
-                                            const SizedBox(height: 8),
-                                            Text(scheme.description, maxLines: 2, overflow: TextOverflow.ellipsis),
-                                            const SizedBox(height: 8),
-                                            Wrap(
-                                              spacing: 8,
-                                              runSpacing: 6,
-                                              children: [
-                                                Chip(label: Text(scheme.category)),
-                                                Chip(label: Text(scheme.department)),
-                                              ],
+                                            Chip(label: Text(scheme.category)),
+                                            Chip(
+                                              label: Text(scheme.department),
                                             ),
                                           ],
                                         ),
-                                        trailing: const Icon(Icons.chevron_right_rounded),
-                                        onTap: () {
-                                          provider.selectScheme(scheme.id);
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (_) => SchemeDetailScreen(schemeId: scheme.id),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
+                                      ],
+                                    ),
+                                    trailing: const Icon(
+                                      Icons.chevron_right_rounded,
+                                    ),
+                                    onTap: () {
+                                      provider.selectScheme(scheme.id);
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => SchemeDetailScreen(
+                                            schemeId: scheme.id,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                   ),
                 ],
               ),
@@ -192,10 +236,18 @@ class _SchemesScreenState extends State<SchemesScreen> {
   }
 
   Future<void> _showFilterSheet(SchemeProvider provider) async {
-    final categoryController = TextEditingController(text: provider.filters.category ?? '');
-    final stateController = TextEditingController(text: provider.filters.state ?? '');
-    final departmentController = TextEditingController(text: provider.filters.department ?? '');
-    final statusController = TextEditingController(text: provider.filters.eligibilityStatus ?? '');
+    final categoryController = TextEditingController(
+      text: provider.filters.category ?? '',
+    );
+    final stateController = TextEditingController(
+      text: provider.filters.state ?? '',
+    );
+    final departmentController = TextEditingController(
+      text: provider.filters.department ?? '',
+    );
+    final statusController = TextEditingController(
+      text: provider.filters.eligibilityStatus ?? '',
+    );
 
     try {
       await showModalBottomSheet<void>(
@@ -203,19 +255,38 @@ class _SchemesScreenState extends State<SchemesScreen> {
         isScrollControlled: true,
         builder: (sheetContext) {
           return Padding(
-            padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16),
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('Filters', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 16),
-                TextField(controller: categoryController, decoration: const InputDecoration(labelText: 'Category')),
+                TextField(
+                  controller: categoryController,
+                  decoration: const InputDecoration(labelText: 'Category'),
+                ),
                 const SizedBox(height: 12),
-                TextField(controller: stateController, decoration: const InputDecoration(labelText: 'State')),
+                TextField(
+                  controller: stateController,
+                  decoration: const InputDecoration(labelText: 'State'),
+                ),
                 const SizedBox(height: 12),
-                TextField(controller: departmentController, decoration: const InputDecoration(labelText: 'Department')),
+                TextField(
+                  controller: departmentController,
+                  decoration: const InputDecoration(labelText: 'Department'),
+                ),
                 const SizedBox(height: 12),
-                TextField(controller: statusController, decoration: const InputDecoration(labelText: 'Eligibility status')),
+                TextField(
+                  controller: statusController,
+                  decoration: const InputDecoration(
+                    labelText: 'Eligibility status',
+                  ),
+                ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -260,7 +331,11 @@ class _SchemesScreenState extends State<SchemesScreen> {
 }
 
 class _FilterChip extends StatelessWidget {
-  const _FilterChip({required this.label, required this.value, required this.onTap});
+  const _FilterChip({
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
 
   final String label;
   final String? value;

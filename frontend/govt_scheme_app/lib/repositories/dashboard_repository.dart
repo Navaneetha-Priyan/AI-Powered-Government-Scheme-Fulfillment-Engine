@@ -9,7 +9,8 @@ class DashboardRepository {
 
   Future<CitizenDashboard> getDashboard() async {
     final response = await _apiService.get(ApiConstants.citizenDashboard);
-    final data = response is Map<String, dynamic> &&
+    final data =
+        response is Map<String, dynamic> &&
             response['data'] is Map<String, dynamic>
         ? Map<String, dynamic>.from(response['data'] as Map)
         : Map<String, dynamic>.from(response as Map);

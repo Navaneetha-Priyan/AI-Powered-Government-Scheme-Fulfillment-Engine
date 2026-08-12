@@ -23,7 +23,8 @@ class ProfileRepository {
   }
 
   Map<String, dynamic> _extractData(dynamic response) {
-    if (response is Map<String, dynamic> && response['data'] is Map<String, dynamic>) {
+    if (response is Map<String, dynamic> &&
+        response['data'] is Map<String, dynamic>) {
       return Map<String, dynamic>.from(response['data'] as Map);
     }
 

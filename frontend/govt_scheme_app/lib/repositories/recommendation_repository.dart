@@ -69,19 +69,25 @@ class RecommendationRepository {
   }
 
   Map<String, dynamic> _dataMap(dynamic response) {
-    final payload = response is Map<String, dynamic> ? response : <String, dynamic>{};
+    final payload = response is Map<String, dynamic>
+        ? response
+        : <String, dynamic>{};
     return payload['data'] is Map<String, dynamic>
         ? Map<String, dynamic>.from(payload['data'] as Map)
         : payload;
   }
 
   List<RecommendationHistory> _historyList(dynamic response) {
-    final payload = response is Map<String, dynamic> ? response : <String, dynamic>{};
+    final payload = response is Map<String, dynamic>
+        ? response
+        : <String, dynamic>{};
     final data = payload['data'] is List ? payload['data'] as List : const [];
     return data
         .whereType<Map>()
-        .map((item) => RecommendationHistory.fromJson(Map<String, dynamic>.from(item)))
+        .map(
+          (item) =>
+              RecommendationHistory.fromJson(Map<String, dynamic>.from(item)),
+        )
         .toList();
   }
 }
-

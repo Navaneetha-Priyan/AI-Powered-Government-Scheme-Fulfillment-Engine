@@ -16,7 +16,9 @@ class AppDialogs {
         return AlertDialog(
           title: Text(title),
           content: Text(message),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),

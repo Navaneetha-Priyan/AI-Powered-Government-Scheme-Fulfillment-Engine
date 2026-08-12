@@ -27,7 +27,10 @@ class EligibilityProvider extends ChangeNotifier {
 
   String? errorFor(String schemeId) => _errors[schemeId];
 
-  Future<EligibilityCheck?> loadEligibility(String schemeId, {bool refresh = false}) async {
+  Future<EligibilityCheck?> loadEligibility(
+    String schemeId, {
+    bool refresh = false,
+  }) async {
     if (schemeId.isEmpty) {
       return null;
     }
@@ -99,4 +102,3 @@ class EligibilityProvider extends ChangeNotifier {
     onInvalidateAll?.call();
   }
 }
-

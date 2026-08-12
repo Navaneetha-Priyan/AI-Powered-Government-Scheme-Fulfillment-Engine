@@ -84,7 +84,8 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Consumer2<AppProvider, AuthProvider>(
       builder: (context, appProvider, authProvider, _) {
-        final errorMessage = appProvider.errorMessage ?? authProvider.errorMessage;
+        final errorMessage =
+            appProvider.errorMessage ?? authProvider.errorMessage;
 
         if (!_bootstrapping && errorMessage != null) {
           return Scaffold(
@@ -118,7 +119,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 constraints: const BoxConstraints(maxWidth: 420),
                 child: Card(
                   color: Colors.white.withValues(alpha: 0.12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(32),
                     child: Column(
@@ -131,7 +134,11 @@ class _SplashScreenState extends State<SplashScreen> {
                             color: Colors.white.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(24),
                           ),
-                          child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 40),
+                          child: const Icon(
+                            Icons.verified_user_rounded,
+                            color: Colors.white,
+                            size: 40,
+                          ),
                         ),
                         const SizedBox(height: 20),
                         const Text(
@@ -149,7 +156,9 @@ class _SplashScreenState extends State<SplashScreen> {
                               ? 'Verifying your secure session...'
                               : 'Preparing your secure session...',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.88)),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.88),
+                          ),
                         ),
                         const SizedBox(height: 28),
                         const CircularProgressIndicator(color: Colors.white),
@@ -158,7 +167,9 @@ class _SplashScreenState extends State<SplashScreen> {
                           Text(
                             errorMessage,
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
+                            ),
                           ),
                       ],
                     ),

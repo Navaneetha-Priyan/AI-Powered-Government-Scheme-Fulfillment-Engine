@@ -20,7 +20,10 @@ class AppFormatters {
     return dateFormat.format(value.toLocal());
   }
 
-  static String displayValue(String? value, {String fallback = 'Not available'}) {
+  static String displayValue(
+    String? value, {
+    String fallback = 'Not available',
+  }) {
     if (value == null || value.trim().isEmpty) {
       return fallback;
     }
@@ -31,7 +34,11 @@ class AppFormatters {
     if (value == null) {
       return 'Not available';
     }
-    return NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0).format(value);
+    return NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 0,
+    ).format(value);
   }
 
   static String number(num? value, {int decimalDigits = 2}) {
@@ -48,9 +55,11 @@ class AppFormatters {
     final text = displayValue(value, fallback: fallback).replaceAll('_', ' ');
     return text
         .split(' ')
-        .map((part) => part.isEmpty
-            ? part
-            : '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}')
+        .map(
+          (part) => part.isEmpty
+              ? part
+              : '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}',
+        )
         .join(' ');
   }
 }

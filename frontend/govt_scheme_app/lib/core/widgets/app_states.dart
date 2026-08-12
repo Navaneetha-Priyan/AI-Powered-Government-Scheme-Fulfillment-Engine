@@ -4,7 +4,10 @@ import '../localization/app_strings.dart';
 import '../widgets/app_buttons.dart';
 
 class AppLoadingView extends StatelessWidget {
-  const AppLoadingView({super.key, this.message = AppStrings.loadingInformation});
+  const AppLoadingView({
+    super.key,
+    this.message = AppStrings.loadingInformation,
+  });
 
   final String message;
 
@@ -33,11 +36,7 @@ class AppLoadingView extends StatelessWidget {
 }
 
 class AppErrorView extends StatelessWidget {
-  const AppErrorView({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const AppErrorView({super.key, required this.message, this.onRetry});
 
   final String message;
   final VoidCallback? onRetry;
@@ -51,7 +50,11 @@ class AppErrorView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_rounded, size: 56, color: Theme.of(context).colorScheme.primary),
+            Icon(
+              Icons.cloud_off_rounded,
+              size: 56,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(height: 16),
             Text(
               AppStrings.friendlyError(message),
@@ -60,7 +63,11 @@ class AppErrorView extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 20),
-              PrimaryButton(label: AppStrings.retry, onPressed: onRetry, icon: Icons.refresh_rounded),
+              PrimaryButton(
+                label: AppStrings.retry,
+                onPressed: onRetry,
+                icon: Icons.refresh_rounded,
+              ),
             ],
           ],
         ),
@@ -98,10 +105,16 @@ class EmptyStateView extends StatelessWidget {
               height: 96,
               width: 96,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
+                color: Theme.of(
+                  context,
+                ).colorScheme.secondary.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 52, color: Theme.of(context).colorScheme.secondary),
+              child: Icon(
+                icon,
+                size: 52,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
             ),
             const SizedBox(height: 16),
             Text(
@@ -119,7 +132,11 @@ class EmptyStateView extends StatelessWidget {
             ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 20),
-              PrimaryButton(label: actionLabel!, onPressed: onAction, icon: Icons.arrow_forward_rounded),
+              PrimaryButton(
+                label: actionLabel!,
+                onPressed: onAction,
+                icon: Icons.arrow_forward_rounded,
+              ),
             ],
           ],
         ),

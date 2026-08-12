@@ -51,7 +51,10 @@ class VoiceRecommendationResult {
     return VoiceRecommendationResult(
       schemes: (json['schemes'] as List? ?? const [])
           .whereType<Map>()
-          .map((item) => RecommendationMatch.fromJson(Map<String, dynamic>.from(item)))
+          .map(
+            (item) =>
+                RecommendationMatch.fromJson(Map<String, dynamic>.from(item)),
+          )
           .toList(),
       intent: (json['intent'] ?? 'unknown').toString(),
       language: json['language']?.toString(),
@@ -60,7 +63,9 @@ class VoiceRecommendationResult {
       source: json['source']?.toString(),
       message: json['message']?.toString(),
       profile: json['profile'] is Map<String, dynamic>
-          ? VoiceProfileView.fromJson(Map<String, dynamic>.from(json['profile'] as Map))
+          ? VoiceProfileView.fromJson(
+              Map<String, dynamic>.from(json['profile'] as Map),
+            )
           : null,
     );
   }
@@ -113,11 +118,14 @@ class VoiceProfileView {
       caste: json['caste']?.toString(),
       community: json['community']?.toString(),
       educationLevel: json['education_level']?.toString(),
-      familyMemberCount: int.tryParse(json['family_member_count']?.toString() ?? ''),
+      familyMemberCount: int.tryParse(
+        json['family_member_count']?.toString() ?? '',
+      ),
       state: json['state']?.toString(),
       district: json['district']?.toString(),
-      profileCompletionPercentage:
-          int.tryParse(json['profile_completion_percentage']?.toString() ?? ''),
+      profileCompletionPercentage: int.tryParse(
+        json['profile_completion_percentage']?.toString() ?? '',
+      ),
     );
   }
 }

@@ -21,7 +21,8 @@ class RecommendationProvider extends ChangeNotifier {
   int _version = 0;
 
   RecommendationSummary? get summary => _summary;
-  List<RecommendationMatch> get recommendations => _summary?.recommendations ?? const [];
+  List<RecommendationMatch> get recommendations =>
+      _summary?.recommendations ?? const [];
   List<RecommendationHistory> get history => _history;
   bool get isLoading => _isLoading;
   bool get isRefreshing => _isRefreshing;
@@ -41,7 +42,9 @@ class RecommendationProvider extends ChangeNotifier {
 
   /// Loads the latest recommendations. If nothing has been loaded yet this
   /// generates them via the backend; otherwise it returns the cached summary.
-  Future<RecommendationSummary?> loadRecommendations({bool refresh = false}) async {
+  Future<RecommendationSummary?> loadRecommendations({
+    bool refresh = false,
+  }) async {
     if (!refresh && _summary != null) {
       return _summary;
     }
@@ -113,7 +116,9 @@ class RecommendationProvider extends ChangeNotifier {
 
   /// Loads a single recommendation detail, caching it and de-duplicating
   /// concurrent requests.
-  Future<RecommendationMatch?> loadRecommendationDetail(String recommendationId) async {
+  Future<RecommendationMatch?> loadRecommendationDetail(
+    String recommendationId,
+  ) async {
     if (recommendationId.isEmpty) {
       return null;
     }
@@ -142,7 +147,10 @@ class RecommendationProvider extends ChangeNotifier {
     }
   }
 
-  Future<RecommendationMatch?> _fetchDetail(String recommendationId, int generation) async {
+  Future<RecommendationMatch?> _fetchDetail(
+    String recommendationId,
+    int generation,
+  ) async {
     try {
       final match = await _repository.getRecommendation(recommendationId);
       if (generation != _generation) {
@@ -207,4 +215,3 @@ class RecommendationProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-
