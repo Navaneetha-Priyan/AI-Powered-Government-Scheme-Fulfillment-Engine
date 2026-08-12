@@ -17,6 +17,7 @@ class DashboardProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   Future<void> loadDashboard() async {
+    if (_isLoading) return;
     _setLoading(true);
     try {
       _dashboard = await _repository.getDashboard();

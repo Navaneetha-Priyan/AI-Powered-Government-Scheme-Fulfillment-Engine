@@ -40,15 +40,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final profile = context.read<AuthProvider>().currentUser;
     _fullNameController = TextEditingController(text: profile?.fullName ?? '');
     _phoneController = TextEditingController(text: profile?.phone ?? '');
-    _addressLine1Controller = TextEditingController(text: profile?.addressLine1 ?? '');
-    _addressLine2Controller = TextEditingController(text: profile?.addressLine2 ?? '');
+    _addressLine1Controller = TextEditingController(
+      text: profile?.addressLine1 ?? '',
+    );
+    _addressLine2Controller = TextEditingController(
+      text: profile?.addressLine2 ?? '',
+    );
     _villageController = TextEditingController(text: profile?.village ?? '');
     _talukController = TextEditingController(text: profile?.taluk ?? '');
     _districtController = TextEditingController(text: profile?.district ?? '');
     _stateController = TextEditingController(text: profile?.state ?? '');
     _pincodeController = TextEditingController(text: profile?.pincode ?? '');
-    _preferredLanguageController = TextEditingController(text: profile?.preferredLanguage ?? 'en');
-    _profilePhotoUrlController = TextEditingController(text: profile?.profilePhotoUrl ?? '');
+    _preferredLanguageController = TextEditingController(
+      text: profile?.preferredLanguage ?? 'en',
+    );
+    _profilePhotoUrlController = TextEditingController(
+      text: profile?.profilePhotoUrl ?? '',
+    );
     _gender = profile?.gender;
     _dateOfBirth = profile?.dateOfBirth;
   }
@@ -104,7 +112,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       'profile_photo_url': _profilePhotoUrlController.text.trim(),
     };
 
-    payload.removeWhere((key, value) => value == null || value.toString().trim().isEmpty);
+    payload.removeWhere(
+      (key, value) => value == null || value.toString().trim().isEmpty,
+    );
 
     try {
       await profileProvider.updateProfile(payload);
@@ -117,7 +127,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
 
       if (widget.returnToDashboardAfterSave) {
-        Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
       } else {
         Navigator.of(context).pop();
       }
@@ -126,9 +138,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
     }
   }
 
@@ -151,7 +163,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text('Update your profile', style: Theme.of(context).textTheme.headlineMedium),
+                          Text(
+                            'Update your profile',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
                           const SizedBox(height: 20),
                           AppTextField(
                             controller: _fullNameController,
@@ -171,17 +186,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           DropdownButtonFormField<String>(
                             initialValue: _gender,
                             items: const [
-                              DropdownMenuItem(value: 'male', child: Text('Male')),
-                              DropdownMenuItem(value: 'female', child: Text('Female')),
-                              DropdownMenuItem(value: 'other', child: Text('Other')),
-                              DropdownMenuItem(value: 'prefer_not_to_say', child: Text('Prefer not to say')),
+                              DropdownMenuItem(
+                                value: 'male',
+                                child: Text('Male'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'female',
+                                child: Text('Female'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'other',
+                                child: Text('Other'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'prefer_not_to_say',
+                                child: Text('Prefer not to say'),
+                              ),
                             ],
-                            onChanged: (value) => setState(() => _gender = value),
-                            decoration: const InputDecoration(labelText: 'Gender'),
+                            onChanged: (value) =>
+                                setState(() => _gender = value),
+                            decoration: const InputDecoration(
+                              labelText: 'Gender',
+                            ),
                           ),
                           const SizedBox(height: 16),
                           AppTextField(
-                            controller: TextEditingController(text: AppFormatters.displayDate(_dateOfBirth)),
+                            controller: TextEditingController(
+                              text: AppFormatters.displayDate(_dateOfBirth),
+                            ),
                             label: 'Date of Birth',
                             readOnly: true,
                             onTap: _pickDateOfBirth,
@@ -190,24 +222,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             onSuffixTap: _pickDateOfBirth,
                           ),
                           const SizedBox(height: 16),
-                          AppTextField(controller: _addressLine1Controller, label: 'Address Line 1'),
+                          AppTextField(
+                            controller: _addressLine1Controller,
+                            label: 'Address Line 1',
+                          ),
                           const SizedBox(height: 16),
-                          AppTextField(controller: _addressLine2Controller, label: 'Address Line 2'),
+                          AppTextField(
+                            controller: _addressLine2Controller,
+                            label: 'Address Line 2',
+                          ),
                           const SizedBox(height: 16),
-                          AppTextField(controller: _villageController, label: 'Village'),
+                          AppTextField(
+                            controller: _villageController,
+                            label: 'Village',
+                          ),
                           const SizedBox(height: 16),
-                          AppTextField(controller: _talukController, label: 'Taluk'),
+                          AppTextField(
+                            controller: _talukController,
+                            label: 'Taluk',
+                          ),
                           const SizedBox(height: 16),
                           AppTextField(
                             controller: _districtController,
                             label: 'District',
-                            validator: (value) => Validators.requiredField(value, label: 'District'),
+                            validator: (value) => Validators.requiredField(
+                              value,
+                              label: 'District',
+                            ),
                           ),
                           const SizedBox(height: 16),
                           AppTextField(
                             controller: _stateController,
                             label: 'State',
-                            validator: (value) => Validators.requiredField(value, label: 'State'),
+                            validator: (value) =>
+                                Validators.requiredField(value, label: 'State'),
                           ),
                           const SizedBox(height: 16),
                           AppTextField(
@@ -217,9 +265,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             validator: Validators.pincode,
                           ),
                           const SizedBox(height: 16),
-                          AppTextField(controller: _preferredLanguageController, label: 'Preferred Language'),
+                          AppTextField(
+                            controller: _preferredLanguageController,
+                            label: 'Preferred Language',
+                          ),
                           const SizedBox(height: 16),
-                          AppTextField(controller: _profilePhotoUrlController, label: 'Profile Photo URL'),
+                          AppTextField(
+                            controller: _profilePhotoUrlController,
+                            label: 'Profile Photo URL',
+                          ),
                           const SizedBox(height: 24),
                           PrimaryButton(
                             label: 'Save Changes',

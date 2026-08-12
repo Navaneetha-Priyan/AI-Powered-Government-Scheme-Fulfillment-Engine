@@ -49,11 +49,20 @@ class GovernmentScheme {
   factory GovernmentScheme.fromJson(Map<String, dynamic> json) {
     return GovernmentScheme(
       id: (json['id'] ?? json['scheme_id'] ?? '').toString(),
-      schemeName: (json['scheme_name'] ?? json['schemeName'] ?? 'Untitled scheme').toString(),
-      description: (json['description'] ?? json['matched_content'] ?? json['relevant_content'] ?? '').toString(),
+      schemeName:
+          (json['scheme_name'] ?? json['schemeName'] ?? 'Untitled scheme')
+              .toString(),
+      description:
+          (json['description'] ??
+                  json['matched_content'] ??
+                  json['relevant_content'] ??
+                  '')
+              .toString(),
       category: (json['category'] ?? '').toString(),
       department: (json['department'] ?? '').toString(),
-      governmentLevel: (json['government_level'] ?? json['governmentLevel'] ?? 'state').toString(),
+      governmentLevel:
+          (json['government_level'] ?? json['governmentLevel'] ?? 'state')
+              .toString(),
       state: json['state']?.toString(),
       benefits: json['benefits']?.toString(),
       eligibilitySummary: json['eligibility_summary']?.toString(),
@@ -101,7 +110,9 @@ class SchemeListResponse {
         : json;
     final items = (data['items'] as List? ?? const [])
         .whereType<Map>()
-        .map((item) => GovernmentScheme.fromJson(Map<String, dynamic>.from(item)))
+        .map(
+          (item) => GovernmentScheme.fromJson(Map<String, dynamic>.from(item)),
+        )
         .toList();
 
     return SchemeListResponse(

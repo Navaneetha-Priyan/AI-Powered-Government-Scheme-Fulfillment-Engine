@@ -72,6 +72,8 @@ class Settings(BaseSettings):
     # File Upload Configuration (Future Module 7)
     MAX_UPLOAD_SIZE_MB: int = 10
     UPLOAD_DIR: str = "uploads"
+    DOCUMENT_STORAGE_DIR: str = "storage/citizen_documents"
+    TESSERACT_CMD: str = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
     SCHEME_STORAGE_DIR: str = "storage/schemes"
     MAX_SCHEME_PDF_SIZE_BYTES: int = 10485760
     SCHEME_CHUNK_SIZE: int = 900

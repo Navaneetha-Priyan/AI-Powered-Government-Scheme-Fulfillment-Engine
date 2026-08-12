@@ -220,7 +220,8 @@ class GovernmentDocument {
   factory GovernmentDocument.fromJson(Map<String, dynamic> json) {
     return GovernmentDocument(
       id: optionalString(json['id']) ?? '',
-      documentName: optionalString(json['document_name']) ?? 'Government Document',
+      documentName:
+          optionalString(json['document_name']) ?? 'Government Document',
       documentType: optionalString(json['document_type']) ?? 'document',
       documentNumber: optionalString(json['document_number']),
       issueDate: parseApiDate(json['issue_date']),
@@ -564,10 +565,7 @@ class DocumentProcessingData {
 
 @immutable
 class LandRecordSummary {
-  const LandRecordSummary({
-    required this.totalLandArea,
-    required this.records,
-  });
+  const LandRecordSummary({required this.totalLandArea, required this.records});
 
   final double totalLandArea;
   final List<LandRecord> records;
@@ -579,8 +577,12 @@ class LandRecordSummary {
         .toList();
 
     return LandRecordSummary(
-      totalLandArea: parseApiDouble(json['total_land_area']) ??
-          records.fold<double>(0, (sum, record) => sum + (record.landArea ?? 0)),
+      totalLandArea:
+          parseApiDouble(json['total_land_area']) ??
+          records.fold<double>(
+            0,
+            (sum, record) => sum + (record.landArea ?? 0),
+          ),
       records: records,
     );
   }
@@ -599,8 +601,10 @@ class DocumentSummary {
   factory DocumentSummary.fromJson(Map<String, dynamic> json) {
     final documents = (json['documents'] as List? ?? const [])
         .whereType<Map>()
-        .map((item) =>
-            GovernmentDocument.fromJson(Map<String, dynamic>.from(item)))
+        .map(
+          (item) =>
+              GovernmentDocument.fromJson(Map<String, dynamic>.from(item)),
+        )
         .toList();
 
     return DocumentSummary(

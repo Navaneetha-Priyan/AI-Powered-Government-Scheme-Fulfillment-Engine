@@ -6,8 +6,8 @@ import 'api_exception.dart';
 
 class ApiService {
   ApiService({required StorageService storageService})
-      : _storageService = storageService,
-        _baseUrlCandidates = ApiConstants.baseUrlCandidates {
+    : _storageService = storageService,
+      _baseUrlCandidates = ApiConstants.baseUrlCandidates {
     _initializeClients(_baseUrlCandidates.first);
   }
 
@@ -24,7 +24,8 @@ class ApiService {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = _storageService.accessToken;
-          final isAuthRoute = options.path == ApiConstants.login ||
+          final isAuthRoute =
+              options.path == ApiConstants.login ||
               options.path == ApiConstants.register ||
               options.path == ApiConstants.refresh ||
               options.path == ApiConstants.health ||
@@ -40,7 +41,8 @@ class ApiService {
         onError: (error, handler) async {
           final isUnauthorized = error.response?.statusCode == 401;
           final alreadyRetried = error.requestOptions.extra['retried'] == true;
-          final isRefreshCall = error.requestOptions.path == ApiConstants.refresh;
+          final isRefreshCall =
+              error.requestOptions.path == ApiConstants.refresh;
 
           if (isUnauthorized && !alreadyRetried && !isRefreshCall) {
             final refreshToken = _storageService.refreshToken;
@@ -50,7 +52,8 @@ class ApiService {
                   ApiConstants.refresh,
                   data: {'refresh_token': refreshToken},
                 );
-                final refreshData = refreshResponse.data as Map<String, dynamic>;
+                final refreshData =
+                    refreshResponse.data as Map<String, dynamic>;
                 final payload = refreshData['data'] as Map<String, dynamic>;
                 await _storageService.saveTokens(
                   accessToken: payload['access_token'].toString(),
@@ -128,7 +131,8 @@ class ApiService {
 
     final attemptedHosts = _baseUrlCandidates.join(', ');
     throw ApiException(
-      message: 'Unable to reach the backend at any configured host: $attemptedHosts',
+      message:
+          'Unable to reach the backend at any configured host: $attemptedHosts',
       statusCode: lastConnectivityError?.response?.statusCode,
     );
   }
@@ -138,10 +142,7 @@ class ApiService {
     Map<String, dynamic>? queryParameters,
   }) async {
     return _executeWithFallback(
-      () => _dio.get(
-        path,
-        queryParameters: queryParameters,
-      ),
+      () => _dio.get(path, queryParameters: queryParameters),
       path,
     );
   }
@@ -149,8 +150,18 @@ class ApiService {
   Future<dynamic> post(
     String path, {
     Object? data,
+    Duration? receiveTimeout,
   }) async {
-    return _executeWithFallback(() => _dio.post(path, data: data), path);
+    return _executeWithFallback(
+      () => _dio.post(
+        path,
+        data: data,
+        options: receiveTimeout == null
+            ? null
+            : Options(receiveTimeout: receiveTimeout),
+      ),
+      path,
+    );
   }
 
   /// Posts [FormData] (e.g. multipart file upload) to [path].
@@ -162,30 +173,24 @@ class ApiService {
   Future<dynamic> postMultipart(
     String path, {
     required FormData formData,
+    ProgressCallback? onSendProgress,
   }) async {
     return _executeWithFallback(
       () => _dio.post(
         path,
         data: formData,
-        options: Options(
-          contentType: Headers.multipartFormDataContentType,
-        ),
+        options: Options(contentType: Headers.multipartFormDataContentType),
+        onSendProgress: onSendProgress,
       ),
       path,
     );
   }
 
-  Future<dynamic> put(
-    String path, {
-    Object? data,
-  }) async {
+  Future<dynamic> put(String path, {Object? data}) async {
     return _executeWithFallback(() => _dio.put(path, data: data), path);
   }
 
-  Future<dynamic> delete(
-    String path, {
-    Object? data,
-  }) async {
+  Future<dynamic> delete(String path, {Object? data}) async {
     return _executeWithFallback(() => _dio.delete(path, data: data), path);
   }
 }

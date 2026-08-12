@@ -28,28 +28,44 @@ class SchemeRepository {
     return SchemeListResponse.fromJson(response as Map<String, dynamic>);
   }
 
-  Future<SchemeListResponse> searchSchemes(String query, {int limit = 10}) async {
+  Future<SchemeListResponse> searchSchemes(
+    String query, {
+    int limit = 10,
+  }) async {
     assert(_apiService != null, 'Use the real repository in app runtime');
     final response = await _apiService!.post(
       ApiConstants.schemeSearch,
       data: {'query': query, 'limit': limit, 'category': null},
     );
-    final payload = response is Map<String, dynamic> ? response : <String, dynamic>{};
+    final payload = response is Map<String, dynamic>
+        ? response
+        : <String, dynamic>{};
     final data = payload['data'] is Map<String, dynamic>
         ? payload['data'] as Map<String, dynamic>
         : payload;
     final items = (data['items'] as List? ?? const [])
         .whereType<Map>()
-        .map((item) => GovernmentScheme.fromJson(Map<String, dynamic>.from(item)))
+        .map(
+          (item) => GovernmentScheme.fromJson(Map<String, dynamic>.from(item)),
+        )
         .toList();
 
-    return SchemeListResponse(items: items, total: items.length, skip: 0, limit: limit);
+    return SchemeListResponse(
+      items: items,
+      total: items.length,
+      skip: 0,
+      limit: limit,
+    );
   }
 
   Future<GovernmentScheme> getScheme(String schemeId) async {
     assert(_apiService != null, 'Use the real repository in app runtime');
-    final response = await _apiService!.get('${ApiConstants.schemes}/$schemeId');
-    final payload = response is Map<String, dynamic> ? response : <String, dynamic>{};
+    final response = await _apiService!.get(
+      '${ApiConstants.schemes}/$schemeId',
+    );
+    final payload = response is Map<String, dynamic>
+        ? response
+        : <String, dynamic>{};
     final data = payload['data'] is Map<String, dynamic>
         ? payload['data'] as Map<String, dynamic>
         : payload;

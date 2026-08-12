@@ -31,3 +31,4 @@ sentence-transformers==3.3.1
 # Speech-to-Text (Phase 2 - Voice Assistant)
 # faster-whisper uses CTranslate2 (no PyTorch required).
 faster-whisper>=1.1.0
+

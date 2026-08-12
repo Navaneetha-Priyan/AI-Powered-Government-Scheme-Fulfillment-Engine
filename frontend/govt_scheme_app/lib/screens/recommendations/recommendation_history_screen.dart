@@ -12,10 +12,12 @@ class RecommendationHistoryScreen extends StatefulWidget {
   const RecommendationHistoryScreen({super.key});
 
   @override
-  State<RecommendationHistoryScreen> createState() => _RecommendationHistoryScreenState();
+  State<RecommendationHistoryScreen> createState() =>
+      _RecommendationHistoryScreenState();
 }
 
-class _RecommendationHistoryScreenState extends State<RecommendationHistoryScreen> {
+class _RecommendationHistoryScreenState
+    extends State<RecommendationHistoryScreen> {
   @override
   void initState() {
     super.initState();
@@ -49,31 +51,31 @@ class _RecommendationHistoryScreenState extends State<RecommendationHistoryScree
           body: provider.isHistoryLoading && history.isEmpty
               ? const AppLoadingView(message: 'Loading history...')
               : history.isEmpty && provider.historyError != null
-                  ? AppErrorView(
-                      message: AppStrings.friendlyError(provider.historyError!),
-                      onRetry: _load,
-                    )
-                  : history.isEmpty
-                      ? EmptyStateView(
-                          message: 'No recommendation history yet',
-                          subtitle: 'Generate recommendations to see them here.',
-                          icon: Icons.history_rounded,
-                        )
-                      : RefreshIndicator(
-                          onRefresh: _refresh,
-                          child: ListView.builder(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                            itemCount: history.length,
-                            itemBuilder: (context, index) {
-                              final entry = history[index];
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: _HistoryCard(entry: entry),
-                              );
-                            },
-                          ),
-                        ),
+              ? AppErrorView(
+                  message: AppStrings.friendlyError(provider.historyError!),
+                  onRetry: _load,
+                )
+              : history.isEmpty
+              ? EmptyStateView(
+                  message: 'No recommendation history yet',
+                  subtitle: 'Generate recommendations to see them here.',
+                  icon: Icons.history_rounded,
+                )
+              : RefreshIndicator(
+                  onRefresh: _refresh,
+                  child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                    itemCount: history.length,
+                    itemBuilder: (context, index) {
+                      final entry = history[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _HistoryCard(entry: entry),
+                      );
+                    },
+                  ),
+                ),
         );
       },
     );
@@ -146,4 +148,3 @@ class _HistoryCard extends StatelessWidget {
     );
   }
 }
-

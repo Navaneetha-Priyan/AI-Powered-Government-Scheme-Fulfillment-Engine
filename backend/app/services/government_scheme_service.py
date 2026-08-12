@@ -85,11 +85,14 @@ class GovernmentSchemeService:
 
     def delete_scheme(self, scheme_id: str):
         scheme = self.get_scheme(scheme_id)
-        try:
-            self._get_vector_store().delete_scheme(scheme_id)
-        except VectorDatabaseError:
-            logger.exception("Vector cleanup failed for scheme delete: %s", scheme_id)
-            raise
+        # A scheme with no processed chunks has no vector data.  Avoid making
+        # ordinary catalogue CRUD depend on an optional Chroma installation.
+        if self.documents.get_chunks_by_scheme(scheme_id):
+            try:
+                self._get_vector_store().delete_scheme(scheme_id)
+            except VectorDatabaseError:
+                logger.exception("Vector cleanup failed for scheme delete: %s", scheme_id)
+                raise
         self.schemes.delete(scheme)
 
     def save_pdf(self, scheme_id: str, file: UploadFile, uploaded_by: str):

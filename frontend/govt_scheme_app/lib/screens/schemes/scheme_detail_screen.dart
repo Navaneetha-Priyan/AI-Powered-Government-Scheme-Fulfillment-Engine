@@ -54,7 +54,9 @@ class _SchemeDetailScreenState extends State<SchemeDetailScreen> {
 
         final selected = schemeProvider.schemeById(widget.schemeId);
         if (selected == null && schemeProvider.isLoading) {
-          return const Scaffold(body: AppLoadingView(message: 'Loading scheme details...'));
+          return const Scaffold(
+            body: AppLoadingView(message: 'Loading scheme details...'),
+          );
         }
 
         if (selected == null) {
@@ -74,19 +76,41 @@ class _SchemeDetailScreenState extends State<SchemeDetailScreen> {
             children: [
               _InfoSection(title: 'Description', body: selected.description),
               _EligibilitySection(
-                eligibility: eligibilityProvider.eligibilityFor(widget.schemeId),
+                eligibility: eligibilityProvider.eligibilityFor(
+                  widget.schemeId,
+                ),
                 isLoading: eligibilityProvider.isLoadingScheme(widget.schemeId),
                 errorMessage: eligibilityProvider.errorFor(widget.schemeId),
                 onRefresh: () => _loadEligibility(refresh: true),
               ),
-              _InfoSection(title: 'Eligibility criteria', body: selected.eligibilitySummary ?? 'Not specified'),
-              _InfoSection(title: 'Required documents', body: selected.requiredDocuments ?? 'Not specified'),
-              _InfoSection(title: 'Benefits', body: selected.benefits ?? 'Not specified'),
-              _InfoSection(title: 'Application process', body: selected.applicationProcess ?? 'Not specified'),
+              _InfoSection(
+                title: 'Eligibility criteria',
+                body: selected.eligibilitySummary ?? 'Not specified',
+              ),
+              _InfoSection(
+                title: 'Required documents',
+                body: selected.requiredDocuments ?? 'Not specified',
+              ),
+              _InfoSection(
+                title: 'Benefits',
+                body: selected.benefits ?? 'Not specified',
+              ),
+              _InfoSection(
+                title: 'Application process',
+                body: selected.applicationProcess ?? 'Not specified',
+              ),
               _InfoSection(title: 'Department', body: selected.department),
               _InfoSection(title: 'State', body: selected.state ?? 'All India'),
-              _InfoSection(title: 'Last updated', body: AppFormatters.displayDateTime(selected.updatedAt ?? selected.createdAt)),
-              _InfoSection(title: 'Contact information', body: selected.officialLink ?? 'Not available'),
+              _InfoSection(
+                title: 'Last updated',
+                body: AppFormatters.displayDateTime(
+                  selected.updatedAt ?? selected.createdAt,
+                ),
+              ),
+              _InfoSection(
+                title: 'Contact information',
+                body: selected.officialLink ?? 'Not available',
+              ),
             ],
           ),
         );
@@ -140,7 +164,8 @@ class _EligibilitySection extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: EmptyStateView(
             message: 'Eligibility not checked yet',
-            subtitle: 'Refresh to evaluate this scheme with your current profile.',
+            subtitle:
+                'Refresh to evaluate this scheme with your current profile.',
             icon: Icons.fact_check_outlined,
             actionLabel: 'Check eligibility',
             onAction: onRefresh,
@@ -167,7 +192,9 @@ class _EligibilitySection extends StatelessWidget {
     }
 
     final colorScheme = Theme.of(context).colorScheme;
-    final statusColor = result.eligible ? const Color(0xFF16803C) : colorScheme.error;
+    final statusColor = result.eligible
+        ? const Color(0xFF16803C)
+        : colorScheme.error;
     final percent = result.eligibilityPercentage.clamp(0, 100) / 100;
 
     return Card(
@@ -180,7 +207,10 @@ class _EligibilitySection extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text('Your eligibility', style: Theme.of(context).textTheme.titleLarge),
+                  child: Text(
+                    'Your eligibility',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                 ),
                 IconButton(
                   tooltip: 'Refresh eligibility',
@@ -197,7 +227,9 @@ class _EligibilitySection extends StatelessWidget {
               children: [
                 Chip(
                   avatar: Icon(
-                    result.eligible ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                    result.eligible
+                        ? Icons.check_circle_rounded
+                        : Icons.cancel_rounded,
                     color: statusColor,
                   ),
                   side: BorderSide(color: statusColor),
@@ -206,24 +238,46 @@ class _EligibilitySection extends StatelessWidget {
                 ),
                 Chip(
                   avatar: Icon(
-                    result.applicationReady ? Icons.task_alt_rounded : Icons.pending_actions_rounded,
-                    color: result.applicationReady ? colorScheme.primary : colorScheme.tertiary,
+                    result.applicationReady
+                        ? Icons.task_alt_rounded
+                        : Icons.pending_actions_rounded,
+                    color: result.applicationReady
+                        ? colorScheme.primary
+                        : colorScheme.tertiary,
                   ),
-                  label: Text(result.applicationReady ? 'Application ready' : 'Action needed'),
+                  label: Text(
+                    result.applicationReady
+                        ? 'Application ready'
+                        : 'Action needed',
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            Text('${result.eligibilityPercentage.toStringAsFixed(0)}%', style: Theme.of(context).textTheme.headlineMedium),
+            Text(
+              '${result.eligibilityPercentage.toStringAsFixed(0)}%',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
             const SizedBox(height: 8),
             LinearProgressIndicator(value: percent.toDouble(), minHeight: 10),
             const SizedBox(height: 16),
             if (result.reasoning.isNotEmpty) ...[
-              Text(result.reasoning, style: Theme.of(context).textTheme.bodyLarge),
+              Text(
+                result.reasoning,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
               const SizedBox(height: 16),
             ],
-            _RuleList(title: 'Matched rules', items: result.matchedRules, emptyText: 'No matched rules were returned.'),
-            _RuleList(title: 'Failed rules', items: result.failedRules, emptyText: 'No failed rules.'),
+            _RuleList(
+              title: 'Matched rules',
+              items: result.matchedRules,
+              emptyText: 'No matched rules were returned.',
+            ),
+            _RuleList(
+              title: 'Failed rules',
+              items: result.failedRules,
+              emptyText: 'No failed rules.',
+            ),
             _RuleList(
               title: 'Missing profile information',
               items: result.missingProfileInformation,
@@ -247,7 +301,11 @@ class _EligibilitySection extends StatelessWidget {
 }
 
 class _RuleList extends StatelessWidget {
-  const _RuleList({required this.title, required this.items, required this.emptyText});
+  const _RuleList({
+    required this.title,
+    required this.items,
+    required this.emptyText,
+  });
 
   final String title;
   final List<EligibilityRuleResult> items;
@@ -264,14 +322,19 @@ class _RuleList extends StatelessWidget {
         return ListTile(
           dense: true,
           contentPadding: EdgeInsets.zero,
-          leading: Icon(item.passed ? Icons.check_rounded : Icons.close_rounded),
+          leading: Icon(
+            item.passed ? Icons.check_rounded : Icons.close_rounded,
+          ),
           title: Text(item.displayTitle),
           subtitle: expected == null && actual == null
               ? null
-              : Text([
-                  if (expected != null && expected.isNotEmpty) 'Expected: $expected',
-                  if (actual != null && actual.isNotEmpty) 'Current: $actual',
-                ].join('\n')),
+              : Text(
+                  [
+                    if (expected != null && expected.isNotEmpty)
+                      'Expected: $expected',
+                    if (actual != null && actual.isNotEmpty) 'Current: $actual',
+                  ].join('\n'),
+                ),
         );
       }).toList(),
     );
@@ -279,7 +342,11 @@ class _RuleList extends StatelessWidget {
 }
 
 class _TextList extends StatelessWidget {
-  const _TextList({required this.title, required this.items, required this.emptyText});
+  const _TextList({
+    required this.title,
+    required this.items,
+    required this.emptyText,
+  });
 
   final String title;
   final List<String> items;
@@ -303,7 +370,11 @@ class _TextList extends StatelessWidget {
 }
 
 class _ListBlock extends StatelessWidget {
-  const _ListBlock({required this.title, required this.children, required this.emptyText});
+  const _ListBlock({
+    required this.title,
+    required this.children,
+    required this.emptyText,
+  });
 
   final String title;
   final List<Widget> children;

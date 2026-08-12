@@ -10,12 +10,18 @@ class AuthRepository {
   final ApiService _apiService;
 
   Future<AuthTokens> login(LoginRequest request) async {
-    final response = await _apiService.post(ApiConstants.login, data: request.toJson());
+    final response = await _apiService.post(
+      ApiConstants.login,
+      data: request.toJson(),
+    );
     return AuthTokens.fromJson(_extractData(response));
   }
 
   Future<AuthTokens> register(RegisterRequest request) async {
-    final response = await _apiService.post(ApiConstants.register, data: request.toJson());
+    final response = await _apiService.post(
+      ApiConstants.register,
+      data: request.toJson(),
+    );
     return AuthTokens.fromJson(_extractData(response));
   }
 
@@ -61,7 +67,8 @@ class AuthRepository {
   }
 
   Map<String, dynamic> _extractData(dynamic response) {
-    if (response is Map<String, dynamic> && response['data'] is Map<String, dynamic>) {
+    if (response is Map<String, dynamic> &&
+        response['data'] is Map<String, dynamic>) {
       return Map<String, dynamic>.from(response['data'] as Map);
     }
 

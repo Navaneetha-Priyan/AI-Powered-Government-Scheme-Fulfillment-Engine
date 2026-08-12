@@ -17,6 +17,7 @@ from app.api.scheme_routes import router as scheme_router
 from app.api.recommendation_routes import router as recommendation_router
 from app.api.voice_routes import router as voice_router
 from app.services.speech_to_text_service import get_speech_to_text_service
+from app.api.document_intelligence_routes import router as document_intelligence_router
 from app.middleware.handlers import register_exception_handlers, register_middleware
 from app import __version__
 
@@ -89,6 +90,7 @@ app.include_router(digilocker_router)
 app.include_router(scheme_router)
 app.include_router(recommendation_router)
 app.include_router(voice_router)
+app.include_router(document_intelligence_router)
 
 
 @app.get("/", tags=["Root"])

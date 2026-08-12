@@ -35,7 +35,7 @@ class ProfileCard extends StatelessWidget {
                 ],
               ),
             ),
-            if (trailing != null) trailing!,
+            trailing ?? const SizedBox.shrink(),
           ],
         ),
       ),
@@ -78,7 +78,11 @@ class InfoCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 30, color: Theme.of(context).colorScheme.secondary),
+              Icon(
+                icon,
+                size: 30,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
               const SizedBox(width: 14),
             ],
             Expanded(
@@ -120,14 +124,16 @@ class SectionHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title, style: Theme.of(context).textTheme.titleLarge),
-              if (subtitle != null) ...[
-                const SizedBox(height: 6),
-                Text(subtitle!, style: Theme.of(context).textTheme.bodyLarge),
-              ],
+                  subtitle != null
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(subtitle!, style: Theme.of(context).textTheme.bodyLarge),
+                        )
+                      : const SizedBox.shrink(),
             ],
           ),
         ),
-        if (action != null) action!,
+        action ?? const SizedBox.shrink(),
       ],
     );
   }
@@ -169,14 +175,21 @@ class DashboardTile extends StatelessWidget {
                   Text(title, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 4),
                   Text(value, style: Theme.of(context).textTheme.headlineSmall),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 4),
-                    Text(subtitle!, maxLines: 2, overflow: TextOverflow.ellipsis),
-                  ],
+                  subtitle != null
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            subtitle!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                 ],
               ),
             ),
-            if (onTap != null) const Icon(Icons.chevron_right_rounded, size: 34),
+            if (onTap != null)
+              const Icon(Icons.chevron_right_rounded, size: 34),
           ],
         ),
       ),
@@ -242,7 +255,10 @@ class DocumentCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        name,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 4),
                       Text(type, style: Theme.of(context).textTheme.bodyLarge),
                       const SizedBox(height: 8),
@@ -251,14 +267,21 @@ class DocumentCard extends StatelessWidget {
                         runSpacing: 4,
                         children: [
                           if (issueDate != null) Text('Issued: $issueDate'),
-                          if (expiryDate != null) Text('Valid till: $expiryDate'),
+                          if (expiryDate != null)
+                            Text('Valid till: $expiryDate'),
                         ],
                       ),
-                      if ((authority ?? '').isNotEmpty || (metadata ?? '').isNotEmpty) ...[
+                      if ((authority ?? '').isNotEmpty ||
+                          (metadata ?? '').isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Text(
-                          [if ((authority ?? '').isNotEmpty) authority, if ((metadata ?? '').isNotEmpty) metadata]
-                              .where((value) => value != null && value.isNotEmpty)
+                          [
+                                if ((authority ?? '').isNotEmpty) authority,
+                                if ((metadata ?? '').isNotEmpty) metadata,
+                              ]
+                              .where(
+                                (value) => value != null && value.isNotEmpty,
+                              )
                               .join(' • '),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -344,7 +367,10 @@ class LandCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            Text('$village, $district', style: Theme.of(context).textTheme.bodyLarge),
+            Text(
+              '$village, $district',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
             const SizedBox(height: 8),
             Text('Land type: $landType'),
             Text('Area: $area'),

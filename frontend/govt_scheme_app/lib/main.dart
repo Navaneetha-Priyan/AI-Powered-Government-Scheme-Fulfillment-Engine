@@ -12,6 +12,7 @@ import 'providers/auth_provider.dart';
 import 'providers/citizen_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/digilocker_provider.dart';
+import 'providers/document_intelligence_provider.dart';
 import 'providers/eligibility_provider.dart';
 import 'providers/india_location_provider.dart';
 import 'providers/profile_provider.dart';
@@ -21,6 +22,7 @@ import 'repositories/auth_repository.dart';
 import 'repositories/citizen_repository.dart';
 import 'repositories/dashboard_repository.dart';
 import 'repositories/digilocker_repository.dart';
+import 'repositories/document_intelligence_repository.dart';
 import 'repositories/eligibility_repository.dart';
 import 'repositories/india_location_repository.dart';
 import 'repositories/profile_repository.dart';
@@ -39,6 +41,9 @@ Future<void> main() async {
   final citizenRepository = CitizenRepository(apiService);
   final dashboardRepository = DashboardRepository(apiService);
   final digiLockerRepository = DigiLockerRepository(apiService);
+  final documentIntelligenceRepository = DocumentIntelligenceRepository(
+    apiService,
+  );
   final schemeRepository = SchemeRepository(apiService);
   final eligibilityRepository = EligibilityRepository(apiService);
   final recommendationRepository = RecommendationRepository(apiService);
@@ -55,6 +60,7 @@ Future<void> main() async {
         Provider.value(value: citizenRepository),
         Provider.value(value: dashboardRepository),
         Provider.value(value: digiLockerRepository),
+        Provider.value(value: documentIntelligenceRepository),
         Provider.value(value: schemeRepository),
         Provider.value(value: eligibilityRepository),
         Provider.value(value: recommendationRepository),
@@ -87,6 +93,22 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) => DigiLockerProvider(digiLockerRepository)
             ..attachEligibilityProvider(context.read<EligibilityProvider>()),
+        ),
+        ChangeNotifierProxyProvider<
+          RecommendationProvider,
+          DocumentIntelligenceProvider
+        >(
+          create: (_) =>
+              DocumentIntelligenceProvider(documentIntelligenceRepository),
+          update: (_, recommendations, documents) {
+            final provider =
+                documents ??
+                DocumentIntelligenceProvider(documentIntelligenceRepository);
+            provider.attachRecommendationInvalidator(
+              recommendations.invalidateAll,
+            );
+            return provider;
+          },
         ),
         ChangeNotifierProvider(create: (_) => SchemeProvider(schemeRepository)),
         ChangeNotifierProvider(

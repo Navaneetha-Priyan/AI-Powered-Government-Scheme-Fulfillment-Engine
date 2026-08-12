@@ -1,0 +1,14 @@
+"""Citizen document intelligence tables.
+
+Revision ID: 005_citizen_document_intelligence
+Revises: 004_eligibility_recommendation_engine
+"""
+from alembic import op
+import sqlalchemy as sa
+revision='005_citizen_document_intelligence';down_revision='004_eligibility_recommendation_engine';branch_labels=None;depends_on=None
+def upgrade():
+ op.create_table('uploaded_documents',sa.Column('id',sa.CHAR(36),primary_key=True),sa.Column('citizen_id',sa.CHAR(36),sa.ForeignKey('citizens.id',ondelete='CASCADE'),nullable=False),sa.Column('document_type',sa.String(40),nullable=False),sa.Column('original_file_name',sa.String(255),nullable=False),sa.Column('file_path',sa.String(500),nullable=False),sa.Column('file_size',sa.Float(),nullable=False),sa.Column('mime_type',sa.String(100),nullable=False),sa.Column('upload_status',sa.String(20),nullable=False),sa.Column('verification_status',sa.String(20),nullable=False),sa.Column('processing_error',sa.Text()),sa.Column('created_at',sa.DateTime(),nullable=False),sa.Column('updated_at',sa.DateTime()))
+ op.create_table('extracted_information',sa.Column('id',sa.CHAR(36),primary_key=True),sa.Column('document_id',sa.CHAR(36),sa.ForeignKey('uploaded_documents.id',ondelete='CASCADE'),nullable=False),sa.Column('field_name',sa.String(100),nullable=False),sa.Column('field_value',sa.Text(),nullable=False),sa.Column('confidence_score',sa.Float(),nullable=False),sa.Column('is_verified',sa.Boolean(),nullable=False),sa.Column('created_at',sa.DateTime(),nullable=False))
+ op.create_table('profile_verifications',sa.Column('id',sa.CHAR(36),primary_key=True),sa.Column('citizen_id',sa.CHAR(36),sa.ForeignKey('citizens.id',ondelete='CASCADE'),nullable=False,unique=True),sa.Column('verified_fields',sa.Text(),nullable=False),sa.Column('pending_fields',sa.Text(),nullable=False),sa.Column('verification_status',sa.String(20),nullable=False),sa.Column('created_at',sa.DateTime(),nullable=False),sa.Column('updated_at',sa.DateTime()))
+ op.create_table('profile_conflicts',sa.Column('id',sa.CHAR(36),primary_key=True),sa.Column('citizen_id',sa.CHAR(36),sa.ForeignKey('citizens.id',ondelete='CASCADE'),nullable=False),sa.Column('field_name',sa.String(100),nullable=False),sa.Column('primary_document_id',sa.CHAR(36),sa.ForeignKey('uploaded_documents.id',ondelete='CASCADE'),nullable=False),sa.Column('primary_value',sa.Text(),nullable=False),sa.Column('conflicting_document_id',sa.CHAR(36),sa.ForeignKey('uploaded_documents.id',ondelete='CASCADE'),nullable=False),sa.Column('conflicting_value',sa.Text(),nullable=False),sa.Column('is_resolved',sa.Boolean(),nullable=False),sa.Column('created_at',sa.DateTime(),nullable=False))
+def downgrade():op.drop_table('profile_conflicts');op.drop_table('profile_verifications');op.drop_table('extracted_information');op.drop_table('uploaded_documents')

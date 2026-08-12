@@ -44,9 +44,9 @@ class _SyncScreenState extends State<SyncScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.friendlyError(error))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(AppStrings.friendlyError(error))));
     }
   }
 
@@ -85,7 +85,8 @@ class _SyncScreenState extends State<SyncScreen> {
                             value: _forceRefresh,
                             onChanged: provider.isSyncing
                                 ? null
-                                : (value) => setState(() => _forceRefresh = value),
+                                : (value) =>
+                                      setState(() => _forceRefresh = value),
                             title: const Text('Check again from the start'),
                             secondary: const Icon(Icons.refresh_rounded),
                           ),

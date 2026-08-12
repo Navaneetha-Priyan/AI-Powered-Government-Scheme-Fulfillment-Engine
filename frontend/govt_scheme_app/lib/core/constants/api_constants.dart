@@ -41,12 +41,6 @@ class ApiConstants {
   static const String citizenProfile = '/citizen/profile';
   static const String citizenProfileDetails = '/citizen/profile/details';
   static const String citizenDashboard = '/citizen/dashboard';
-  static const String citizenIncome = '/citizen/income';
-  static const String citizenCaste = '/citizen/caste';
-  static const String citizenLandRecords = '/citizen/land-records';
-  static const String citizenLandRecordUpload = '/citizen/land-records/upload';
-  static const String citizenDocuments = '/citizen/documents';
-  static const String citizenDocumentUpload = '/citizen/documents/upload';
 
   static const String digilockerSync = '/digilocker/sync';
   static const String digilockerStatus = '/digilocker/status';
@@ -64,6 +58,16 @@ class ApiConstants {
 
   static const String voiceTranscribe = '/voice/transcribe';
   static const String voiceRecommend = '/voice/recommend';
+
+  // Citizen document intelligence (the backend-first profile workflow).
+  static const String intelligentDocuments = '/api/documents';
+  static const String processAllDocuments = '/api/documents/process-all';
+  static const String profilePreview = '/api/profile/preview';
+  static const String profileCompleteness = '/api/profile/completeness';
+  static const String profileConfirm = '/api/profile/confirm';
+
+  static String intelligentDocumentUpload(String documentType) =>
+      '/api/documents/$documentType/upload';
 
   static String recommendationDetail(String recommendationId) {
     return '/api/recommendations/$recommendationId';

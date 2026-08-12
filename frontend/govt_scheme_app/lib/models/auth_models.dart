@@ -78,16 +78,21 @@ class RegisterRequest {
       'confirm_password': confirmPassword,
       'district': district,
       'state': state,
-      if (aadhaarNumber != null && aadhaarNumber!.isNotEmpty) 'aadhaar_number': aadhaarNumber,
-      if (rationCardNumber != null && rationCardNumber!.isNotEmpty) 'smart_ration_card': rationCardNumber,
+      if (aadhaarNumber != null && aadhaarNumber!.isNotEmpty)
+        'aadhaar_number': aadhaarNumber,
+      if (rationCardNumber != null && rationCardNumber!.isNotEmpty)
+        'smart_ration_card': rationCardNumber,
       if (gender != null && gender!.isNotEmpty) 'gender': gender,
       if (dateOfBirth != null) 'date_of_birth': dateOfBirth!.toIso8601String(),
-      if (addressLine1 != null && addressLine1!.isNotEmpty) 'address_line1': addressLine1,
-      if (addressLine2 != null && addressLine2!.isNotEmpty) 'address_line2': addressLine2,
+      if (addressLine1 != null && addressLine1!.isNotEmpty)
+        'address_line1': addressLine1,
+      if (addressLine2 != null && addressLine2!.isNotEmpty)
+        'address_line2': addressLine2,
       if (village != null && village!.isNotEmpty) 'village': village,
       if (taluk != null && taluk!.isNotEmpty) 'taluk': taluk,
       if (pincode != null && pincode!.isNotEmpty) 'pincode': pincode,
-      if (preferredLanguage != null && preferredLanguage!.isNotEmpty) 'preferred_language': preferredLanguage,
+      if (preferredLanguage != null && preferredLanguage!.isNotEmpty)
+        'preferred_language': preferredLanguage,
     };
   }
 }

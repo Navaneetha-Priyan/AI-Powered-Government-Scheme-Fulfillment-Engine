@@ -261,15 +261,15 @@ class _TranscriptList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final itemCount = transcripts.length +
-        recommendations.length +
-        (isUploading ? 1 : 0);
+    final itemCount =
+        transcripts.length + recommendations.length + (isUploading ? 1 : 0);
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: itemCount,
       itemBuilder: (context, index) {
-        if (isUploading && index >= transcripts.length + recommendations.length) {
+        if (isUploading &&
+            index >= transcripts.length + recommendations.length) {
           return const _UploadingIndicator();
         }
         // Interleave transcripts and recommendations.

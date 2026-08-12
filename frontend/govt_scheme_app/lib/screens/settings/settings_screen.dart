@@ -36,17 +36,45 @@ class SettingsScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('App Settings', style: Theme.of(context).textTheme.headlineSmall),
+                            Text(
+                              'App Settings',
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
                             const SizedBox(height: 12),
-                            const InfoCard(label: 'App version', value: '1.0.0+1', icon: Icons.apps_rounded),
+                            const InfoCard(
+                              label: 'App version',
+                              value: '1.0.0+1',
+                              icon: Icons.apps_rounded,
+                            ),
                             const SizedBox(height: 12),
-                            InfoCard(label: 'Service version', value: appProvider.version ?? 'Unknown', icon: Icons.tag_rounded),
+                            InfoCard(
+                              label: 'Service version',
+                              value: appProvider.version ?? 'Unknown',
+                              icon: Icons.tag_rounded,
+                            ),
                             const SizedBox(height: 12),
-                            InfoCard(label: 'Service status', value: appProvider.backendHealth?.status ?? 'Unavailable', icon: Icons.favorite_rounded),
+                            InfoCard(
+                              label: 'Service status',
+                              value:
+                                  appProvider.backendHealth?.status ??
+                                  'Unavailable',
+                              icon: Icons.favorite_rounded,
+                            ),
                             const SizedBox(height: 12),
-                            InfoCard(label: 'Environment', value: appProvider.backendHealth?.environment ?? 'Unknown', icon: Icons.cloud_rounded),
+                            InfoCard(
+                              label: 'Environment',
+                              value:
+                                  appProvider.backendHealth?.environment ??
+                                  'Unknown',
+                              icon: Icons.cloud_rounded,
+                            ),
                             const SizedBox(height: 12),
-                            InfoCard(label: 'Signed in as', value: authProvider.currentUser?.email ?? 'Unknown', icon: Icons.email_outlined),
+                            InfoCard(
+                              label: 'Signed in as',
+                              value:
+                                  authProvider.currentUser?.email ?? 'Unknown',
+                              icon: Icons.email_outlined,
+                            ),
                             const SizedBox(height: 20),
                             SwitchListTile(
                               value: appProvider.themeMode == ThemeMode.dark,
@@ -68,7 +96,10 @@ class SettingsScreen extends StatelessWidget {
                       onPressed: () async {
                         await authProvider.logout();
                         if (context.mounted) {
-                          Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                            AppRoutes.login,
+                            (route) => false,
+                          );
                         }
                       },
                       icon: Icons.logout_rounded,

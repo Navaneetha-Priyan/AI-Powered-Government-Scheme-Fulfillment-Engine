@@ -59,10 +59,7 @@ class AppTextField extends StatelessWidget {
         prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
         suffixIcon: suffixIcon == null
             ? null
-            : IconButton(
-                onPressed: onSuffixTap,
-                icon: Icon(suffixIcon),
-              ),
+            : IconButton(onPressed: onSuffixTap, icon: Icon(suffixIcon)),
       ),
     );
   }

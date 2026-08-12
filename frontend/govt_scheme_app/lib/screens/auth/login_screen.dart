@@ -51,15 +51,17 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
     } catch (error) {
       if (!mounted) {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.friendlyError(error))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(AppStrings.friendlyError(error))));
     }
   }
 
@@ -93,21 +95,34 @@ class _LoginScreenState extends State<LoginScreen> {
                               height: 60,
                               width: 60,
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(18),
                               ),
-                              child: Icon(Icons.login_rounded, color: Theme.of(context).colorScheme.primary, size: 32),
+                              child: Icon(
+                                Icons.login_rounded,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 32,
+                              ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(AppStrings.signIn, style: Theme.of(context).textTheme.headlineMedium),
+                                  Text(
+                                    AppStrings.signIn,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.headlineMedium,
+                                  ),
                                   const SizedBox(height: 4),
                                   Text(
                                     'Enter your email and password.',
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
                                   ),
                                 ],
                               ),
@@ -118,20 +133,38 @@ class _LoginScreenState extends State<LoginScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)),
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.12),
+                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('How to sign in', style: Theme.of(context).textTheme.titleMedium),
+                              Text(
+                                'How to sign in',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
                               const SizedBox(height: 10),
-                              const _StepLine(number: '1', text: 'Type your email address.'),
+                              const _StepLine(
+                                number: '1',
+                                text: 'Type your email address.',
+                              ),
                               const SizedBox(height: 8),
-                              const _StepLine(number: '2', text: 'Enter your password.'),
+                              const _StepLine(
+                                number: '2',
+                                text: 'Enter your password.',
+                              ),
                               const SizedBox(height: 8),
-                              const _StepLine(number: '3', text: 'Tap Sign In.'),
+                              const _StepLine(
+                                number: '3',
+                                text: 'Tap Sign In.',
+                              ),
                             ],
                           ),
                         ),
@@ -144,26 +177,35 @@ class _LoginScreenState extends State<LoginScreen> {
                                 controller: _emailController,
                                 label: 'Email address',
                                 hintText: 'example@email.com',
-                                helperText: 'Use the email you used during registration.',
+                                helperText:
+                                    'Use the email you used during registration.',
                                 validator: Validators.email,
                                 keyboardType: TextInputType.emailAddress,
                                 textInputAction: TextInputAction.next,
-                                autofillHints: const [AutofillHints.username, AutofillHints.email],
+                                autofillHints: const [
+                                  AutofillHints.username,
+                                  AutofillHints.email,
+                                ],
                                 prefixIcon: Icons.email_outlined,
                               ),
                               const SizedBox(height: 16),
                               AppTextField(
                                 controller: _passwordController,
                                 label: 'Password',
-                                helperText: 'Type your password exactly as saved.',
+                                helperText:
+                                    'Type your password exactly as saved.',
                                 validator: Validators.requiredField,
                                 obscureText: _obscurePassword,
                                 keyboardType: TextInputType.visiblePassword,
                                 textInputAction: TextInputAction.done,
                                 autofillHints: const [AutofillHints.password],
                                 prefixIcon: Icons.lock_outline,
-                                suffixIcon: _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                                onSuffixTap: () => setState(() => _obscurePassword = !_obscurePassword),
+                                suffixIcon: _obscurePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                onSuffixTap: () => setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                ),
                               ),
                             ],
                           ),
@@ -182,11 +224,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 14),
                         SecondaryButton(
                           label: 'Create a new account',
-                          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.register),
+                          onPressed: () => Navigator.of(
+                            context,
+                          ).pushNamed(AppRoutes.register),
                           icon: Icons.person_add_alt_rounded,
                         ),
                         TextButton(
-                          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
+                          onPressed: () => Navigator.of(
+                            context,
+                          ).pushNamed(AppRoutes.forgotPassword),
                           child: const Text('Need help with password?'),
                         ),
                         const SizedBox(height: 4),
@@ -229,7 +275,10 @@ class _StepLine extends StatelessWidget {
           ),
           child: Text(
             number,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         const SizedBox(width: 12),

@@ -17,7 +17,6 @@ class AppProvider extends ChangeNotifier {
   BackendInfo? _backendInfo;
   String? _version;
 
-
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   BackendHealth? get backendHealth => _backendHealth;
@@ -26,7 +25,6 @@ class AppProvider extends ChangeNotifier {
 
   String? get version => _version;
   bool get backendReachable => _backendHealth != null;
-
 
   Future<void> initialize() async {
     _setLoading(true);

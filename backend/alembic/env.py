@@ -9,6 +9,7 @@ from app.models.citizen import Citizen, LoginAudit
 from app.models.citizen_profile import CitizenProfile, LandRecord
 from app.models.digilocker import DigiLockerRecord, GovernmentDocument
 from app.models.government_scheme import GovernmentScheme, SchemeDocument, SchemeChunk
+from app.models.citizen_document import UploadedDocument, ExtractedInformation, ProfileVerification
 from app.models.recommendation import EligibilityRule, RecommendationHistory, EligibilityLog, RecommendationFeedback, CitizenSchemeMatch
 
 # this is the Alembic Config object

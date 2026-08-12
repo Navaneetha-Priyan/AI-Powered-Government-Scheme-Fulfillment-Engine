@@ -117,7 +117,9 @@ class EligibilityCheck {
       evaluatedAt: DateTime.tryParse(data['evaluated_at']?.toString() ?? ''),
       totalRules: int.tryParse(data['total_rules']?.toString() ?? '') ?? 0,
       passedRules: int.tryParse(data['passed_rules']?.toString() ?? '') ?? 0,
-      eligibilityPercentage: double.tryParse(data['eligibility_percentage']?.toString() ?? '') ?? 0,
+      eligibilityPercentage:
+          double.tryParse(data['eligibility_percentage']?.toString() ?? '') ??
+          0,
       eligible: data['eligible'] == true,
       matchedRules: _rules(data['matched_rules']),
       failedRules: _rules(data['missing_requirements']),
@@ -133,7 +135,10 @@ class EligibilityCheck {
   static List<EligibilityRuleResult> _rules(Object? value) {
     return (value as List? ?? const [])
         .whereType<Map>()
-        .map((item) => EligibilityRuleResult.fromJson(Map<String, dynamic>.from(item)))
+        .map(
+          (item) =>
+              EligibilityRuleResult.fromJson(Map<String, dynamic>.from(item)),
+        )
         .toList();
   }
 

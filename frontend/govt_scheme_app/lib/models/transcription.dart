@@ -10,8 +10,6 @@ class TranscriptionResult {
 
   /// Builds a [TranscriptionResult] from a decoded JSON [map].
   factory TranscriptionResult.fromJson(Map<String, dynamic> map) {
-    return TranscriptionResult(
-      text: map['text']?.toString() ?? '',
-    );
+    return TranscriptionResult(text: map['text']?.toString() ?? '');
   }
 }

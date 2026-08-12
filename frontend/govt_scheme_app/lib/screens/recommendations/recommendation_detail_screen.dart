@@ -18,10 +18,12 @@ class RecommendationDetailScreen extends StatefulWidget {
   final RecommendationMatch? initialMatch;
 
   @override
-  State<RecommendationDetailScreen> createState() => _RecommendationDetailScreenState();
+  State<RecommendationDetailScreen> createState() =>
+      _RecommendationDetailScreenState();
 }
 
-class _RecommendationDetailScreenState extends State<RecommendationDetailScreen> {
+class _RecommendationDetailScreenState
+    extends State<RecommendationDetailScreen> {
   @override
   void initState() {
     super.initState();
@@ -39,7 +41,9 @@ class _RecommendationDetailScreenState extends State<RecommendationDetailScreen>
     final match = provider.recommendationFor(widget.recommendationId);
     if (match == null && provider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.friendlyError(provider.errorMessage!))),
+        SnackBar(
+          content: Text(AppStrings.friendlyError(provider.errorMessage!)),
+        ),
       );
     }
   }
@@ -48,7 +52,9 @@ class _RecommendationDetailScreenState extends State<RecommendationDetailScreen>
   Widget build(BuildContext context) {
     return Consumer<RecommendationProvider>(
       builder: (context, provider, _) {
-        final match = provider.recommendationFor(widget.recommendationId) ?? widget.initialMatch;
+        final match =
+            provider.recommendationFor(widget.recommendationId) ??
+            widget.initialMatch;
 
         if (match == null) {
           if (provider.isLoadingRecommendation(widget.recommendationId)) {
@@ -65,7 +71,9 @@ class _RecommendationDetailScreenState extends State<RecommendationDetailScreen>
           );
         }
 
-        final statusColor = match.isEligible ? const Color(0xFF16803C) : Theme.of(context).colorScheme.error;
+        final statusColor = match.isEligible
+            ? const Color(0xFF16803C)
+            : Theme.of(context).colorScheme.error;
 
         return Scaffold(
           appBar: AppBar(title: Text('Recommendation')),
@@ -78,14 +86,19 @@ class _RecommendationDetailScreenState extends State<RecommendationDetailScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(match.schemeName, style: Theme.of(context).textTheme.headlineSmall),
+                      Text(
+                        match.schemeName,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                       const SizedBox(height: 12),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         children: [
                           Chip(
-                            backgroundColor: statusColor.withValues(alpha: 0.14),
+                            backgroundColor: statusColor.withValues(
+                              alpha: 0.14,
+                            ),
                             side: BorderSide(color: statusColor),
                             label: Text(
                               match.isEligible ? 'Eligible' : 'Not eligible',
@@ -94,15 +107,25 @@ class _RecommendationDetailScreenState extends State<RecommendationDetailScreen>
                           ),
                           Chip(
                             avatar: const Icon(Icons.percent_rounded, size: 18),
-                            label: Text('${match.eligibilityPercentage.toStringAsFixed(0)}% eligibility'),
+                            label: Text(
+                              '${match.eligibilityPercentage.toStringAsFixed(0)}% eligibility',
+                            ),
                           ),
                           Chip(
-                            avatar: const Icon(Icons.verified_outlined, size: 18),
-                            label: Text('${match.confidenceScore.toStringAsFixed(0)}% confidence'),
+                            avatar: const Icon(
+                              Icons.verified_outlined,
+                              size: 18,
+                            ),
+                            label: Text(
+                              '${match.confidenceScore.toStringAsFixed(0)}% confidence',
+                            ),
                           ),
                           if (match.applicationReady)
                             Chip(
-                              avatar: const Icon(Icons.task_alt_rounded, size: 18),
+                              avatar: const Icon(
+                                Icons.task_alt_rounded,
+                                size: 18,
+                              ),
                               label: const Text('Application ready'),
                             ),
                         ],
@@ -111,20 +134,28 @@ class _RecommendationDetailScreenState extends State<RecommendationDetailScreen>
                   ),
                 ),
               ),
-              if (match.recommendationReason != null && match.recommendationReason!.isNotEmpty) ...[
+              if (match.recommendationReason != null &&
+                  match.recommendationReason!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _DetailSection(
                   title: 'Why this was recommended',
                   icon: Icons.lightbulb_outline,
-                  child: Text(match.recommendationReason!, style: Theme.of(context).textTheme.bodyLarge),
+                  child: Text(
+                    match.recommendationReason!,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
                 ),
               ],
-              if (match.description != null && match.description!.isNotEmpty) ...[
+              if (match.description != null &&
+                  match.description!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _DetailSection(
                   title: 'Scheme description',
                   icon: Icons.description_outlined,
-                  child: Text(match.description!, style: Theme.of(context).textTheme.bodyLarge),
+                  child: Text(
+                    match.description!,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
                 ),
               ],
               if (match.matchedRules.isNotEmpty) ...[
@@ -162,23 +193,34 @@ class _RecommendationDetailScreenState extends State<RecommendationDetailScreen>
                 _DetailSection(
                   title: 'Expected benefits',
                   icon: Icons.savings_outlined,
-                  child: Text(match.benefits!, style: Theme.of(context).textTheme.bodyLarge),
+                  child: Text(
+                    match.benefits!,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
                 ),
               ],
-              if (match.estimatedBenefit != null && match.estimatedBenefit!.isNotEmpty) ...[
+              if (match.estimatedBenefit != null &&
+                  match.estimatedBenefit!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _DetailSection(
                   title: 'Estimated benefit',
                   icon: Icons.payments_outlined,
-                  child: Text(match.estimatedBenefit!, style: Theme.of(context).textTheme.titleMedium),
+                  child: Text(
+                    match.estimatedBenefit!,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
               ],
-              if (match.semanticQuery != null && match.semanticQuery!.isNotEmpty) ...[
+              if (match.semanticQuery != null &&
+                  match.semanticQuery!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _DetailSection(
                   title: 'Matched eligibility rules',
                   icon: Icons.rule_folder_outlined,
-                  child: Text(match.semanticQuery!, style: Theme.of(context).textTheme.bodyMedium),
+                  child: Text(
+                    match.semanticQuery!,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ),
               ],
               const SizedBox(height: 12),
@@ -198,7 +240,8 @@ class _RecommendationDetailScreenState extends State<RecommendationDetailScreen>
                     OutlinedButton.icon(
                       onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => SchemeDetailScreen(schemeId: match.schemeId),
+                          builder: (_) =>
+                              SchemeDetailScreen(schemeId: match.schemeId),
                         ),
                       ),
                       icon: const Icon(Icons.article_outlined),
@@ -249,7 +292,11 @@ class _DetailSection extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, size: 22, color: Theme.of(context).colorScheme.primary),
+                Icon(
+                  icon,
+                  size: 22,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 const SizedBox(width: 8),
                 Text(title, style: Theme.of(context).textTheme.titleMedium),
               ],
@@ -281,14 +328,19 @@ class _RuleList extends StatelessWidget {
         return ListTile(
           dense: true,
           contentPadding: EdgeInsets.zero,
-          leading: Icon(item.passed ? Icons.check_circle_rounded : Icons.cancel_rounded),
+          leading: Icon(
+            item.passed ? Icons.check_circle_rounded : Icons.cancel_rounded,
+          ),
           title: Text(item.displayTitle),
           subtitle: expected == null && actual == null
               ? null
-              : Text([
-                  if (expected != null && expected.isNotEmpty) 'Expected: $expected',
-                  if (actual != null && actual.isNotEmpty) 'Current: $actual',
-                ].join('\n')),
+              : Text(
+                  [
+                    if (expected != null && expected.isNotEmpty)
+                      'Expected: $expected',
+                    if (actual != null && actual.isNotEmpty) 'Current: $actual',
+                  ].join('\n'),
+                ),
         );
       }).toList(),
     );
@@ -317,4 +369,3 @@ class _TextList extends StatelessWidget {
     );
   }
 }
-

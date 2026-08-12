@@ -6,15 +6,16 @@ class AppTheme {
   static const Color background = Color(0xFFF4F7FB);
 
   static ThemeData light() {
-    final baseScheme = ColorScheme.fromSeed(
-      seedColor: primaryBlue,
-      brightness: Brightness.light,
-      surface: Colors.white,
-    ).copyWith(
-      secondary: secondaryGreen,
-      primary: primaryBlue,
-      tertiary: const Color(0xFF6A8FD6),
-    );
+    final baseScheme =
+        ColorScheme.fromSeed(
+          seedColor: primaryBlue,
+          brightness: Brightness.light,
+          surface: Colors.white,
+        ).copyWith(
+          secondary: secondaryGreen,
+          primary: primaryBlue,
+          tertiary: const Color(0xFF6A8FD6),
+        );
 
     return _baseTheme(baseScheme, brightness: Brightness.light).copyWith(
       scaffoldBackgroundColor: background,
@@ -40,14 +41,15 @@ class AppTheme {
   }
 
   static ThemeData dark() {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: primaryBlue,
-      brightness: Brightness.dark,
-    ).copyWith(
-      primary: const Color(0xFF8CB7FF),
-      secondary: const Color(0xFF76D7A7),
-      surface: const Color(0xFF121826),
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: primaryBlue,
+          brightness: Brightness.dark,
+        ).copyWith(
+          primary: const Color(0xFF8CB7FF),
+          secondary: const Color(0xFF76D7A7),
+          surface: const Color(0xFF121826),
+        );
 
     return _baseTheme(scheme, brightness: Brightness.dark).copyWith(
       scaffoldBackgroundColor: const Color(0xFF0B1020),
@@ -76,7 +78,9 @@ class AppTheme {
       visualDensity: VisualDensity.standard,
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: brightness == Brightness.light ? Colors.white : const Color(0xFF121826),
+        fillColor: brightness == Brightness.light
+            ? Colors.white
+            : const Color(0xFF121826),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Color(0xFFE1E7F0)),
@@ -93,7 +97,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Colors.redAccent),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 18,
+        ),
         helperMaxLines: 3,
         errorMaxLines: 2,
       ),
@@ -103,7 +110,9 @@ class AppTheme {
           foregroundColor: scheme.onPrimary,
           minimumSize: const Size.fromHeight(58),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
         ),
       ),
@@ -112,7 +121,9 @@ class AppTheme {
           minimumSize: const Size.fromHeight(58),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           side: BorderSide(color: scheme.primary.withValues(alpha: 0.45)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
           foregroundColor: scheme.primary,
         ),

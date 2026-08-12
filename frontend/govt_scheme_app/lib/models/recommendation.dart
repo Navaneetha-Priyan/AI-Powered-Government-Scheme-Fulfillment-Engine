@@ -138,12 +138,17 @@ class RecommendationMatch {
       schemeName: (json['scheme_name'] ?? 'Untitled scheme').toString(),
       description: json['description']?.toString(),
       benefits: json['benefits']?.toString(),
-      eligibilityStatus: (json['eligibility_status'] ?? json['eligibilityStatus'] ?? 'ineligible').toString(),
+      eligibilityStatus:
+          (json['eligibility_status'] ??
+                  json['eligibilityStatus'] ??
+                  'ineligible')
+              .toString(),
       eligibilityPercentage: _toDouble(json['eligibility_percentage']),
       similarityScore: _toDouble(json['similarity_score']),
       confidenceScore: _toDouble(json['confidence_score']),
       overallScore: _toDouble(json['overall_score']),
-      rankingPosition: int.tryParse(json['ranking_position']?.toString() ?? '') ?? 0,
+      rankingPosition:
+          int.tryParse(json['ranking_position']?.toString() ?? '') ?? 0,
       recommendationReason: json['recommendation_reason']?.toString(),
       matchedRules: _rules(json['matched_rules']),
       missingRequirements: _rules(json['missing_requirements']),
@@ -163,7 +168,10 @@ class RecommendationMatch {
   static List<RecommendationRule> _rules(Object? value) {
     return (value as List? ?? const [])
         .whereType<Map>()
-        .map((item) => RecommendationRule.fromJson(Map<String, dynamic>.from(item)))
+        .map(
+          (item) =>
+              RecommendationRule.fromJson(Map<String, dynamic>.from(item)),
+        )
         .toList();
   }
 
@@ -224,16 +232,23 @@ class RecommendationHistory {
       requestType: (json['request_type'] ?? 'generate').toString(),
       queryText: json['query_text']?.toString(),
       topK: int.tryParse(json['top_k']?.toString() ?? '') ?? 0,
-      totalCandidates: int.tryParse(json['total_candidates']?.toString() ?? '') ?? 0,
-      eligibleCount: int.tryParse(json['eligible_count']?.toString() ?? '') ?? 0,
-      overallConfidence: double.tryParse(json['overall_confidence']?.toString() ?? '') ?? 0,
+      totalCandidates:
+          int.tryParse(json['total_candidates']?.toString() ?? '') ?? 0,
+      eligibleCount:
+          int.tryParse(json['eligible_count']?.toString() ?? '') ?? 0,
+      overallConfidence:
+          double.tryParse(json['overall_confidence']?.toString() ?? '') ?? 0,
       status: (json['status'] ?? 'completed').toString(),
-      executionTimeMs: int.tryParse(json['execution_time_ms']?.toString() ?? '') ?? 0,
+      executionTimeMs:
+          int.tryParse(json['execution_time_ms']?.toString() ?? '') ?? 0,
       contextSnapshot: json['context_snapshot'],
       createdAt: _parseDate(json['created_at']),
       matches: (json['matches'] as List? ?? const [])
           .whereType<Map>()
-          .map((item) => RecommendationMatch.fromJson(Map<String, dynamic>.from(item)))
+          .map(
+            (item) =>
+                RecommendationMatch.fromJson(Map<String, dynamic>.from(item)),
+          )
           .toList(),
     );
   }
@@ -278,13 +293,19 @@ class RecommendationSummary {
     return RecommendationSummary(
       citizenId: (json['citizen_id'] ?? '').toString(),
       generatedAt: RecommendationMatch._parseDate(json['generated_at']),
-      totalCandidates: int.tryParse(json['total_candidates']?.toString() ?? '') ?? 0,
-      eligibleCount: int.tryParse(json['eligible_count']?.toString() ?? '') ?? 0,
+      totalCandidates:
+          int.tryParse(json['total_candidates']?.toString() ?? '') ?? 0,
+      eligibleCount:
+          int.tryParse(json['eligible_count']?.toString() ?? '') ?? 0,
       topRankedScheme: json['top_ranked_scheme']?.toString(),
-      overallConfidence: double.tryParse(json['overall_confidence']?.toString() ?? '') ?? 0,
+      overallConfidence:
+          double.tryParse(json['overall_confidence']?.toString() ?? '') ?? 0,
       recommendations: (json['recommendations'] as List? ?? const [])
           .whereType<Map>()
-          .map((item) => RecommendationMatch.fromJson(Map<String, dynamic>.from(item)))
+          .map(
+            (item) =>
+                RecommendationMatch.fromJson(Map<String, dynamic>.from(item)),
+          )
           .toList(),
       history: RecommendationHistory.fromJson(
         json['history'] is Map<String, dynamic>
@@ -294,4 +315,3 @@ class RecommendationSummary {
     );
   }
 }
-

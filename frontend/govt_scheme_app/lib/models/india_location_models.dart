@@ -1,8 +1,5 @@
 class IndiaLocations {
-  IndiaLocations({
-    required this.states,
-    required this.districtsByState,
-  });
+  IndiaLocations({required this.states, required this.districtsByState});
 
   final List<String> states;
   final Map<String, List<String>> districtsByState;
@@ -25,10 +22,7 @@ class IndiaLocations {
       }
     }
 
-    return IndiaLocations(
-      states: rawStates,
-      districtsByState: rawDistricts,
-    );
+    return IndiaLocations(states: rawStates, districtsByState: rawDistricts);
   }
 
   static IndiaLocations fallback() {
