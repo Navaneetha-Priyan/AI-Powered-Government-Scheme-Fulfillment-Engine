@@ -1,7 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../constants/api_constants.dart';
 import '../network/api_service.dart';
+import '../../models/normalization.dart';
+import '../../models/rag_query.dart';
 import '../../models/transcription.dart';
 import '../../models/voice_recommendation.dart';
 
@@ -24,6 +27,9 @@ import '../../models/voice_recommendation.dart';
 class VoiceApiService {
   VoiceApiService({required ApiService apiService}) : _apiService = apiService;
 
+  @protected
+  ApiService get apiService => _apiService;
+
   final ApiService _apiService;
 
   /// Uploads the audio file at [filePath] to the transcription endpoint and
@@ -40,15 +46,56 @@ class VoiceApiService {
       ),
     });
 
-    final response = await _apiService.postMultipart(
+    final response = await apiService.postMultipart(
       ApiConstants.voiceTranscribe,
       formData: formData,
+    );
+    debugPrint('[VOICE] Audio uploaded');
+
+    final payload = response is Map<String, dynamic>
+        ? response
+        : const <String, dynamic>{};
+    final result = TranscriptionResult.fromJson(payload);
+    debugPrint('[VOICE] Transcript received');
+    return result;
+  }
+
+  Future<NormalizationResult> normalize(String text) async {
+    final response = await apiService.post(
+      ApiConstants.voiceNormalize,
+      data: {'text': text},
+      receiveTimeout: const Duration(seconds: 45),
     );
 
     final payload = response is Map<String, dynamic>
         ? response
         : const <String, dynamic>{};
-    return TranscriptionResult.fromJson(payload);
+    final result = NormalizationResult.fromJson(payload);
+    debugPrint('[VOICE] Normalization received');
+    return result;
+  }
+
+  Future<RagQueryResult> queryRag(
+    String normalizedText, {
+    int topK = 3,
+    String language = 'en',
+  }) async {
+    debugPrint('[VOICE] RAG request sent');
+    final response = await apiService.post(
+      ApiConstants.ragQuery,
+      data: {'query': normalizedText, 'top_k': topK, 'language': language},
+      receiveTimeout: const Duration(seconds: 90),
+    );
+
+    final wrapper = response is Map<String, dynamic>
+        ? response
+        : const <String, dynamic>{};
+    final data = wrapper['data'] is Map
+        ? Map<String, dynamic>.from(wrapper['data'] as Map)
+        : wrapper;
+    final result = RagQueryResult.fromJson(data);
+    debugPrint('[VOICE] RAG response received');
+    return result;
   }
 
   /// Sends [text] (a raw or normalized transcript) to `POST /voice/recommend`
@@ -62,7 +109,7 @@ class VoiceApiService {
   ///
   /// Throws an [ApiException] (from [ApiService]) when the request fails.
   Future<VoiceRecommendationResult> recommend(String text) async {
-    final response = await _apiService.post(
+    final response = await apiService.post(
       ApiConstants.voiceRecommend,
       data: {'text': text},
     );

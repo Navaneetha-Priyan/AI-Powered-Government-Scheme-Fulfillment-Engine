@@ -157,9 +157,10 @@ class SpeechToTextService:
             self.load_model()
 
         try:
+            whisper_language = None if self.language == "auto" else self.language
             segments, _info = self._model.transcribe(
                 str(audio_path),
-                language=self.language,
+                language=whisper_language,
                 task="transcribe",
                 vad_filter=self.vad_filter,
                 beam_size=self.beam_size,
