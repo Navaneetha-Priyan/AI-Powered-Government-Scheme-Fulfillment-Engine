@@ -466,9 +466,231 @@ class TextNormalizationService:
         """Return a light, meaning-preserving normalized string.
 
         This is intentionally conservative: it collapses whitespace and returns
-        the trimmed text. Named-entity normalization is left to the LLM path.
+        the trimmed text. For common Tanglish/Tamil patterns, it converts to English
+semantic representations suitable for retrieval.
         """
-        return re.sub(r"\s+", " ", text).strip()
+        normalized = re.sub(r"\s+", " ", text).strip()
+        lowered = normalized.lower()
+
+        # Tamil pattern -> English semantic mapping (small, deterministic)
+        # Order matters: more specific patterns first.
+        tamil_patterns = [
+            # "விவசாயிகளுக்கு என்ன அரசு திட்டங்கள் இருக்கிறது?" -> "What government schemes are available for farmers?"
+            (r"விவசாயி.+?க்கு\s+என்ன\s+அரசு\s+திட்டங்கள்?\s+இருக்க[^\s?]*\?", "What government schemes are available for farmers?"),
+            # "விவசாயிகளுக்கான திட்டங்கள் என்ன?" -> "What government schemes for farmers?"
+            (r"விவசாயி.+?க்கான\s+திட்டங்கள்?\s+என்ன", "What government schemes are available for farmers?"),
+            # "விவசாயிகளுக்கு அரசு திட்டம் வேண்டும்" -> "I need government schemes for farmers"
+            (r"விவசாயி.+?க்கு\s+அரசு\s+திட்டம்\s+வேண்டும்", "I need government schemes for farmers"),
+            # "எனக்கு விவசாயத்திற்கு ஏதாவது அரசு திட்டம் இருக்கா?" -> "Are there any government schemes for agriculture?"
+            (r"எனக்கு\s+விவசாய(?:த்தற்க|ம்)?\s+(?:ஏதாவது|எதாவது)\s+அரசு\s+திட்டம்\s+இருக்க(?:ா|ு)", "Are there any government schemes available for agriculture?"),
+            # "எனக்கு விவசாய திட்டம் வேண்டும்" -> "I need a government scheme for agriculture"
+            (r"எனக்கு\s+விவசாய\s+திட்டம்\s+வேண்டும்", "I need a government scheme for agriculture"),
+            # Generic: "எனக்கு X திட்டம் வேண்டும்" -> "I need a government scheme for X"
+            (r"எனக்கு\s+(.+?)\s+திட்டம்\s+வேண்டும்", "I need a government scheme for {0}"),
+            # Generic: "X க்கு ஏதாவது அரசு திட்டம் இருக்கா?" -> "Are there any government schemes for X?"
+            (r"(.+?)\s+(?:க்கு|க்காக)\s+(?:ஏதாவது|எதாவது)\s+அரசு\s+திட்டம்\s+இருக்க(?:ா|ு)", "Are there any government schemes available for {0}?"),
+        ]
+
+        for pattern, template in tamil_patterns:
+            match = re.search(pattern, normalized)
+            if match:
+                if match.groups():
+                    key_term = match.group(1).strip()
+                    # Clean Tamil terms to English
+                    key_term = self._clean_tamil_term(key_term)
+                    if key_term:
+                        return template.format(key_term)
+                else:
+                    return template
+
+        # Code-mixed pattern -> English semantic mapping
+        # Handle Tamil-English mixed queries like "எனக்கு agricultureக்கு ஏதாவது government scheme இருக்கா?"
+        code_mixed_patterns = [
+            # "எனக்கு X-க்கு ஏதாவது government scheme irukka/irukku/இருக்கா/இருக்கு" -> "Are there any government schemes for X?"
+            (r"எனக்கு\s+(.+?)(?:க்கு|க்காக)\s+(?:ஏதாவது|எதாவது)\s+government\s+scheme\s+(?:irukka|irukku|இருக்கா|இருக்கு)", "Are there any government schemes available for {0}?"),
+            # "X-க்கு government scheme irukka/irukku/இருக்கா/இருக்கு" -> "Are there any government schemes for X?"
+            (r"(.+?)(?:க்கு|க்காக)\s+government\s+scheme\s+(?:irukka|irukku|இருக்கா|இருக்கு)", "Are there any government schemes available for {0}?"),
+        ]
+
+        for pattern, template in code_mixed_patterns:
+            match = re.search(pattern, normalized, re.IGNORECASE)
+            if match:
+                if match.groups():
+                    key_term = match.group(1).strip()
+                    key_term = self._clean_mixed_term(key_term)
+                    if key_term:
+                        return template.format(key_term)
+                else:
+                    return template
+
+        # Tanglish pattern -> English semantic mapping (small, deterministic)
+        # Order matters: more specific patterns first.
+        tanglish_patterns = [
+            # "enakku X scheme edhavadhu irukka/venum" -> "Are there any government schemes for X?" / "I need a government scheme for X"
+            (r"\benakku\s+(.+?)\s+scheme\s+(?:edhavadhu|ethavathu|enna)?\s*(irukka|venum|vendum|irukku)\b", "Are there any government schemes available for {0}?"),
+            # "X-ku government scheme irukka" -> "Are there any government schemes for X?"
+            (r"\b(.+?)\s*[-]?ku\s+government\s+scheme\s+(irukka|irukku)\b", "Are there any government schemes available for {0}?"),
+            # "X-ku scheme irukka/venum" -> "Are there any government schemes for X?" / "I need a government scheme for X"
+            (r"\b(.+?)\s*[-]?ku\s+scheme\s+(irukka|venum|vendum|irukku)\b", "Are there any government schemes available for {0}?"),
+            # "enakku X scheme venum/vendum" -> "I need a government scheme for X"
+            (r"\benakku\s+(.+?)\s+scheme\s+(venum|vendum)\b", "I need a government scheme for {0}"),
+            # "X scheme edhavadhu irukka" -> "Are there any government schemes for X?"
+            (r"\b(.+?)\s+scheme\s+(?:edhavadhu|ethavathu|enna)?\s*(irukka|irukku)\b", "Are there any government schemes available for {0}?"),
+            # "X scheme venum/vendum" -> "I need a government scheme for X"
+            (r"\b(.+?)\s+scheme\s+(venum|vendum)\b", "I need a government scheme for {0}"),
+            # "government scheme X" -> "government schemes for X"
+            (r"\bgovernment\s+scheme\s+(.+)\b", "government schemes for {0}"),
+            # "any scheme" / "any schemes" -> "any government schemes"
+            (r"\bany\s+schemes?\b", "any government schemes"),
+            # "govt scheme" -> "government scheme"
+            (r"\bgovt\s+scheme\b", "government scheme"),
+            # "scheme" alone -> "government scheme"
+            (r"\bscheme\b", "government scheme"),
+        ]
+
+        for pattern, template in tanglish_patterns:
+            match = re.search(pattern, lowered)
+            if match:
+                # Extract the key term(s) and clean them if pattern has capture groups
+                if match.groups():
+                    key_term = match.group(1).strip()
+                    key_term = self._clean_tanglish_term(key_term)
+                    if key_term:
+                        return template.format(key_term)
+                else:
+                    # Pattern without capture groups - use template directly
+                    return template
+
+        return normalized
+
+    def _clean_tanglish_term(self, term: str) -> str:
+        """Clean and normalize a Tanglish term to English semantic equivalent."""
+        term = term.lower().strip()
+
+        # Map common Tanglish terms to English
+        term_mapping = {
+            # Occupation / domain
+            "farmer": "farmers",
+            "farmers": "farmers",
+            "vivasayam": "farmers/agriculture",
+            "vivasaayam": "farmers/agriculture",
+            "vivasayi": "farmers",
+            "agriculture": "agriculture",
+            "agricultural": "agriculture",
+            "farming": "farmers/agriculture",
+            # Intent markers that should be removed from the term
+            "edhavadhu": "",
+            "ethavathu": "",
+            "enna": "",
+            "veenum": "",
+            "vendum": "",
+            "irukka": "",
+            "irukku": "",
+            "kudukka": "",
+        }
+
+        # Replace mapped terms
+        for tanglish, english in term_mapping.items():
+            if tanglish in term:
+                term = term.replace(tanglish, english)
+
+        # Clean up
+        term = re.sub(r"[\s\-_]+", " ", term).strip()
+        # Remove empty filler words
+        filler = {"for", "the", "a", "an", "to", "me", "my", "i", "enakku", "enaku", "any", "some"}
+        words = [w for w in term.split() if w not in filler]
+        term = " ".join(words).strip()
+
+        return term
+
+    def _clean_tamil_term(self, term: str) -> str:
+        """Clean and normalize a Tamil term to English semantic equivalent."""
+        term = term.strip()
+
+        # Map common Tamil terms to English
+        term_mapping = {
+            # Occupation / domain
+            "விவசாயி": "farmers",
+            "விவசாயிகள்": "farmers",
+            "விவசாயம்": "agriculture",
+            "விவசாய": "agriculture",
+            "விவசாயத்திற்க": "agriculture",
+            "விவசாயத்துக்கு": "agriculture",
+            "விவசாயத்திற்கு": "agriculture",
+            "அரசு": "government",
+            "திட்டம்": "scheme",
+            "திட்டங்கள்": "schemes",
+            "ஏதாவது": "",
+            "எதாவது": "",
+            "என்ன": "",
+            "வேண்டும்": "",
+            "இருக்கிறது": "",
+            "இருக்கிறதா": "",
+            "இருக்கிறதா?": "",
+            "இருக்கா": "",
+            "இருக்கா?": "",
+        }
+
+        # Replace mapped terms
+        for tamil, english in term_mapping.items():
+            if tamil in term:
+                term = term.replace(tamil, english)
+
+        # Clean up
+        term = re.sub(r"[\s\-_]+", " ", term).strip()
+        # Remove empty filler words
+        filler = {"for", "the", "a", "an", "to", "me", "my", "i", "any", "some", "available"}
+        words = [w for w in term.split() if w not in filler]
+        term = " ".join(words).strip()
+
+        return term
+
+    def _clean_mixed_term(self, term: str) -> str:
+        """Clean and normalize a code-mixed (Tamil-English) term to English semantic equivalent."""
+        term = term.strip()
+
+        # Map common mixed terms to English
+        term_mapping = {
+            # Tamil words
+            "விவசாயி": "farmers",
+            "விவசாயிகள்": "farmers",
+            "விவசாயம்": "agriculture",
+            "விவசாய": "agriculture",
+            "அரசு": "government",
+            "திட்டம்": "scheme",
+            "திட்டங்கள்": "schemes",
+            "ஏதாவது": "",
+            "எதாவது": "",
+            "என்ன": "",
+            "வேண்டும்": "",
+            "இருக்க": "",  # matches irukka, irukku, etc.
+            # English words
+            "agriculture": "agriculture",
+            "agricultural": "agriculture",
+            "farming": "farmers/agriculture",
+            "farmer": "farmers",
+            "farmers": "farmers",
+            "government": "government",
+            "scheme": "scheme",
+            "schemes": "schemes",
+            "govt": "government",
+        }
+
+        # Replace mapped terms (case-insensitive for English)
+        for key, english in term_mapping.items():
+            if key.lower() in term.lower():
+                # Replace preserving case-insensitively
+                import re
+                term = re.sub(re.escape(key), english, term, flags=re.IGNORECASE)
+
+        # Clean up
+        term = re.sub(r"[\s\-_]+", " ", term).strip()
+        # Remove empty filler words
+        filler = {"for", "the", "a", "an", "to", "me", "my", "i", "any", "some", "available", "enakku", "enaku", "எனக்கு", "எனக்க"}
+        words = [w for w in term.split() if w not in filler]
+        term = " ".join(words).strip()
+
+        return term
 
     @staticmethod
     def _contains_any(lowered_text: str, patterns: list[str], normalize: bool = False) -> bool:

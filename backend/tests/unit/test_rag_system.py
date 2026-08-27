@@ -28,6 +28,7 @@ from app.schemas.rag import RagQueryRequest, RagQueryResponse, RagSource
 from app.services.scheme_retrieval_service import (
     SchemeRetrievalService,
     _derive_scheme_name,
+    _normalize_for_match,
 )
 from app.services.rag_response_service import RagResponseService
 from scripts.ingest_schemes import discover_pdfs, chunk_text
@@ -297,7 +298,8 @@ class TestRetrieval:
             assert result["scheme_name"] == "PM Kisan"
             assert result["source_file"] == "pm_kisan.pdf"
             assert result["page_number"] == 3
-            assert result["score"] == 0.85  # 1.0 - 0.15
+            # Score includes semantic (0.85) + domain bonus (0.18 for agriculture) = 1.0 (capped)
+            assert result["score"] == 1.0
             assert result["document_type"] == "government_scheme"
 
     def test_retrieve_returns_empty_for_empty_query(self):
@@ -453,6 +455,50 @@ class TestRetrieval:
             schemes = [result["scheme_name"] for result in results]
             assert len([scheme for scheme in schemes if "National Agriculture Market" in scheme]) == 1
             assert "Pradhan Mantri Krishi Sinchayee Yojana PMKSY" in schemes
+
+    def test_normalize_for_match_preserves_tamil_unicode(self):
+        """_normalize_for_match must keep Tamil characters, not strip them."""
+        result = _normalize_for_match("விவசாயிகளுக்கு அரசு திட்டம்")
+        assert "விவசாயிகளுக்கு" in result
+        assert "அரசு" in result
+        assert "திட்டம்" in result
+
+    def test_normalize_for_match_preserves_tanglish(self):
+        """_normalize_for_match must keep Tanglish/Latin characters."""
+        result = _normalize_for_match("Enakku farmer scheme edhavadhu irukka")
+        assert "enakku" in result
+        assert "farmer" in result
+        assert "scheme" in result
+        assert "irukka" in result
+
+    def test_heuristic_weights_do_not_overwhelm_semantic_score(self):
+        """Heuristic bonuses should not push low-semantic chunks above high-semantic ones."""
+        mock_collection = MagicMock()
+        mock_collection.query.return_value = {
+            "documents": [["Low relevance text", "High relevance agriculture text"]],
+            "metadatas": [[
+                {"scheme_name": "Unrelated Scheme", "source_file": "unrelated.pdf",
+                 "page_number": 1, "document_type": "government_scheme",
+                 "section_name": "", "chunk_id": "unrelated-1"},
+                {"scheme_name": "PM Kisan Samman Nidhi", "source_file": "pm_kisan.pdf",
+                 "page_number": 1, "document_type": "government_scheme",
+                 "section_name": "Benefits", "chunk_id": "pm-kisan-1"},
+            ]],
+            "distances": [[0.40, 0.05]],  # semantic: 0.60 and 0.95
+        }
+        mock_collection.get.return_value = {"documents": [], "metadatas": []}
+
+        mock_embedding_service = MagicMock()
+        mock_embedding_service.embed_query.return_value = [0.1, 0.2, 0.3]
+
+        with patch.object(
+            SchemeRetrievalService, "_get_or_create_collection",
+            return_value=mock_collection,
+        ):
+            service = SchemeRetrievalService(embedding_service=mock_embedding_service)
+            results = service.retrieve("farmer scheme benefits", top_k=2)
+            assert results[0]["scheme_name"] == "PM Kisan Samman Nidhi"
+            assert results[0]["score"] > results[1]["score"]
 
 
 # ── 8. Empty Query Handling ─────────────────────────────────────────────────

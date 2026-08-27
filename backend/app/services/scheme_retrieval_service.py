@@ -16,6 +16,7 @@ Design rules:
 from __future__ import annotations
 
 import re
+import unicodedata
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
@@ -116,13 +117,40 @@ def _derive_scheme_name(filename: str) -> str:
 
 
 def _normalize_for_match(text: str) -> str:
-    """Normalize names/queries for lightweight deterministic matching."""
-    normalized = (text or "").lower()
+    """Normalize names/queries for lightweight deterministic matching.
+
+    Preserves:
+    - Tamil letters (Lo), combining marks (Mn, Mc)
+    - English letters, digits
+    - Tanglish / mixed Tamil-English text
+    """
+    if not text:
+        return ""
+
+    # Normalize Unicode to NFC form (composed characters)
+    normalized = unicodedata.normalize("NFC", text.lower())
+
+    # Remove file extensions
     normalized = re.sub(r"\.[a-z0-9]+$", "", normalized)
+    # Replace underscores and hyphens with spaces
     normalized = re.sub(r"[_\-]+", " ", normalized)
-    normalized = re.sub(r"[^a-z0-9]+", " ", normalized)
+
+    # Keep: letters (all scripts), marks (combining), numbers, spaces
+    # Remove: punctuation, symbols, control chars, etc.
+    kept_chars = []
+    for ch in normalized:
+        cat = unicodedata.category(ch)
+        if cat.startswith("L") or cat.startswith("M") or cat.startswith("N") or ch.isspace():
+            kept_chars.append(ch)
+        else:
+            kept_chars.append(" ")
+    normalized = "".join(kept_chars)
+
+    # Remove version suffixes like "v2", "version 3"
     normalized = re.sub(r"\b(v|version)\s*\d+\b", " ", normalized)
+    # Remove trailing standalone numbers
     normalized = re.sub(r"\b\d+\b$", " ", normalized)
+
     return re.sub(r"\s+", " ", normalized).strip()
 
 
@@ -159,7 +187,12 @@ class SchemeRetrievalService:
         self,
         embedding_service: Optional[SchemeEmbeddingService] = None,
     ) -> None:
-        self.embedding_service = embedding_service or get_scheme_embedding_service()
+        if embedding_service is None:
+            embedding_service = SchemeEmbeddingService(
+                model_name=settings.RAG_EMBEDDING_MODEL,
+                dimension=settings.RAG_EMBEDDING_DIMENSION,
+            )
+        self.embedding_service = embedding_service
         self._collection = None
         self._all_chunks_cache: Optional[List[dict[str, Any]]] = None
 
@@ -195,6 +228,16 @@ class SchemeRetrievalService:
                 f"Unable to connect to ChromaDB: {exc}"
             ) from exc
 
+    def _get_client(self):
+        """Return the underlying ChromaDB PersistentClient."""
+        try:
+            import chromadb
+        except ImportError as exc:  # pragma: no cover - import guard
+            raise VectorDatabaseError(
+                "ChromaDB dependencies are not installed"
+            ) from exc
+        return chromadb.PersistentClient(path=settings.RAG_PERSIST_DIRECTORY)
+
     # ── Ingestion support ───────────────────────────────────────────────────
 
     def add_chunks(
@@ -219,7 +262,7 @@ class SchemeRetrievalService:
         try:
             ids = [chunk["chunk_id"] for chunk in chunks]
             documents = [
-                self._embedding_document_text(chunk)
+                chunk.get("text", "")
                 for chunk in chunks
             ]
             metadatas = [
@@ -268,30 +311,27 @@ class SchemeRetrievalService:
                 f"Unable to clear RAG collection: {exc}"
             ) from exc
 
+    def reset_collection(self) -> None:
+        """Delete the entire RAG collection and recreate it on next access.
+
+        This is required when the embedding dimension changes (e.g. switching
+        from all-MiniLM-L6-v2 to BAAI/bge-m3), because ChromaDB collections
+        are locked to the dimension they were created with.
+        """
+        try:
+            client = self._get_client()
+            client.delete_collection(name=settings.RAG_COLLECTION_NAME)
+        except Exception:
+            pass
+        self._collection = None
+        self._all_chunks_cache = None
+
     def count(self) -> int:
         """Return the number of documents in the RAG collection."""
         try:
             return self.collection.count()
         except Exception:
             return 0
-
-    @staticmethod
-    def _embedding_document_text(chunk: dict[str, Any]) -> str:
-        """Text used for vector storage/embedding after future re-ingestion."""
-        scheme_name = chunk.get("scheme_name", "")
-        source_file = chunk.get("source_file", "")
-        page_number = chunk.get("page_number", "")
-        section_name = chunk.get("section_name", "")
-        text = chunk.get("text", "")
-        parts = [
-            f"Scheme: {scheme_name}".strip(),
-            f"Source: {source_file}".strip(),
-            f"Page: {page_number}".strip(),
-        ]
-        if section_name:
-            parts.append(f"Section: {section_name}")
-        parts.append(f"Content: {text}")
-        return "\n".join(part for part in parts if part and not part.endswith(": "))
 
     # ── Retrieval ───────────────────────────────────────────────────────────
 
@@ -401,13 +441,17 @@ class SchemeRetrievalService:
             domains = _query_domains(query_tokens)
             domain_hit = any(scheme_tokens & _DOMAIN_TERMS[domain] for domain in domains)
             if overlap or domain_hit:
-                boost = 0.0
-                if self._scheme_name_match_score(query, chunk) > 0:
-                    boost = 0.98
+                scheme_match_score = self._scheme_name_match_score(query, chunk)
+                if scheme_match_score >= 0.12:  # Strong exact match (query subset of scheme)
+                    boost = 0.85
+                elif scheme_match_score > 0:
+                    boost = 0.15
                 elif domain_hit:
-                    boost = 0.62
+                    boost = 0.10
                 elif overlap:
-                    boost = 0.45
+                    boost = 0.05
+                else:
+                    boost = 0.0
                 candidates.append({**chunk, "score": max(chunk.get("score", 0.0), boost)})
         return candidates
 
@@ -467,23 +511,18 @@ class SchemeRetrievalService:
 
         selected: List[dict[str, Any]] = []
         seen_scheme_keys: set[str] = set()
-        overflow: List[dict[str, Any]] = []
         for final_score, item in scored:
             item = {**item, "score": round(max(item.get("score", 0.0), final_score), 4)}
             scheme_key = item.get("_scheme_key") or _canonical_scheme_key(
                 item.get("scheme_name", ""), item.get("source_file", "")
             )
             if scheme_key and scheme_key in seen_scheme_keys:
-                overflow.append(item)
                 continue
             selected.append(item)
             if scheme_key:
                 seen_scheme_keys.add(scheme_key)
             if len(selected) >= top_k:
                 break
-
-        if len(selected) < top_k:
-            selected.extend(overflow[: top_k - len(selected)])
 
         for item in selected:
             item.pop("_scheme_key", None)
@@ -506,11 +545,11 @@ class SchemeRetrievalService:
         scheme_tokens = _tokens(scheme_norm)
         query_tokens = _tokens(query_norm)
         if scheme_norm in query_norm or source_norm in query_norm:
-            return 0.45
+            return 0.15
         if query_tokens and query_tokens <= scheme_tokens:
-            return 0.4
+            return 0.12
         if len(query_tokens & scheme_tokens) >= 2:
-            return 0.3
+            return 0.08
         return 0.0
 
     def _domain_match_score(self, query: str, item: dict[str, Any]) -> float:
@@ -527,7 +566,9 @@ class SchemeRetrievalService:
         )
         item_tokens = _tokens(item_text)
         hits = sum(1 for domain in domains if item_tokens & _DOMAIN_TERMS[domain])
-        return min(0.25, hits * 0.18)
+        # Increased from 0.08 to 0.18 per hit to allow domain evidence to overcome
+        # moderate semantic gaps when query has strong domain signals.
+        return min(0.30, hits * 0.18)
 
     def _keyword_overlap_score(self, query: str, item: dict[str, Any]) -> float:
         query_tokens = _tokens(query)
@@ -542,7 +583,7 @@ class SchemeRetrievalService:
         )
         item_tokens = _tokens(item_text)
         overlap = query_tokens & item_tokens
-        return min(0.15, 0.04 * len(overlap))
+        return min(0.04, 0.01 * len(overlap))
 
 
 @lru_cache(maxsize=1)

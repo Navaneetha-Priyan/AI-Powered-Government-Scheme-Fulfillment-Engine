@@ -221,10 +221,7 @@ def process_pdf(
 
         # 4) Generate embeddings.
         embeddings = embedding_service.embed_texts(
-            [
-                retrieval_service._embedding_document_text(chunk)
-                for chunk in chunk_payloads
-            ]
+            [chunk["text"] for chunk in chunk_payloads]
         )
 
         if len(embeddings) != len(chunk_payloads):
@@ -317,15 +314,16 @@ def main():
     extractor = PdfTextExtractor()
     processing_service = SchemeProcessingService()
     embedding_service = SchemeEmbeddingService(
-        model_name=settings.RAG_EMBEDDING_MODEL
+        model_name=settings.RAG_EMBEDDING_MODEL,
+        dimension=settings.RAG_EMBEDDING_DIMENSION,
     )
     retrieval_service = SchemeRetrievalService(embedding_service)
 
     # Optionally clear the collection.
     if args.clear:
         print("\nClearing existing RAG collection...")
-        deleted = retrieval_service.delete_all()
-        print(f"Deleted {deleted} existing chunks.")
+        retrieval_service.reset_collection()
+        print("Collection reset.")
 
     # Process each PDF.
     print(f"\nProcessing {len(pdfs)} PDFs...")

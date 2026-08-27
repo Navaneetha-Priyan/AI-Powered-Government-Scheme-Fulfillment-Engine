@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 from app.core.jwt import create_access_token
 from app.models.citizen import Citizen
-from app.models.citizen_profile import CitizenProfile
+from app.models.citizen_profile import CitizenProfile, LandRecord, LandType
 from app.models.government_scheme import GovernmentScheme
 from app.services import government_scheme_service as scheme_service_module
 
@@ -54,6 +54,26 @@ def create_profile(test_db, citizen_id: str):
     return profile
 
 
+def create_land_record(test_db, citizen_id: str):
+    land = LandRecord(
+        citizen_id=citizen_id,
+        survey_number="123/45",
+        land_area=3.2,
+        land_area_unit="acres",
+        land_type=LandType.AGRICULTURAL,
+        village="Periyakulam",
+        taluk="Villupuram",
+        district="Villupuram",
+        state="Tamil Nadu",
+        ownership_type="owned",
+        patta_number="PATTA-12345",
+    )
+    test_db.add(land)
+    test_db.commit()
+    test_db.refresh(land)
+    return land
+
+
 def create_scheme(test_db):
     scheme = GovernmentScheme(
         scheme_name="PM Kisan Support",
@@ -77,6 +97,7 @@ def create_scheme(test_db):
 
 
 def create_citizen(test_db):
+    from datetime import datetime
     citizen = Citizen(
         email="test.rec@example.com",
         phone="9876543999",
@@ -87,6 +108,7 @@ def create_citizen(test_db):
         account_active=True,
         status="active",
         is_deleted=False,
+        date_of_birth=datetime(1990, 1, 1),  # ~34 years old
     )
     test_db.add(citizen)
     test_db.commit()
@@ -103,6 +125,7 @@ def test_generate_and_fetch_recommendations(client, test_db, monkeypatch):
     citizen, auth_headers = create_citizen(test_db)
     citizen_id = citizen.id
     create_profile(test_db, citizen_id)
+    create_land_record(test_db, citizen_id)
     scheme = create_scheme(test_db)
 
     monkeypatch.setattr(scheme_service_module.GovernmentSchemeService, "semantic_search", lambda self, query, limit=5, category=None: FakeSearchService(scheme.id).semantic_search(query, limit, category))

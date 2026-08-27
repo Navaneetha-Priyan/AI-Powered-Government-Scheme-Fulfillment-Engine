@@ -56,7 +56,7 @@ def run_evaluation(
 
     collection_count = retrieval_service.count()
     print("=" * 70)
-    print("Government Scheme RAG — Retrieval Evaluation")
+    print("Government Scheme RAG - Retrieval Evaluation")
     print("=" * 70)
     print(f"Collection: {settings.RAG_COLLECTION_NAME}")
     print(f"Documents indexed: {collection_count}")
@@ -71,9 +71,9 @@ def run_evaluation(
         return
 
     for i, query in enumerate(queries, start=1):
-        print(f"\n{'─' * 70}")
+        print(f"\n{'-' * 70}")
         print(f"Query {i}/{len(queries)}: {query}")
-        print(f"{'─' * 70}")
+        print(f"{'-' * 70}")
 
         results = retrieval_service.retrieve(
             query=query,
@@ -117,8 +117,8 @@ def main():
     parser.add_argument(
         "--threshold",
         type=float,
-        default=0.0,
-        help="Minimum similarity score threshold (default: 0.0).",
+        default=settings.RAG_SIMILARITY_THRESHOLD,
+        help=f"Minimum similarity score threshold (default: {settings.RAG_SIMILARITY_THRESHOLD}).",
     )
     parser.add_argument(
         "--queries",

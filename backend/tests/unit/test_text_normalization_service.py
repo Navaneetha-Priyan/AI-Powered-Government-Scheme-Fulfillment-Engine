@@ -225,6 +225,84 @@ class TestHeuristicFallback:
         result = service.normalize("எந்த certificate வேண்டும்?")
         assert result.intent == "document_requirement"
 
+    # ── Tanglish normalization regression tests ──────────────────────────────
+
+    def test_tanglish_enakku_farmer_scheme_irukka(self):
+        """Enakku farmer scheme edhavadhu irukka? -> normalized English semantic."""
+        service = self.make_heuristic()
+        result = service.normalize("Enakku farmer scheme edhavadhu irukka?")
+        assert result.source == "heuristic"
+        assert result.intent == "scheme_search"
+        assert result.entities.get("occupation") == "farmer"
+        # Normalized text should be English semantic representation
+        assert "government scheme" in result.normalized_text.lower()
+        assert "farmer" in result.normalized_text.lower()
+        # Should not contain raw Tanglish
+        assert "enakku" not in result.normalized_text.lower()
+        assert "edhavadhu" not in result.normalized_text.lower()
+        assert "irukka" not in result.normalized_text.lower()
+
+    def test_tanglish_farmer_ku_government_scheme_irukka(self):
+        """Farmer-ku government scheme irukka? -> normalized English semantic."""
+        service = self.make_heuristic()
+        result = service.normalize("Farmer-ku government scheme irukka?")
+        assert result.source == "heuristic"
+        assert result.intent == "scheme_search"
+        assert result.entities.get("occupation") == "farmer"
+        assert "government scheme" in result.normalized_text.lower()
+        assert "farmer" in result.normalized_text.lower()
+        assert "ku" not in result.normalized_text.lower()
+        assert "irukka" not in result.normalized_text.lower()
+
+    def test_tanglish_enakku_agriculture_scheme_venum(self):
+        """Enakku agriculture scheme venum -> normalized English semantic."""
+        service = self.make_heuristic()
+        result = service.normalize("Enakku agriculture scheme venum")
+        assert result.source == "heuristic"
+        assert result.intent == "scheme_search"
+        assert result.entities.get("occupation") == "farmer"  # agriculture maps to farmer
+        assert "government scheme" in result.normalized_text.lower()
+        assert "agriculture" in result.normalized_text.lower() or "farmer" in result.normalized_text.lower()
+        assert "enakku" not in result.normalized_text.lower()
+        assert "venum" not in result.normalized_text.lower()
+
+    def test_tanglish_vivasayam_scheme_irukka(self):
+        """Enakku vivasayam scheme irukka? -> normalized English semantic."""
+        service = self.make_heuristic()
+        result = service.normalize("Enakku vivasayam scheme irukka?")
+        assert result.source == "heuristic"
+        assert result.intent == "scheme_search"
+        assert result.entities.get("occupation") == "farmer"
+        assert "government scheme" in result.normalized_text.lower()
+        assert "farmer" in result.normalized_text.lower() or "agriculture" in result.normalized_text.lower()
+
+    def test_existing_tamil_still_works(self):
+        """Tamil input continues to work (entities detected, intent correct)."""
+        service = self.make_heuristic()
+        result = service.normalize("விவசாயிகளுக்கு என்ன அரசு திட்டங்கள் இருக்கிறது?")
+        assert result.source == "heuristic"
+        assert result.intent == "scheme_search"
+        assert result.entities.get("occupation") == "farmer"
+        assert result.language == "ta"
+
+    def test_existing_english_still_works(self):
+        """English input continues to work."""
+        service = self.make_heuristic()
+        result = service.normalize("What government schemes are available for farmers?")
+        assert result.source == "heuristic"
+        assert result.intent == "scheme_search"
+        assert result.entities.get("occupation") == "farmer"
+        assert result.language == "en"
+
+    def test_existing_code_mixed_still_works(self):
+        """Tamil-English code-mixed input continues to work."""
+        service = self.make_heuristic()
+        result = service.normalize("எனக்கு agricultureக்கு ஏதாவது government scheme இருக்கா?")
+        assert result.source == "heuristic"
+        assert result.intent == "scheme_search"
+        assert result.entities.get("occupation") == "farmer"
+        assert result.language == "ta-en"
+
 
 # ── Confidence / no-inference safety ──────────────────────────────────────
 
