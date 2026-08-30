@@ -244,7 +244,7 @@ class VoiceQueryService:
             parts.append(normalization.normalized_text)
 
         entities = normalization.entities or {}
-        for key in ("crop", "scheme_name", "document_type", "land_ownership"):
+        for key in ("occupation", "crop", "scheme_name", "document_type", "land_ownership"):
             value = entities.get(key)
             if isinstance(value, str) and value.strip():
                 parts.append(value.strip())

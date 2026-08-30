@@ -86,14 +86,14 @@ class VectorStoreService:
     def search(self, query: str, limit: int = 5, category: str | None = None) -> list[dict[str, Any]]:
         try:
             query_embedding = self.embedding_service.embed_query(query)
-            where = {"is_deleted": False}
+            where = {}
             if category:
                 where["category"] = category
 
             result = self.collection.query(
                 query_embeddings=[query_embedding],
                 n_results=limit,
-                where=where,
+                where=where if where else None,
                 include=["documents", "metadatas", "distances"],
             )
         except Exception as exc:

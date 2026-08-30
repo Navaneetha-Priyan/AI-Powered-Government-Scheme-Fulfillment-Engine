@@ -1,0 +1,401 @@
+======================================================================
+Government Scheme RAG — Retrieval Evaluation
+======================================================================
+Collection: government_scheme_documents
+Documents indexed: 2274
+Embedding model: all-MiniLM-L6-v2
+======================================================================
+
+──────────────────────────────────────────────────────────────────────
+Query 1/10: What government schemes are available for farmers?
+──────────────────────────────────────────────────────────────────────
+
+  Rank 1:
+    Score:       0.5298
+    Scheme:      Pradhan Mantri Krishi Sinchayee Yojana PMKSY
+    Source:      Pradhan_Mantri_Krishi_Sinchayee_Yojana_PMKSY.pdf
+    Page:        1
+    Text preview: Brief of Status of Micro-Irrigation Fund (MIF) created under NABARD Department of Agriculture, Cooperation & Farmers Welfare is implementing ‘Per Drop More Crop’ component of Pradhan Mantri Krishi Sin...
+
+  Rank 2:
+    Score:       0.5283
+    Scheme:      e NAM National Agriculture Market
+    Source:      e-NAM_National_Agriculture_Market.pdf
+    Page:        3
+    Text preview: • [image] • [image] • [image] • [image] • [image] • [image] • [image] • [image] Department of Agriculture, Cooperation & Farmers' Welfare, Ministry of Agriculture and Farmers' Welfare, Government of I...
+
+  Rank 3:
+    Score:       0.5283
+    Scheme:      e NAM National Agriculture Market 2
+    Source:      e-NAM_National_Agriculture_Market_2.pdf
+    Page:        3
+    Text preview: • [image] • [image] • [image] • [image] • [image] • [image] • [image] • [image] Department of Agriculture, Cooperation & Farmers' Welfare, Ministry of Agriculture and Farmers' Welfare, Government of I...
+
+  Rank 4:
+    Score:       0.5246
+    Scheme:      e NAM National Agriculture Market 3
+    Source:      e-NAM_National_Agriculture_Market_3.pdf
+    Page:        5
+    Text preview: Page No. 5 Uttam fasal Uttam Enam www.enam.gov.in National Agriculture Market (e-NAM) is an innovative initiative in agricultural marketing to enhance farmers accessibility digitally to multiple numbe...
+
+  Rank 5:
+    Score:       0.4981
+    Scheme:      Pradhan Mantri Krishi Sinchayee Yojana PMKSY 2
+    Source:      Pradhan_Mantri_Krishi_Sinchayee_Yojana_PMKSY_2.pdf
+    Page:        1
+    Text preview: Template for District Irrigation Plan Foreword: ( by District Collector): Index: Executive summary I. Introduction: i. Background, ii. Vision, iii. Objective, iv. Strategy /approach, v. Rationale/ Jus...
+
+──────────────────────────────────────────────────────────────────────
+Query 2/10: What documents are required for PM Kisan?
+──────────────────────────────────────────────────────────────────────
+
+  Rank 1:
+    Score:       0.5644
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf
+    Page:        65
+    Text preview: 64 Form 1-B - APPLICATION FORM FOR CLAIM OF SECOND INSTALLMENT UNDER PMMVY (FILLED UP FORM SHOULD BE SUBMITTED TO AUTHORISED PERSONS ONLY) Mandatory fields* 1. Name of beneficiary*: __________________...
+
+  Rank 2:
+    Score:       0.5644
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY 2
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY_2.pdf
+    Page:        65
+    Text preview: 64 Form 1-B - APPLICATION FORM FOR CLAIM OF SECOND INSTALLMENT UNDER PMMVY (FILLED UP FORM SHOULD BE SUBMITTED TO AUTHORISED PERSONS ONLY) Mandatory fields* 1. Name of beneficiary*: __________________...
+
+  Rank 3:
+    Score:       0.5591
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf
+    Page:        63
+    Text preview: 62 17. Checklist of documents enclosed: S.No Document to be enclosed (Photocopy to be enclosed) Document Enclosed Yes- Y No – N Not Applicable- NA 1 Aadhaar Card of beneficiary 2 Identity Card of bene...
+
+  Rank 4:
+    Score:       0.5591
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY 2
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY_2.pdf
+    Page:        63
+    Text preview: 62 17. Checklist of documents enclosed: S.No Document to be enclosed (Photocopy to be enclosed) Document Enclosed Yes- Y No – N Not Applicable- NA 1 Aadhaar Card of beneficiary 2 Identity Card of bene...
+
+  Rank 5:
+    Score:       0.5201
+    Scheme:      PM Vishwakarma Yojana
+    Source:      PM_Vishwakarma_Yojana.pdf
+    Page:        29
+    Text preview: e and amount of loan, etc. The eligible beneficiaries are required to get themselves enrolled through their nearest CSC. The following list of documents or information is to be provided by the benefic...
+
+──────────────────────────────────────────────────────────────────────
+Query 3/10: Who is eligible for this scheme?
+──────────────────────────────────────────────────────────────────────
+
+  Rank 1:
+    Score:       0.5464
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf
+    Page:        40
+    Text preview: 39 l. Representative of Department of Sports m. Representative of Ministry of Tribal Affairs n. Representative of Department of Social Justice and Empowerment o. Representative of Department of Empowe...
+
+  Rank 2:
+    Score:       0.5464
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY 2
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY_2.pdf
+    Page:        40
+    Text preview: 39 l. Representative of Department of Sports m. Representative of Ministry of Tribal Affairs n. Representative of Department of Social Justice and Empowerment o. Representative of Department of Empowe...
+
+  Rank 3:
+    Score:       0.5363
+    Scheme:      PM Vishwakarma Yojana
+    Source:      PM_Vishwakarma_Yojana.pdf
+    Page:        43
+    Text preview: eligible beneficiaries. (iv) Approving need-based modifications in the Scheme including addition or deletion of trades. (v) Engaging with stakeholders including civil organisations, associations, foru...
+
+  Rank 4:
+    Score:       0.5070
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf
+    Page:        55
+    Text preview: o the eligible beneficiaries on fulfilment of conditionalities will be available to the nodal officer through PMMVY-CAS. To avoid delay, the Nodal officer shall initiate payment to the beneficiaries a...
+
+  Rank 5:
+    Score:       0.5070
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY 2
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY_2.pdf
+    Page:        55
+    Text preview: o the eligible beneficiaries on fulfilment of conditionalities will be available to the nodal officer through PMMVY-CAS. To avoid delay, the Nodal officer shall initiate payment to the beneficiaries a...
+
+──────────────────────────────────────────────────────────────────────
+Query 4/10: What benefits does this scheme provide?
+──────────────────────────────────────────────────────────────────────
+
+  Rank 1:
+    Score:       0.5049
+    Scheme:      PM Vishwakarma Yojana
+    Source:      PM_Vishwakarma_Yojana.pdf
+    Page:        11
+    Text preview: 2.2.4 The Scheme seeks to promote empowerment of women, and those belonging to the marginalised or under-served groups like the Scheduled Castes, Scheduled Tribes, OBCs, Specially Abled, Transgenders,...
+
+  Rank 2:
+    Score:       0.4586
+    Scheme:      PM Street Vendor AtmaNirbhar Nidhi PM SVANidhi 2
+    Source:      PM_Street_Vendor_AtmaNirbhar_Nidhi_PM_SVANidhi_2.pdf
+    Page:        1
+    Text preview: Frequently Asked Questions Generic 1. What is the Scheme? This is a Central Sector Scheme to facilitate street vendors to access affordable working capital loan for resuming their livelihoods activit...
+
+  Rank 3:
+    Score:       0.4508
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY 3
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY_3.pdf
+    Page:        3
+    Text preview: of the scheme and are happy that such a scheme exists for the pregnant and lactating mothers where they can take adequate rest and have nutritional food during and after their pregnancy. .
+
+  Rank 4:
+    Score:       0.4507
+    Scheme:      PM Vishwakarma Yojana
+    Source:      PM_Vishwakarma_Yojana.pdf
+    Page:        43
+    Text preview: eligible beneficiaries. (iv) Approving need-based modifications in the Scheme including addition or deletion of trades. (v) Engaging with stakeholders including civil organisations, associations, foru...
+
+  Rank 5:
+    Score:       0.4314
+    Scheme:      PM Vishwakarma Yojana
+    Source:      PM_Vishwakarma_Yojana.pdf
+    Page:        34
+    Text preview: 32 6. Process Flow for availing benefits under the Scheme Identification and Verification of the Beneficiaries Registration through PM Vishwakarma Portal Flow of Benefits of the Scheme The following d...
+
+──────────────────────────────────────────────────────────────────────
+Query 5/10: How do I apply for the scheme?
+──────────────────────────────────────────────────────────────────────
+
+  Rank 1:
+    Score:       0.4714
+    Scheme:      PM Vishwakarma Yojana
+    Source:      PM_Vishwakarma_Yojana.pdf
+    Page:        43
+    Text preview: eligible beneficiaries. (iv) Approving need-based modifications in the Scheme including addition or deletion of trades. (v) Engaging with stakeholders including civil organisations, associations, foru...
+
+  Rank 2:
+    Score:       0.4713
+    Scheme:      PM Street Vendor AtmaNirbhar Nidhi PM SVANidhi 2
+    Source:      PM_Street_Vendor_AtmaNirbhar_Nidhi_PM_SVANidhi_2.pdf
+    Page:        2
+    Text preview: e of Vending? Can I avail the loan facility? If yes, what is the process ? Yes, you can still avail the Scheme benefits. A Provisional Certificate of Vending would be issued to vendors through an IT b...
+
+  Rank 3:
+    Score:       0.4709
+    Scheme:      PM Vishwakarma Yojana
+    Source:      PM_Vishwakarma_Yojana.pdf
+    Page:        10
+    Text preview: market linkages to help them access new opportunities for growth. Objective, Approach and Coverage 2. 2.2 Approach 2.2.1 The Scheme aims at providing several benefits to the Vishwakarmas, who are eith...
+
+  Rank 4:
+    Score:       0.4578
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf
+    Page:        40
+    Text preview: EL The overall implementation of the Scheme at State/UT level will be done by a Committee headed by the Chief Secretary. The committee will be serviced by the Department of Women and Child Development...
+
+  Rank 5:
+    Score:       0.4578
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY 2
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY_2.pdf
+    Page:        40
+    Text preview: EL The overall implementation of the Scheme at State/UT level will be done by a Committee headed by the Chief Secretary. The committee will be serviced by the Department of Women and Child Development...
+
+──────────────────────────────────────────────────────────────────────
+Query 6/10: விவசாயிகளுக்கு என்ன அரசு திட்டங்கள் இருக்கிறது?
+──────────────────────────────────────────────────────────────────────
+
+  Rank 1:
+    Score:       0.4950
+    Scheme:      Pradhan Mantri Awas Yojana Urban PMAY U 2
+    Source:      Pradhan_Mantri_Awas_Yojana_-_Urban_PMAY-U_2.pdf
+    Page:        14
+    Text preview: Ɉी मनोहर लाल माननीय आवासन एवं शहरी कायǯ मंȼी Ɂधानमंȼी आवास योजना के अंतगǯत करोड़Ȅ मकान अभी तक ϗदए जा चुके हȀ। न केवल मकान आप देते हȀ बϨ̜ उस मकान मǼ जǨरी आव̼ कताएं, इंफाǝȷɶर आपने गरीब समाज के सुख सुϘवधा...
+
+  Rank 2:
+    Score:       0.4605
+    Scheme:      Free Bus Travel Scheme for Women TN Government Buses
+    Source:      Free_Bus_Travel_Scheme_for_Women_TN_Government_Buses.pdf
+    Page:        2
+    Text preview: புக்கிங் செொபபல் எண் அல்லது இசெயில் ஐடி ெற்றும் OB எண் அல்லது PNR எண்பை உள்ளிட்டு, பிறகு Get Details ஐ கிளிக் செய்யவும். The booked passenger data will be displayed. Select the TDR reason and submit i...
+
+  Rank 3:
+    Score:       0.4511
+    Scheme:      Pradhan Mantri Awas Yojana Urban PMAY U 2
+    Source:      Pradhan_Mantri_Awas_Yojana_-_Urban_PMAY-U_2.pdf
+    Page:        4
+    Text preview: नरेΥ मोदी माननीय Ɂधानमंȼी घर ϟसफǯ ज़ǨरतȄ से नहǵ, घर स̒ ान से भी जुड़ा होता है, ͗ ाϟभमान से जुड़ा होता है और एक बार जब घर बन जाता है तो घर के हर सद͕ कǷ सोच भी बदलती है, आगे बढ़ने का नया हौसला पैदा होता है।...
+
+  Rank 4:
+    Score:       0.4455
+    Scheme:      Uzhavar Pathukappu Thittam Farmers Pension Scheme TN
+    Source:      Uzhavar_Pathukappu_Thittam_Farmers_Pension_Scheme_-_TN.pdf
+    Page:        35
+    Text preview: ±«நகß 0.4 0.5 ெமாÚதÝ 2.4 3.2 2.9 1.2 0.7 0.7 0.2 0.7 1.4 0.3 2.5 3.0 êÚைர ைவகாê ஆ ஆ} ஆவë ெசÜடÝபß ைத அØடவைண - எã (ெம .டå) ஜயÚ கா Ü ஏÜரà ேம ஜுå ஜுைல ஆகæ© 33 33
+
+  Rank 5:
+    Score:       0.4368
+    Scheme:      Free Bus Travel Scheme for Women TN Government Buses
+    Source:      Free_Bus_Travel_Scheme_for_Women_TN_Government_Buses.pdf
+    Page:        5
+    Text preview: After entering the TDR details and clicking Get Details, the TDR status will be displayed. Tamil translation: TDR விவரங்கபள உள்ளிட்டு Get Details கிளிக் செய்ை பிறகு, TDR நிபல கொைப்படும்.
+
+──────────────────────────────────────────────────────────────────────
+Query 7/10: Enakku farmer scheme edhavadhu irukka?
+──────────────────────────────────────────────────────────────────────
+
+  Rank 1:
+    Score:       0.5811
+    Scheme:      Uzhavar Pathukappu Thittam Farmers Pension Scheme TN 2
+    Source:      Uzhavar_Pathukappu_Thittam_Farmers_Pension_Scheme_-_TN_2.pdf
+    Page:        45
+    Text preview: griculture .tti@gmail.co m 3.Assistant Director Agriculture Arvakuric hi Assistant Director of Agriculture, Arvakurichi. 04320- 231299 adagriculture .ark@gmail.c om 4.Assistant Director Agriculture K....
+
+  Rank 2:
+    Score:       0.5770
+    Scheme:      Uzhavar Pathukappu Thittam Farmers Pension Scheme TN 2
+    Source:      Uzhavar_Pathukappu_Thittam_Farmers_Pension_Scheme_-_TN_2.pdf
+    Page:        41
+    Text preview: Agriculture Uppiliyapura m Agriculture Extension Centre, Union Office Complex, Uppiliyapuram 04327- 252799 adaupm123 @gmail.co m
+
+  Rank 3:
+    Score:       0.5713
+    Scheme:      Uzhavar Pathukappu Thittam Farmers Pension Scheme TN 2
+    Source:      Uzhavar_Pathukappu_Thittam_Farmers_Pension_Scheme_-_TN_2.pdf
+    Page:        19
+    Text preview: am Assistant Director of Agriculture, Taluk Office compound, Arakonam 631 003 04177 - 232597 vlr.arakonam @gmail.com 19. Assistant Director Agriculture Nemili Assistant Director of Agriculture, Pancha...
+
+  Rank 4:
+    Score:       0.5691
+    Scheme:      Uzhavar Pathukappu Thittam Farmers Pension Scheme TN 2
+    Source:      Uzhavar_Pathukappu_Thittam_Farmers_Pension_Scheme_-_TN_2.pdf
+    Page:        21
+    Text preview: Block level Assistant public Information Officer Block 6.Assistant Director Agriculture Thurinjapur am- O/o Assistant Director of Agriculture, Thurinjapuram- 606805. 04175- 242211 www.thuria da@gmail....
+
+  Rank 5:
+    Score:       0.5623
+    Scheme:      Uzhavar Pathukappu Thittam Farmers Pension Scheme TN 2
+    Source:      Uzhavar_Pathukappu_Thittam_Farmers_Pension_Scheme_-_TN_2.pdf
+    Page:        20
+    Text preview: DISTRICT: Thiruvannamalai Sl.No. Designation Office / Contact Address Telepho ne No. E-Mail ID District level i) Appellate Authority Joint Director of Agriculture Joint Director of Agriculture, Thiruv...
+
+──────────────────────────────────────────────────────────────────────
+Query 8/10: எனக்கு agricultureக்கு ஏதாவது government scheme இருக்கா?
+──────────────────────────────────────────────────────────────────────
+
+  Rank 1:
+    Score:       0.4990
+    Scheme:      e NAM National Agriculture Market
+    Source:      e-NAM_National_Agriculture_Market.pdf
+    Page:        3
+    Text preview: • [image] • [image] • [image] • [image] • [image] • [image] • [image] • [image] Department of Agriculture, Cooperation & Farmers' Welfare, Ministry of Agriculture and Farmers' Welfare, Government of I...
+
+  Rank 2:
+    Score:       0.4990
+    Scheme:      e NAM National Agriculture Market 2
+    Source:      e-NAM_National_Agriculture_Market_2.pdf
+    Page:        3
+    Text preview: • [image] • [image] • [image] • [image] • [image] • [image] • [image] • [image] Department of Agriculture, Cooperation & Farmers' Welfare, Ministry of Agriculture and Farmers' Welfare, Government of I...
+
+  Rank 3:
+    Score:       0.4915
+    Scheme:      Uzhavar Pathukappu Thittam Farmers Pension Scheme TN 2
+    Source:      Uzhavar_Pathukappu_Thittam_Farmers_Pension_Scheme_-_TN_2.pdf
+    Page:        50
+    Text preview: 2.Assistant Director Agriculture Budalur Panchayat union Building, Budalur 613 602 04362- 288800 adablral@gm ail.com 3.Assistant Director Agriculture Thiruvaiy aru Panchayat union Building complex, Th...
+
+  Rank 4:
+    Score:       0.4912
+    Scheme:      Uzhavar Pathukappu Thittam Farmers Pension Scheme TN 2
+    Source:      Uzhavar_Pathukappu_Thittam_Farmers_Pension_Scheme_-_TN_2.pdf
+    Page:        67
+    Text preview: ctor of Agriculture, Rajapalay am Assistant Director of Agriculture, Rajapalayam 04563 - 230150 adarjpmvnr @gmail.com 2.Assistant Director Agriculture Srivilliput hur Assistant Director of Agriculture...
+
+  Rank 5:
+    Score:       0.4844
+    Scheme:      Uzhavar Pathukappu Thittam Farmers Pension Scheme TN 2
+    Source:      Uzhavar_Pathukappu_Thittam_Farmers_Pension_Scheme_-_TN_2.pdf
+    Page:        18
+    Text preview: ulture, Regulated Market Committee compound, Salem Road, Tirupathur 635 601 04179 - 220720 vlr.tirupathur @gmail.com 11.Assistant Director Agriculture Jolarpet Assistant Director of Agriculture, Panch...
+
+──────────────────────────────────────────────────────────────────────
+Query 9/10: What schemes are available for land ownership and patta?
+──────────────────────────────────────────────────────────────────────
+
+  Rank 1:
+    Score:       0.5279
+    Scheme:      Pradhan Mantri Awas Yojana Urban PMAY U 2
+    Source:      Pradhan_Mantri_Awas_Yojana_-_Urban_PMAY-U_2.pdf
+    Page:        30
+    Text preview: services, opƟmize resource uƟlizaƟon, avoid duplicaƟon and enhance sustainability and quality of life for beneﬁciaries. e) State/UT Governments shall undertake comprehensive planning for AHP projects ...
+
+  Rank 2:
+    Score:       0.4864
+    Scheme:      Pradhan Mantri Awas Yojana Urban PMAY U 2
+    Source:      Pradhan_Mantri_Awas_Yojana_-_Urban_PMAY-U_2.pdf
+    Page:        30
+    Text preview: ailed veriﬁcaƟon of land ownership, Ɵtle and records is carried out to ensure compliance with all legal requirements. b. Undertake land-use conversion as per Master Plan, zoning regulaƟons and local d...
+
+  Rank 3:
+    Score:       0.4605
+    Scheme:      Pradhan Mantri Awas Yojana Urban PMAY U 2
+    Source:      Pradhan_Mantri_Awas_Yojana_-_Urban_PMAY-U_2.pdf
+    Page:        11
+    Text preview: cts may be implemented either through government agencies or in partnership with private agencies, including industries. The projects under AHP are a supply-side intervenƟon under which aﬀordable hous...
+
+  Rank 4:
+    Score:       0.4342
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf
+    Page:        119
+    Text preview: Mission Shakti - Scheme Implementation Guidelines 118 vi) Furnishing for other rooms vii) CCTV Camera Total c) For Construction of the Centre, if required ------------------ 4.The fund required for se...
+
+  Rank 5:
+    Score:       0.4342
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY 2
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY_2.pdf
+    Page:        119
+    Text preview: Mission Shakti - Scheme Implementation Guidelines 118 vi) Furnishing for other rooms vii) CCTV Camera Total c) For Construction of the Centre, if required ------------------ 4.The fund required for se...
+
+──────────────────────────────────────────────────────────────────────
+Query 10/10: What government help is available for poor families?
+──────────────────────────────────────────────────────────────────────
+
+  Rank 1:
+    Score:       0.4695
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf
+    Page:        19
+    Text preview: vulnerable families and prevent/ rescue the victims and also help them in initial documentation and registration of FIR. They will also apply to the designated Magistrates or SDMs and Child Welfare Co...
+
+  Rank 2:
+    Score:       0.4695
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY 2
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY_2.pdf
+    Page:        19
+    Text preview: vulnerable families and prevent/ rescue the victims and also help them in initial documentation and registration of FIR. They will also apply to the designated Magistrates or SDMs and Child Welfare Co...
+
+  Rank 3:
+    Score:       0.4577
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf
+    Page:        9
+    Text preview: selling, medical assistance, police facilitation and link them with existing services etc. through One Stop Centres. ii. Institutional Care for long term support: The long-term institutional care comp...
+
+  Rank 4:
+    Score:       0.4577
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY 2
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY_2.pdf
+    Page:        9
+    Text preview: selling, medical assistance, police facilitation and link them with existing services etc. through One Stop Centres. ii. Institutional Care for long term support: The long-term institutional care comp...
+
+  Rank 5:
+    Score:       0.4463
+    Scheme:      Pradhan Mantri Matru Vandana Yojana PMMVY
+    Source:      Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf
+    Page:        51
+    Text preview: 50 provided 1 Medical aid As per need 2 Police assistance As per need 3 Legal aid/case management As per need 4 Psychosocial Counselling As per need 5 Sanitary Napkin As per need 6 Temporary Shelter m...
+
+======================================================================
+Evaluation complete.
+======================================================================

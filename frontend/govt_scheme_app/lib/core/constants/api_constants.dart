@@ -57,7 +57,9 @@ class ApiConstants {
   static const String recommendationHistory = '/api/recommendations/history';
 
   static const String voiceTranscribe = '/voice/transcribe';
+  static const String voiceNormalize = '/voice/normalize';
   static const String voiceRecommend = '/voice/recommend';
+  static const String ragQuery = '/api/schemes/rag/query';
 
   // Citizen document intelligence (the backend-first profile workflow).
   static const String intelligentDocuments = '/api/documents';

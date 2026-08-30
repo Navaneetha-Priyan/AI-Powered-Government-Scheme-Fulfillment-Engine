@@ -1,0 +1,117 @@
+Government Scheme RAG Corpus Expansion
+=====================================
+
+These are government/official scheme documents selected for the
+AI-Powered Government Scheme Fulfillment Engine.
+
+VERIFIED DOWNLOADED PDFS IN THIS ZIP
+------------------------------------
+1. PM-KISAN - Pradhan Mantri Kisan Samman Nidhi
+   Official PDF: https://www.pmkisan.gov.in/Documents/Revised%20Operational%20Guidelines%20-%20PM-Kisan%20Scheme.pdf
+
+2. PMFBY - Pradhan Mantri Fasal Bima Yojana
+   Official source: https://pmfby.gov.in/guidelines
+
+3. PM-KUSUM - Pradhan Mantri Kisan Urja Suraksha evam Utthaan Mahabhiyan
+   Official PDF: https://pmkusum.mnre.gov.in/assets/pdf/KUSUMguidelines.pdf
+
+4. PMAY-G - Pradhan Mantri Awaas Yojana-Gramin
+   Official PDF: https://pmayg.dord.gov.in/netiayHome/Uploaded/Guidelines-English_Book_Final.pdf
+
+5. PM-RKVY / PKVY - Rashtriya Krishi Vikas Yojana / Paramparagat Krishi Vikas Yojana
+   Official government agriculture guideline source used for the downloaded document.
+
+6. PMFME - Pradhan Mantri Formalisation of Micro Food Processing Enterprises
+   Official PDF: https://pmfme.mofpi.gov.in/pmfme/newsletters/docs/SchemeGuidelines.pdf
+
+7. Saksham Anganwadi and Poshan 2.0
+   Official PDF: https://www.spniwcd.wcd.gov.in/uploads/pdf/Mission%2520Saksham%2520Anganwadi%2520and%2520Poshan%25202.0%2520scheme%2520guidelines.pdf
+
+8. MIDH - Mission for Integrated Development of Horticulture
+   Official 2025 guideline PDF: https://www.nhb.gov.in/writereaddata/082825102800MIDH%20Guideline%202025.pdf
+
+9. SMAM - Sub-Mission on Agricultural Mechanization
+   Official 2025 operational guideline PDF hosted by a Government of India agriculture department:
+   https://agriculture.hp.gov.in/wp-content/uploads/2026/02/SMAM-Revised-Operational-Guidelines-dated-18-12-2025.pdf
+
+10. Unified Package Insurance Scheme
+    Official PDF: https://pmfby.gov.in/pdf/FINAL_UPISOGs_23.03.2016.pdf
+
+
+ADDITIONAL SCHEMES I RECOMMEND ADDING
+-------------------------------------
+These were verified as official government scheme/document sources during the
+research, but their hosting sites did not all permit reliable direct automated
+download in this environment. Use the official source pages/PDFs below.
+
+11. Agriculture Infrastructure Fund (AIF)
+    https://agriinfra.dac.gov.in/Content/DocAttachment/FINALSchemeGuidelinesAIF.pdf
+
+12. National Mission for Sustainable Agriculture (NMSA)
+    https://nmsa.dac.gov.in/pdfdoc/NMSA_Guidelines_English.pdf
+
+13. National Food Security Mission (NFSM)
+    https://nfsm.gov.in/Guidelines/NFSM12102018.pdf
+
+14. National Social Assistance Programme (NSAP)
+    https://rural.gov.in/sites/default/files/NSAP_Guidelines_English.pdf
+
+15. DAY-NRLM / Deendayal Antyodaya Yojana - National Rural Livelihoods Mission
+    https://mksp.nrlm.gov.in/portal/images/Handbook_Final_Complete_on_26-8-2021.pdf
+
+16. Pradhan Mantri Matsya Sampada Yojana (PMMSY)
+    https://nfdb.gov.in/PDF/PMMSYG/11.pdf
+
+17. Kisan Credit Card for Animal Husbandry and Fisheries
+    https://dof.gov.in/sites/default/files/2022-10/RBI_Guidelines_dated_4th_Feb_2019_0.PDF
+
+18. PM POSHAN
+    https://pmposhan.education.gov.in/guideline.html
+
+19. PM SVANidhi
+    https://www.mohua.gov.in/documents/guidelines/guidelines-pradhan-mantri-street-vendors-atmanirbhar-nidhi-pm-svanidhi-scheme-UTM0EDNtQWa
+
+20. PMAY-U 2.0
+    https://www.pmay-urban.gov.in/guideline
+
+21. Sukanya Samriddhi Account Scheme
+    https://www.nsiindia.gov.in/
+
+22. Atal Pension Yojana (APY)
+    https://www.indiapost.gov.in/insurance-services/apy
+
+23. National Livestock Mission (NLM)
+    https://dahd.gov.in/schemes/programmes/national_livestock_mission
+
+24. PM-MUDRA Yojana
+    https://financialservices.gov.in/index.php/pradhan-mantri-mudra-yojana-pmmy
+
+25. Stand Up India
+    https://www.financialservices.gov.in/stand-india-scheme-supi
+
+
+RECOMMENDED RAG PRIORITY
+------------------------
+Highest priority for your rural/voice government-scheme application:
+- PM-KISAN
+- PM-KUSUM
+- PMFBY
+- PMAY-G
+- PM-RKVY / PKVY
+- PMFME
+- MIDH
+- SMAM
+- Agriculture Infrastructure Fund
+- National Livestock Mission
+- PMMSY
+- KCC for Animal Husbandry/Fisheries
+- NSAP
+- DAY-NRLM
+- PM SVANidhi
+- PMAY-U
+- PM POSHAN
+- Saksham Anganwadi & Poshan 2.0
+
+Do not blindly ingest every document in this manifest. Prefer one
+comprehensive, text-extractable guideline document per scheme and remove
+duplicate versions before embedding.

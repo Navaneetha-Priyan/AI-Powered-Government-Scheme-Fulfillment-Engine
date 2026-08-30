@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/network/api_exception.dart';
 import '../../core/services/voice_api_service.dart';
 import '../../core/services/voice_recorder_service.dart';
-import '../../models/voice_recommendation.dart';
+import '../../models/rag_query.dart';
 
-/// Chat screen with a microphone button for recording and transcribing voice.
-///
-/// Phase 3 scope: after the user stops recording, the audio file is uploaded
-/// to the backend `/voice/transcribe` endpoint through [VoiceApiService].
-/// While uploading a loading indicator is shown. On success the transcript is
-/// displayed as a user chat message and the temporary audio file is deleted.
-/// On failure the file is kept and an error Snackbar is shown.
-///
-/// Phase 5 scope: after a successful transcription, the transcript is sent to
-/// the backend `POST /voice/recommend` endpoint. The returned personalized
-/// scheme recommendations are displayed as assistant chat messages using the
-/// existing recommendation data model.
+enum VoicePipelineStage {
+  idle,
+  recording,
+  uploading,
+  transcribing,
+  normalizing,
+  retrieving,
+  completed,
+  error,
+}
+
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -25,40 +25,41 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  /// Transcripts returned by the backend, displayed as user chat messages.
-  final List<String> _transcripts = [];
+  final List<_ChatMessage> _messages = [];
 
-  /// Recommendation results (or structured messages) returned for each query.
-  final List<VoiceRecommendationResult> _recommendations = [];
+  VoicePipelineStage _stage = VoicePipelineStage.idle;
+  String? _errorMessage;
 
-  /// True while an audio file is being uploaded/transcribed.
-  bool _isUploading = false;
+  bool get _isProcessing =>
+      _stage == VoicePipelineStage.uploading ||
+      _stage == VoicePipelineStage.transcribing ||
+      _stage == VoicePipelineStage.normalizing ||
+      _stage == VoicePipelineStage.retrieving;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<VoiceRecorderService>(
       builder: (context, voiceService, _) {
+        final currentStage = voiceService.isRecording
+            ? VoicePipelineStage.recording
+            : _stage;
+
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Voice Assistant'),
-            actions: [
-              if (voiceService.lastSavedPath != null)
-                IconButton(
-                  tooltip: 'Recording saved',
-                  onPressed: () => _showSavedPath(context, voiceService),
-                  icon: const Icon(Icons.info_outline_rounded),
-                ),
+          appBar: AppBar(title: const Text('Voice Assistant')),
+          body: Column(
+            children: [
+              _StatusBanner(stage: currentStage, errorMessage: _errorMessage),
+              Expanded(
+                child:
+                    _messages.isEmpty && currentStage == VoicePipelineStage.idle
+                    ? const _EmptyState()
+                    : _ChatMessageList(messages: _messages),
+              ),
             ],
           ),
-          body: _ChatBody(
-            voiceService: voiceService,
-            transcripts: _transcripts,
-            recommendations: _recommendations,
-            isUploading: _isUploading,
-          ),
           floatingActionButton: _MicrophoneButton(
-            isRecording: voiceService.isRecording,
-            isUploading: _isUploading,
+            stage: currentStage,
+            isDisabled: _isProcessing || voiceService.isBusy,
             onPressed: () => _onMicPressed(context, voiceService),
           ),
         );
@@ -70,142 +71,253 @@ class _ChatScreenState extends State<ChatScreen> {
     BuildContext context,
     VoiceRecorderService voiceService,
   ) async {
-    if (_isUploading) {
+    if (_isProcessing || voiceService.isBusy) {
       return;
     }
 
     if (voiceService.isRecording) {
-      // Stop recording and save the file locally.
       final path = await voiceService.stopRecording();
+      debugPrint('[VOICE] Recording stopped');
       if (!context.mounted) {
         return;
       }
 
       if (path == null) {
-        _showSnackBar(
-          context,
-          voiceService.errorMessage ?? 'Recording failed. Please try again.',
-        );
+        _setError('Could not record audio. Please try again.');
         return;
       }
 
-      // Upload the audio, transcribe it, then recommend schemes.
-      await _uploadTranscribeAndRecommend(context, voiceService, path);
+      await _runVoicePipeline(context, voiceService, path);
       return;
     }
 
-    // Start recording (permission is requested inside the service).
     await voiceService.startRecording();
     if (!context.mounted) {
       return;
     }
 
-    if (!voiceService.isRecording && voiceService.errorMessage != null) {
-      _showSnackBar(context, voiceService.errorMessage!);
+    if (voiceService.isRecording) {
+      debugPrint('[VOICE] Recording started');
+      setState(() {
+        _stage = VoicePipelineStage.recording;
+        _errorMessage = null;
+      });
+    } else {
+      _setError('Could not record audio. Please try again.');
     }
   }
 
-  /// Uploads [path], shows the transcript, then requests recommendations.
-  ///
-  /// On success the temporary audio file is deleted. On failure the file is
-  /// kept so the user can retry, and an error Snackbar is shown.
-  Future<void> _uploadTranscribeAndRecommend(
+  Future<void> _runVoicePipeline(
     BuildContext context,
     VoiceRecorderService voiceService,
     String path,
   ) async {
-    setState(() => _isUploading = true);
+    final voiceApiService = context.read<VoiceApiService>();
+
+    _appendMessage(
+      const _ChatMessage(
+        role: _ChatRole.user,
+        title: 'Voice message',
+        text: 'Audio recorded',
+      ),
+    );
+
     try {
-      final voiceApiService = context.read<VoiceApiService>();
-
-      // 1) Transcribe the audio.
-      final result = await voiceApiService.transcribe(path);
-
-      // 2) Delete the local audio file only after a successful upload.
+      _setStage(VoicePipelineStage.uploading);
+      await Future<void>.delayed(Duration.zero);
+      _setStage(VoicePipelineStage.transcribing);
+      final transcription = await voiceApiService.transcribe(path);
       await voiceService.deleteRecording(path);
 
-      if (!context.mounted) {
+      final transcript = transcription.text.trim();
+      if (transcript.isEmpty) {
+        _setError(
+          "I couldn't understand the voice recording. Please try again.",
+        );
         return;
       }
 
-      // 3) Request personalized scheme recommendations for the transcript.
-      if (result.text.trim().isNotEmpty) {
-        final recommendation = await voiceApiService.recommend(result.text);
-        if (!context.mounted) {
-          return;
-        }
-        setState(() {
-          _isUploading = false;
-          _transcripts.add(result.text);
-          _recommendations.add(recommendation);
-        });
-      } else {
-        setState(() {
-          _isUploading = false;
-          _transcripts.add(result.text);
-        });
-      }
-    } on Exception catch (error) {
-      if (!context.mounted) {
+      _appendMessage(
+        _ChatMessage(
+          role: _ChatRole.system,
+          title: 'Transcription',
+          text: transcript,
+        ),
+      );
+
+      _setStage(VoicePipelineStage.normalizing);
+      final normalization = await voiceApiService.normalize(transcript);
+      final normalizedText = normalization.normalizedText.trim();
+      if (normalizedText.isEmpty) {
+        _setError("I couldn't understand your request. Please try again.");
         return;
       }
-      // Keep the local file on failure so the user can retry.
-      setState(() => _isUploading = false);
-      _showSnackBar(
-        context,
-        'Transcription/recommendation failed. Your recording was kept: $error',
+
+      _appendMessage(
+        _ChatMessage(
+          role: _ChatRole.system,
+          title: 'Understanding',
+          text: normalizedText,
+        ),
       );
+
+      _setStage(VoicePipelineStage.retrieving);
+      final ragResult = await voiceApiService.queryRag(normalizedText);
+      if (ragResult.answer.trim().isEmpty) {
+        _setError("I couldn't find relevant government scheme information.");
+        return;
+      }
+
+      _appendMessage(
+        _ChatMessage(
+          role: _ChatRole.assistant,
+          title: 'Government scheme answer',
+          text: ragResult.answer.trim(),
+          sources: ragResult.sources,
+        ),
+      );
+      _setStage(VoicePipelineStage.completed);
+    } on ApiException catch (error) {
+      _setError(_friendlyApiMessage(error));
+    } on Exception {
+      _setError('Unable to connect to the server.');
     }
   }
 
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+  String _friendlyApiMessage(ApiException error) {
+    if (error.statusCode == 401) {
+      return 'Please sign in again to use the voice assistant.';
+    }
+
+    switch (_stage) {
+      case VoicePipelineStage.transcribing:
+      case VoicePipelineStage.uploading:
+        return "I couldn't understand the voice recording. Please try again.";
+      case VoicePipelineStage.normalizing:
+        return "I couldn't understand your request. Please try again.";
+      case VoicePipelineStage.retrieving:
+        return "I couldn't find relevant government scheme information.";
+      case VoicePipelineStage.idle:
+      case VoicePipelineStage.recording:
+      case VoicePipelineStage.completed:
+      case VoicePipelineStage.error:
+        return 'Unable to connect to the server.';
+    }
   }
 
-  void _showSavedPath(BuildContext context, VoiceRecorderService voiceService) {
-    final path = voiceService.lastSavedPath ?? '';
-    _showSnackBar(context, 'Saved audio: $path');
+  void _setStage(VoicePipelineStage stage) {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _stage = stage;
+      _errorMessage = null;
+    });
+  }
+
+  void _setError(String message) {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _stage = VoicePipelineStage.error;
+      _errorMessage = message;
+    });
+  }
+
+  void _appendMessage(_ChatMessage message) {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _messages.add(message);
+      _errorMessage = null;
+    });
   }
 }
 
-class _ChatBody extends StatelessWidget {
-  const _ChatBody({
-    required this.voiceService,
-    required this.transcripts,
-    required this.recommendations,
-    required this.isUploading,
-  });
+class _StatusBanner extends StatelessWidget {
+  const _StatusBanner({required this.stage, required this.errorMessage});
 
-  final VoiceRecorderService voiceService;
-  final List<String> transcripts;
-  final List<VoiceRecommendationResult> recommendations;
-  final bool isUploading;
+  final VoicePipelineStage stage;
+  final String? errorMessage;
 
   @override
   Widget build(BuildContext context) {
-    if (transcripts.isEmpty && !voiceService.isRecording) {
-      return _EmptyState(
-        isRecording: voiceService.isRecording,
-        isBusy: voiceService.isBusy,
-      );
-    }
+    final theme = Theme.of(context);
+    final isError = stage == VoicePipelineStage.error;
+    final statusText = isError
+        ? errorMessage ?? 'Something went wrong. Please try again.'
+        : _stageLabel(stage);
 
-    return _TranscriptList(
-      transcripts: transcripts,
-      recommendations: recommendations,
-      isRecording: voiceService.isRecording,
-      isUploading: isUploading,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      color: isError
+          ? theme.colorScheme.errorContainer
+          : theme.colorScheme.surfaceContainerHighest,
+      child: Row(
+        children: [
+          if (_stageShowsProgress(stage))
+            const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          else
+            Icon(
+              isError
+                  ? Icons.error_outline_rounded
+                  : Icons.info_outline_rounded,
+              size: 20,
+            ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              statusText,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: isError
+                    ? theme.colorScheme.onErrorContainer
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  bool _stageShowsProgress(VoicePipelineStage stage) {
+    return stage == VoicePipelineStage.uploading ||
+        stage == VoicePipelineStage.transcribing ||
+        stage == VoicePipelineStage.normalizing ||
+        stage == VoicePipelineStage.retrieving;
+  }
+
+  String _stageLabel(VoicePipelineStage stage) {
+    switch (stage) {
+      case VoicePipelineStage.idle:
+        return 'Tap to speak';
+      case VoicePipelineStage.recording:
+        return 'Listening... tap again to stop';
+      case VoicePipelineStage.uploading:
+        return 'Processing your voice...';
+      case VoicePipelineStage.transcribing:
+        return 'Transcribing...';
+      case VoicePipelineStage.normalizing:
+        return 'Understanding your request...';
+      case VoicePipelineStage.retrieving:
+        return 'Finding government schemes...';
+      case VoicePipelineStage.completed:
+        return 'Done';
+      case VoicePipelineStage.error:
+        return 'Something went wrong. Please try again.';
+    }
   }
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.isRecording, required this.isBusy});
-
-  final bool isRecording;
-  final bool isBusy;
+  const _EmptyState();
 
   @override
   Widget build(BuildContext context) {
@@ -214,30 +326,24 @@ class _EmptyState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              isRecording ? Icons.mic_rounded : Icons.mic_none_rounded,
-              size: 72,
-              color: isRecording
-                  ? theme.colorScheme.error
-                  : theme.colorScheme.primary,
+              Icons.mic_none_rounded,
+              size: 76,
+              color: theme.colorScheme.primary,
             ),
             const SizedBox(height: 20),
             Text(
-              isRecording
-                  ? 'Recording... tap the microphone to stop'
-                  : 'Tap the microphone to start recording',
+              'Tap the microphone and ask about a government scheme',
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Text(
-              isBusy
-                  ? 'Please wait...'
-                  : 'Your recording will be transcribed and schemes recommended.',
+              'Tamil, English, and Tanglish are supported.',
               textAlign: TextAlign.center,
-              style: theme.textTheme.bodyLarge,
+              style: theme.textTheme.bodyMedium,
             ),
           ],
         ),
@@ -246,186 +352,95 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-class _TranscriptList extends StatelessWidget {
-  const _TranscriptList({
-    required this.transcripts,
-    required this.recommendations,
-    required this.isRecording,
-    required this.isUploading,
-  });
+class _ChatMessageList extends StatelessWidget {
+  const _ChatMessageList({required this.messages});
 
-  final List<String> transcripts;
-  final List<VoiceRecommendationResult> recommendations;
-  final bool isRecording;
-  final bool isUploading;
+  final List<_ChatMessage> messages;
 
   @override
   Widget build(BuildContext context) {
-    final itemCount =
-        transcripts.length + recommendations.length + (isUploading ? 1 : 0);
-
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: itemCount,
-      itemBuilder: (context, index) {
-        if (isUploading &&
-            index >= transcripts.length + recommendations.length) {
-          return const _UploadingIndicator();
-        }
-        // Interleave transcripts and recommendations.
-        if (index.isOdd && (index - 1) ~/ 2 < recommendations.length) {
-          final recIndex = (index - 1) ~/ 2;
-          return _RecommendationBubble(result: recommendations[recIndex]);
-        }
-        final transcriptIndex = index ~/ 2;
-        if (transcriptIndex < transcripts.length) {
-          return _TranscriptBubble(text: transcripts[transcriptIndex]);
-        }
-        return const SizedBox.shrink();
-      },
+      itemCount: messages.length,
+      itemBuilder: (context, index) => _MessageBubble(message: messages[index]),
     );
   }
 }
 
-class _UploadingIndicator extends StatelessWidget {
-  const _UploadingIndicator();
+class _MessageBubble extends StatelessWidget {
+  const _MessageBubble({required this.message});
 
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-          SizedBox(width: 12),
-          Text('Processing your voice...'),
-        ],
-      ),
-    );
-  }
-}
-
-class _TranscriptBubble extends StatelessWidget {
-  const _TranscriptBubble({required this.text});
-
-  final String text;
+  final _ChatMessage message;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isUser = message.role == _ChatRole.user;
+    final isAssistant = message.role == _ChatRole.assistant;
+    final background = isUser
+        ? theme.colorScheme.primaryContainer
+        : isAssistant
+        ? theme.colorScheme.secondaryContainer
+        : theme.colorScheme.surfaceContainerHighest;
+    final foreground = isUser
+        ? theme.colorScheme.onPrimaryContainer
+        : isAssistant
+        ? theme.colorScheme.onSecondaryContainer
+        : theme.colorScheme.onSurfaceVariant;
+
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        constraints: const BoxConstraints(maxWidth: 320),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              'You said:',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onPrimaryContainer,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              text,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onPrimaryContainer,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _RecommendationBubble extends StatelessWidget {
-  const _RecommendationBubble({required this.result});
-
-  final VoiceRecommendationResult result;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    String heading;
-    if (result.hasSchemes) {
-      heading = result.schemes.length == 1
-          ? '1 scheme you may qualify for:'
-          : '${result.schemes.length} schemes you may qualify for:';
-    } else if (result.message != null && result.message!.isNotEmpty) {
-      heading = result.message!;
-    } else {
-      heading = 'I understand you asked about "${result.intent}".';
-    }
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
         constraints: const BoxConstraints(maxWidth: 420),
         decoration: BoxDecoration(
-          color: theme.colorScheme.secondaryContainer,
-          borderRadius: BorderRadius.circular(16),
+          color: background,
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: isUser
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Text(
-              heading,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSecondaryContainer,
-                fontWeight: FontWeight.w600,
+              message.title,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: foreground,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            if (result.hasSchemes) const SizedBox(height: 8),
-            if (result.hasSchemes)
-              ...result.schemes.map(
-                (match) => Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${match.rankingPosition}. ${match.schemeName}',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (match.estimatedBenefit != null &&
-                          match.estimatedBenefit!.isNotEmpty)
-                        Text(
-                          'Benefit: ${match.estimatedBenefit}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSecondaryContainer,
-                          ),
-                        ),
-                      if (match.recommendationReason != null &&
-                          match.recommendationReason!.isNotEmpty)
-                        Text(
-                          match.recommendationReason!,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSecondaryContainer,
-                          ),
-                        ),
-                    ],
-                  ),
+            const SizedBox(height: 6),
+            Text(
+              message.text,
+              style: theme.textTheme.bodyMedium?.copyWith(color: foreground),
+            ),
+            if (message.sources.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Sources',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: foreground,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
+              const SizedBox(height: 4),
+              ...message.sources
+                  .take(3)
+                  .map(
+                    (source) => Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Text(
+                        source.pageNumber == null
+                            ? source.schemeName
+                            : '${source.schemeName} · page ${source.pageNumber}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: foreground,
+                        ),
+                      ),
+                    ),
+                  ),
+            ],
           ],
         ),
       ),
@@ -435,27 +450,49 @@ class _RecommendationBubble extends StatelessWidget {
 
 class _MicrophoneButton extends StatelessWidget {
   const _MicrophoneButton({
-    required this.isRecording,
-    required this.isUploading,
+    required this.stage,
+    required this.isDisabled,
     required this.onPressed,
   });
 
-  final bool isRecording;
-  final bool isUploading;
+  final VoicePipelineStage stage;
+  final bool isDisabled;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
+    final isRecording = stage == VoicePipelineStage.recording;
+    final theme = Theme.of(context);
     return FloatingActionButton.large(
-      onPressed: isUploading ? null : onPressed,
+      onPressed: isDisabled ? null : onPressed,
       backgroundColor: isRecording
-          ? Theme.of(context).colorScheme.error
-          : Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          ? theme.colorScheme.error
+          : theme.colorScheme.primary,
+      foregroundColor: isRecording
+          ? theme.colorScheme.onError
+          : theme.colorScheme.onPrimary,
+      tooltip: isRecording ? 'Stop recording' : 'Start recording',
       child: Icon(
         isRecording ? Icons.stop_rounded : Icons.mic_rounded,
         size: 36,
       ),
     );
   }
+}
+
+enum _ChatRole { user, system, assistant }
+
+@immutable
+class _ChatMessage {
+  const _ChatMessage({
+    required this.role,
+    required this.title,
+    required this.text,
+    this.sources = const [],
+  });
+
+  final _ChatRole role;
+  final String title;
+  final String text;
+  final List<RagSource> sources;
 }

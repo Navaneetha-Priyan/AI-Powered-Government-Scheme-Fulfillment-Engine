@@ -251,3 +251,116 @@ class TestVoiceQueryService:
         # We assert generate() (which internally calls semantic_search) is used.
         service.recommend("citizen-1", normalization=_normalization())
         assert service._recommendation_service.generate.call_count == 1
+
+
+class TestBuildSearchQuery:
+    """Tests for the internal _build_search_query method."""
+
+    def test_occupation_included_when_present(self):
+        """occupation entity should be appended to the search query when present."""
+        svc = VoiceQueryService.__new__(VoiceQueryService)
+        norm = NormalizationResult(
+            language="ta-en",
+            intent="scheme_search",
+            normalized_text="Are there any government schemes for farmers?",
+            entities={"occupation": "farmer", "crop": "paddy"},
+            confidence=0.9,
+            source="llm",
+        )
+        query = svc._build_search_query(norm)
+        assert "Are there any government schemes for farmers?" in query
+        assert "farmer" in query
+        assert "paddy" in query
+
+    def test_empty_occupation_ignored(self):
+        """Empty or null occupation should not affect the search query."""
+        svc = VoiceQueryService.__new__(VoiceQueryService)
+        # Empty string occupation
+        norm1 = NormalizationResult(
+            language="en",
+            intent="scheme_search",
+            normalized_text="What schemes for farmers?",
+            entities={"occupation": "", "crop": "paddy"},
+            confidence=0.8,
+            source="heuristic",
+        )
+        query1 = svc._build_search_query(norm1)
+        assert "paddy" in query1
+        assert query1.count("") >= 0  # Empty string doesn't add extra parts
+
+        # Missing occupation key
+        norm2 = NormalizationResult(
+            language="en",
+            intent="scheme_search",
+            normalized_text="What schemes for farmers?",
+            entities={"crop": "paddy"},
+            confidence=0.8,
+            source="heuristic",
+        )
+        query2 = svc._build_search_query(norm2)
+        assert query2 == query1
+
+        # None occupation
+        norm3 = NormalizationResult(
+            language="en",
+            intent="scheme_search",
+            normalized_text="What schemes for farmers?",
+            entities={"occupation": None, "crop": "paddy"},
+            confidence=0.8,
+            source="heuristic",
+        )
+        query3 = svc._build_search_query(norm3)
+        assert query3 == query1
+
+    def test_existing_entities_continue_to_work(self):
+        """crop, scheme_name, document_type, land_ownership should still be included."""
+        svc = VoiceQueryService.__new__(VoiceQueryService)
+        norm = NormalizationResult(
+            language="en",
+            intent="scheme_search",
+            normalized_text="Query text",
+            entities={
+                "crop": "paddy",
+                "scheme_name": "PM Kisan",
+                "document_type": "aadhaar",
+                "land_ownership": "owner",
+            },
+            confidence=0.8,
+            source="heuristic",
+        )
+        query = svc._build_search_query(norm)
+        assert "Query text" in query
+        assert "paddy" in query
+        assert "PM Kisan" in query
+        assert "aadhaar" in query
+        assert "owner" in query
+
+    def test_normalized_query_preserved(self):
+        """The normalized_text should always be the first part of the query."""
+        svc = VoiceQueryService.__new__(VoiceQueryService)
+        norm = NormalizationResult(
+            language="ta-en",
+            intent="scheme_search",
+            normalized_text="Enakku farmer scheme edhavadhu irukka?",
+            entities={"occupation": "farmer"},
+            confidence=0.85,
+            source="llm",
+        )
+        query = svc._build_search_query(norm)
+        # normalized_text should be at the start
+        assert query.startswith("Enakku farmer scheme edhavadhu irukka?")
+        assert "farmer" in query
+
+    def test_whitespace_only_entities_ignored(self):
+        """Entities with only whitespace should be ignored."""
+        svc = VoiceQueryService.__new__(VoiceQueryService)
+        norm = NormalizationResult(
+            language="en",
+            intent="scheme_search",
+            normalized_text="Base query",
+            entities={"occupation": "   ", "crop": "paddy"},
+            confidence=0.8,
+            source="heuristic",
+        )
+        query = svc._build_search_query(norm)
+        assert query == "Base query paddy"
