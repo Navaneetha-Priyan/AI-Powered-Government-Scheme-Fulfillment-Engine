@@ -321,6 +321,39 @@ class TestDisabilityCertificateExtraction:
         assert result.fields["is_disabled"] is True
         assert result.fields["disability_percentage"] == 45
 
+    def test_extracts_disability_status_same_line(self):
+        result = DocumentFieldExtractor().extract(
+            "disability_certificate",
+            "Holder Name Test Citizen\nDisability Status No\nDisability Percentage 0\n",
+        )
+        assert result.fields["is_disabled"] is False
+        assert result.fields["disability_percentage"] == 0
+
+
+class TestLandRecordExtraction:
+    def test_prefers_specific_labels_and_table_cell_values(self):
+        text = (
+            "Owner Name Test Citizen\n"
+            "Survey Number TEST/001\n"
+            "Ownership Type Owned\n"
+            "Patta Number\n"
+            "TEST-PATTA-001\n"
+        )
+        result = DocumentFieldExtractor().extract("land_record", text)
+        assert result.fields["owner_name"] == "Test Citizen"
+        assert result.fields["survey_number"] == "TEST/001"
+        assert result.fields["ownership_type"] == "owned"
+        assert result.fields["patta_number"] == "TEST-PATTA-001"
+
+
+class TestCertificateTitleSafety:
+    def test_does_not_use_a_document_title_as_caste_value(self):
+        result = DocumentFieldExtractor().extract(
+            "caste_certificate",
+            "SAMPLE CASTE / COMMUNITY CERTIFICATE\nCaste Vanniyar\n",
+        )
+        assert result.fields["caste"] == "Vanniyar"
+
 
 class TestValidation:
     def test_raises_on_unsupported_type(self):
