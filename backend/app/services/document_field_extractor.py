@@ -133,7 +133,7 @@ def _parse_int(value: str) -> Optional[int]:
 
 # Values that should never be treated as a real label value (document titles,
 # parentheticals, separators).
-_UNWANTED_VALUE_PREFIXES = ("(", ")", "-", "—", "·", ":", ";", ",")
+_UNWANTED_VALUE_PREFIXES = ("(", ")", "-", "—", "·", ":", ";", ",", "/")
 
 
 def _extract_label(
@@ -161,6 +161,10 @@ def _extract_label(
         rf"^\s*{escaped}\s*:\s*$",
         re.IGNORECASE,
     )
+    label_only_pattern = re.compile(
+        rf"^\s*{escaped}\s*$",
+        re.IGNORECASE,
+    )
     space_pattern = re.compile(
         rf"^\s*{escaped}\s+(.+)$",
         re.IGNORECASE,
@@ -186,9 +190,11 @@ def _extract_label(
                 return _normalize_text(value)
             continue
 
-        # Label-only line: "Label:" with nothing after the colon.
+        # Label-only line: "Label:" or a table cell containing only the
+        # label. OCR commonly emits the latter when the value is on the next
+        # line, as in the fictional land-record fixture's Patta Number field.
         # The value is on the next non-empty line.
-        if colon_only_pattern.match(line):
+        if colon_only_pattern.match(line) or label_only_pattern.match(line):
             value = _take_next_value(lines, i + 1, multiline, max_chars)
             if value:
                 return value
@@ -279,7 +285,7 @@ def _extract_income_certificate(text: str) -> Dict[str, Any]:
 
 
 def _extract_land_record(text: str) -> Dict[str, Any]:
-    owner = _extract_any_label(text, ["Owner", "Owner Name", "Name"])
+    owner = _extract_any_label(text, ["Owner Name", "Owner", "Name"])
     survey = _extract_any_label(text, ["Survey Number", "Survey No", "Survey No.", "Survey"])
     area_raw = _extract_any_label(text, ["Land Area", "Area", "Extent"])
     land_type = _extract_any_label(text, ["Land Type", "Type", "Classification"])
@@ -287,7 +293,7 @@ def _extract_land_record(text: str) -> Dict[str, Any]:
     taluk = _extract_any_label(text, ["Taluk", "Taluka"])
     district = _extract_any_label(text, ["District"])
     state = _extract_any_label(text, ["State"])
-    ownership = _extract_any_label(text, ["Ownership", "Ownership Type", "Nature of Holding"])
+    ownership = _extract_any_label(text, ["Ownership Type", "Ownership", "Nature of Holding"])
     patta = _extract_any_label(text, ["Patta Number", "Patta No", "Patta No.", "Patta"])
 
     area, unit = _parse_area(area_raw) if area_raw else (None, None)
@@ -373,7 +379,7 @@ def _extract_residence_certificate(text: str) -> Dict[str, Any]:
 
 def _extract_disability_certificate(text: str) -> Dict[str, Any]:
     holder = _extract_any_label(text, ["Name", "Holder Name", "Applicant Name"])
-    disabled_raw = _extract_any_label(text, ["Disabled", "Disability", "Status"])
+    disabled_raw = _extract_any_label(text, ["Disability Status", "Disabled", "Disability", "Status"])
     percentage = _extract_any_label(text, ["Disability Percentage", "Percentage", "Disability %"])
 
     return {
