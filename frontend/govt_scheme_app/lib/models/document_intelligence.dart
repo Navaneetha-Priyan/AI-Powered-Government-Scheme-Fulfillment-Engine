@@ -8,6 +8,7 @@ class CitizenDocument {
     required this.fileSize,
     required this.uploadStatus,
     required this.verificationStatus,
+    this.extractedFieldCount = 0,
     this.error,
   });
 
@@ -21,6 +22,7 @@ class CitizenDocument {
 
   /// Values: pending | verified | rejected
   final String verificationStatus;
+  final int extractedFieldCount;
 
   final String? error;
 
@@ -36,6 +38,8 @@ class CitizenDocument {
         uploadStatus: json['upload_status']?.toString() ?? 'uploaded',
         verificationStatus:
             json['verification_status']?.toString() ?? 'pending',
+        extractedFieldCount:
+            int.tryParse(json['extracted_field_count']?.toString() ?? '') ?? 0,
         error: json['processing_error']?.toString(),
       );
 }

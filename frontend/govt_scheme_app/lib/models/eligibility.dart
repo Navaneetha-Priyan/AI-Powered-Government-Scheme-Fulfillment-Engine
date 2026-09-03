@@ -88,6 +88,7 @@ class EligibilityCheck {
     required this.passedRules,
     required this.eligibilityPercentage,
     required this.eligible,
+    required this.eligibilityStatus,
     required this.matchedRules,
     required this.failedRules,
     required this.requiredDocuments,
@@ -101,6 +102,7 @@ class EligibilityCheck {
   final int passedRules;
   final double eligibilityPercentage;
   final bool eligible;
+  final String eligibilityStatus;
   final List<EligibilityRuleResult> matchedRules;
   final List<EligibilityRuleResult> failedRules;
   final List<String> requiredDocuments;
@@ -121,6 +123,9 @@ class EligibilityCheck {
           double.tryParse(data['eligibility_percentage']?.toString() ?? '') ??
           0,
       eligible: data['eligible'] == true,
+      eligibilityStatus: (data['eligibility_status'] ??
+              (data['eligible'] == true ? 'eligible' : 'not_eligible'))
+          .toString(),
       matchedRules: _rules(data['matched_rules']),
       failedRules: _rules(data['missing_requirements']),
       requiredDocuments: (data['required_documents'] as List? ?? const [])

@@ -142,6 +142,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     // Step 1: choose source
     final source = await showModalBottomSheet<_PickSource>(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
@@ -525,6 +526,16 @@ class _DocumentCard extends StatelessWidget {
                             color: statusColor,
                           ),
                         ),
+                        if ((document?.extractedFieldCount ?? 0) > 0) ...[
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              '${document!.extractedFieldCount} fields found',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12, color: cs.outline),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                 ],
@@ -596,8 +607,13 @@ class _PickSourceSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          20,
+          20,
+          16 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -713,8 +729,13 @@ class _UploadPreviewSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          20,
+          20,
+          16 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -6,6 +6,7 @@ without changing the citizen-profile or recommendation modules.
 """
 import json
 import re
+from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -23,6 +24,8 @@ from app.models.citizen_document import (
     VerificationStatus,
 )
 from app.models.citizen_profile import LandRecord
+from app.models.citizen import Citizen, Gender
+from app.services.document_field_extractor import DocumentFieldExtractor
 from app.repositories.citizen_profile_repository import CitizenProfileRepository
 
 
@@ -41,8 +44,8 @@ class DocumentIntelligenceService:
     }
     PROFILE_FIELDS = {
         "annual_income", "income_category", "caste", "community", "sub_caste",
-        "farmer_id", "is_farmer", "disability_type", "disability_percentage",
-        "education_level", "education_institution",
+        "farmer_id", "is_farmer", "is_disabled", "disability_type", "disability_percentage",
+        "education_level", "education_institution", "family_member_count",
     }
 
     def __init__(self, db: Session):
@@ -76,7 +79,11 @@ class DocumentIntelligenceService:
     def process(self, citizen_id: str, document_id: str):
         document = self._owned(citizen_id, document_id)
         document.upload_status = DocumentProcessStatus.PROCESSING
-        self.db.commit()
+        try:
+            self.db.commit()
+        except Exception as exc:
+            self.db.rollback()
+            raise ValueError("Could not mark the document as processing. Run the latest database migration.") from exc
         try:
             text = self._extract_text(Path(document.file_path))
             self.db.query(ExtractedInformation).filter_by(document_id=document.id).delete()
@@ -90,10 +97,18 @@ class DocumentIntelligenceService:
             self.db.commit()
             return fields
         except Exception as exc:
+            # A failed flush/commit invalidates the SQLAlchemy transaction.
+            # Roll it back before persisting the terminal failure state so this
+            # document can be retried instead of producing a generic 500.
+            self.db.rollback()
+            document = self._owned(citizen_id, document_id)
             document.upload_status = DocumentProcessStatus.FAILED
-            document.processing_error = str(exc)
-            self.db.commit()
-            raise
+            document.processing_error = str(exc)[:2000]
+            try:
+                self.db.commit()
+            except Exception:
+                self.db.rollback()
+            raise ValueError(f"Document processing failed: {str(exc)}") from exc
 
     def documents(self, citizen_id: str):
         return self.db.query(UploadedDocument).filter_by(citizen_id=citizen_id).order_by(UploadedDocument.created_at.desc()).all()
@@ -105,7 +120,9 @@ class DocumentIntelligenceService:
     def process_all(self, citizen_id: str):
         results = []
         for document in self.documents(citizen_id):
-            if document.upload_status in {DocumentProcessStatus.UPLOADED, DocumentProcessStatus.FAILED}:
+            # Retrying is intentional: an interrupted synchronous request must
+            # never leave a document permanently shown as "Processing".
+            if document.upload_status in {DocumentProcessStatus.UPLOADED, DocumentProcessStatus.FAILED, DocumentProcessStatus.PROCESSING}:
                 try:
                     results.append({"document_id": document.id, "status": "processed", "fields": self.process(citizen_id, document.id)})
                 except Exception as exc:
@@ -150,8 +167,13 @@ class DocumentIntelligenceService:
             UploadedDocument.citizen_id == citizen_id, ExtractedInformation.is_verified.is_(True)
         ).all()
         data = {row.field_name: row.field_value for row in rows}
-        profile_data = {name: self._profile_value(name, value) for name, value in data.items() if name in self.PROFILE_FIELDS}
+        profile_data = {
+            ("family_member_count" if name == "family_size" else name): self._profile_value(name, value)
+            for name, value in data.items()
+            if name in self.PROFILE_FIELDS or name == "family_size"
+        }
         profile = self.profiles.upsert(citizen_id, profile_data)
+        self._apply_core_citizen_fields(citizen_id, data)
         self._upsert_land_record(citizen_id, data)
         return profile, data
 
@@ -236,11 +258,34 @@ class DocumentIntelligenceService:
         if data.get("land_area"):
             record.land_area = float(data["land_area"])
 
+    def _apply_core_citizen_fields(self, citizen_id: str, data: dict):
+        """Persist confirmed identity/address values in the existing citizen record."""
+        citizen = self.db.query(Citizen).filter_by(id=citizen_id).first()
+        if citizen is None:
+            return
+        for name in ("full_name", "address_line1", "village", "taluk", "district", "state", "pincode"):
+            if data.get(name):
+                setattr(citizen, name, data[name])
+        if data.get("date_of_birth"):
+            try:
+                citizen.date_of_birth = datetime.fromisoformat(data["date_of_birth"])
+            except ValueError:
+                pass
+        if data.get("gender") in {item.value for item in Gender}:
+            citizen.gender = Gender(data["gender"])
+        # Store a ration-card identifier only; Aadhaar numbers and bank account
+        # numbers are deliberately not extracted into the profile.
+        if data.get("card_number"):
+            citizen.smart_ration_card = data["card_number"]
+        self.db.flush()
+
     @staticmethod
     def _profile_value(name: str, value: str):
         if name == "annual_income":
             return float(value.replace(",", ""))
         if name == "disability_percentage":
+            return int(value)
+        if name == "family_size":
             return int(value)
         if name in {"is_farmer", "is_disabled"}:
             return value.lower() == "true"
@@ -260,6 +305,39 @@ class DocumentIntelligenceService:
             raise ValueError("Image OCR provider is not installed") from exc
 
     def _fields(self, text: str, kind: CitizenDocumentType):
+        text = self._normalize_table_text(text)
+        # The normalized parser is shared with the real document processing
+        # module.  This workflow owns persistence, so only reuse its pure
+        # text-to-fields step here (not its profile-enrichment side effects).
+        type_aliases = {
+            CitizenDocumentType.AADHAAR_CARD: "aadhaar",
+            CitizenDocumentType.SMART_RATION_CARD: "smart_ration_card",
+            CitizenDocumentType.INCOME_CERTIFICATE: "income_certificate",
+            CitizenDocumentType.COMMUNITY_CERTIFICATE: "community_certificate",
+            CitizenDocumentType.LAND_DOCUMENT: "land_record",
+            CitizenDocumentType.FARMER_DOCUMENT: "farmer_id",
+            CitizenDocumentType.DISABILITY_CERTIFICATE: "disability_certificate",
+        }
+        output = {}
+        alias = type_aliases.get(kind)
+        if alias:
+            try:
+                normalized = DocumentFieldExtractor().extract(alias, text).fields
+                output = {key: self._stringify(value) for key, value in normalized.items() if value is not None}
+                # Different official forms use holder/owner labels; preserve a
+                # common profile identity field for aggregation and conflicts.
+                if "full_name" not in output:
+                    output["full_name"] = output.get("holder_name") or output.get("owner_name")
+                # These are document-local labels for the same profile field;
+                # retaining both creates a second, impossible-to-resolve
+                # conflict when a user corrects their name.
+                output.pop("holder_name", None)
+                output.pop("owner_name", None)
+                output = {key: value for key, value in output.items() if value is not None}
+            except Exception:
+                # The legacy regexes below remain a resilient fallback for
+                # imperfect OCR and document types not yet specialized.
+                output = {}
         patterns = {
             "full_name": r"(?:name|holder name|student name)\s*[:\-]\s*([^\n]+)",
             "date_of_birth": r"(?:dob|date of birth)\s*[:\-]\s*([\d/\-]+)",
@@ -275,11 +353,10 @@ class DocumentIntelligenceService:
             "ifsc": r"(?:ifsc)\s*[:\-]?\s*([A-Z]{4}0[A-Z0-9]{6})", "education_level": r"(?:qualification|degree)\s*[:\-]\s*([^\n]+)",
             "education_institution": r"(?:institution|college|school)\s*[:\-]\s*([^\n]+)",
         }
-        output = {}
         for name, pattern in patterns.items():
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
-                output[name] = match.group(1).strip().replace(",", "")
+                output.setdefault(name, match.group(1).strip().replace(",", ""))
         account = re.search(r"(?:account(?: number| no)?)\s*[:\-]?\s*(\d{8,18})", text, re.IGNORECASE)
         if account:
             output["masked_account_number"] = f"{'*' * max(0, len(account.group(1)) - 4)}{account.group(1)[-4:]}"
@@ -287,4 +364,51 @@ class DocumentIntelligenceService:
             output["is_farmer"] = "true"
         if kind == CitizenDocumentType.DISABILITY_CERTIFICATE:
             output["is_disabled"] = "true"
+        if "date_of_birth" in output:
+            try:
+                born = datetime.fromisoformat(output["date_of_birth"]).date()
+                today = datetime.utcnow().date()
+                output["age"] = str(today.year - born.year - ((today.month, today.day) < (born.month, born.day)))
+            except ValueError:
+                pass
         return output
+
+    @staticmethod
+    def _stringify(value):
+        if isinstance(value, bool):
+            return "true" if value else "false"
+        if isinstance(value, float) and value.is_integer():
+            return str(int(value))
+        return str(value)
+
+    @staticmethod
+    def _normalize_table_text(text: str) -> str:
+        """Convert simple two-column PDF table extraction into ``Label: value`` lines.
+
+        PyMuPDF emits the provided demo PDFs as sequential cells (``Field``,
+        ``Sample Value``, label, value) rather than visually aligned rows.
+        The normal label parser cannot distinguish a document-type heading from
+        the following value in that representation.
+        """
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        header_index = next(
+            (
+                index
+                for index in range(len(lines) - 1)
+                if lines[index].lower() == "field"
+                and lines[index + 1].lower() in {"sample value", "value"}
+            ),
+            None,
+        )
+        if header_index is None:
+            return text
+        cells = []
+        for line in lines[header_index + 2 :]:
+            if line.lower().startswith(("fictional test document", "for software testing")):
+                break
+            cells.append(line)
+        pairs = [
+            f"{cells[index]}: {cells[index + 1]}"
+            for index in range(0, len(cells) - 1, 2)
+        ]
+        return "\n".join(pairs) if pairs else text

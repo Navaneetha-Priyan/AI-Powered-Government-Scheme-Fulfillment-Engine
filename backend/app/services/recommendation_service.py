@@ -739,11 +739,17 @@ class EligibilityEngineService:
             state_bonus=state_bonus,
             recency_bonus=recency_bonus,
         )
+        has_unknowns = any(
+            not item.passed and item.actual_value in (None, "", [], {}, ())
+            for item in evaluations
+            if item.rule.is_mandatory
+        )
+        eligibility_status = "eligible" if not missing else ("possibly_eligible" if has_unknowns else "not_eligible")
         application_ready = bool(not missing and document_score >= 50.0 and profile_match_percentage >= 40.0)
         recommendation_reason = self.explanation_service.build(context, evaluations, candidate, required_documents, estimated_benefit)
         matching = SchemeRecommendation(
             scheme=candidate.scheme,
-            eligibility_status="eligible" if not missing else "ineligible",
+            eligibility_status=eligibility_status,
             eligibility_percentage=eligibility_percentage,
             similarity_score=round(candidate.semantic_score * 100.0, 2),
             confidence_score=confidence_score,
@@ -871,7 +877,7 @@ class EligibilityEngineService:
         for candidate in candidates:
             recommendation, logs = self._evaluate_candidate(context, candidate, category=category, state=state)
             log_rows.extend(logs)
-            if recommendation.eligibility_status == "eligible":
+            if recommendation.eligibility_status in {"eligible", "possibly_eligible"}:
                 recommendations.append(recommendation)
 
         recommendations.sort(key=lambda item: item.overall_score, reverse=True)
@@ -1007,6 +1013,7 @@ class EligibilityEngineService:
             passed_rules=passed_rules,
             eligibility_percentage=recommendation.eligibility_percentage,
             eligible=recommendation.eligibility_status == "eligible",
+            eligibility_status=recommendation.eligibility_status,
             matched_rules=recommendation.matched_rules,
             missing_requirements=recommendation.missing_requirements,
             required_documents=recommendation.required_documents,
