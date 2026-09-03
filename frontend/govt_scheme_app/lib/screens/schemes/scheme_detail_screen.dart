@@ -192,8 +192,11 @@ class _EligibilitySection extends StatelessWidget {
     }
 
     final colorScheme = Theme.of(context).colorScheme;
+    final isPossible = result.eligibilityStatus == 'possibly_eligible';
     final statusColor = result.eligible
         ? const Color(0xFF16803C)
+        : isPossible
+        ? colorScheme.tertiary
         : colorScheme.error;
     final percent = result.eligibilityPercentage.clamp(0, 100) / 100;
 
@@ -229,12 +232,20 @@ class _EligibilitySection extends StatelessWidget {
                   avatar: Icon(
                     result.eligible
                         ? Icons.check_circle_rounded
+                        : isPossible
+                        ? Icons.help_outline_rounded
                         : Icons.cancel_rounded,
                     color: statusColor,
                   ),
                   side: BorderSide(color: statusColor),
                   backgroundColor: statusColor.withValues(alpha: 0.12),
-                  label: Text(result.eligible ? 'Eligible' : 'Not Eligible'),
+                  label: Text(
+                    result.eligible
+                        ? 'Eligible'
+                        : isPossible
+                        ? 'Possibly Eligible'
+                        : 'Not Eligible',
+                  ),
                 ),
                 Chip(
                   avatar: Icon(

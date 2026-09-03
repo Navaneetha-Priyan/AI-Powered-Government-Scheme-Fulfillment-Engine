@@ -6,9 +6,13 @@ from app.database.connection import get_db
 from app.schemas.citizen import SuccessResponse
 from app.schemas.citizen_document import DocumentProcessRequest,ProfileVerifyRequest,ProfileCorrectionRequest
 from app.services.document_intelligence_service import DocumentIntelligenceService
-from app.models.citizen_document import CitizenDocumentType, ProfileConflict
+from app.models.citizen_document import CitizenDocumentType, ProfileConflict, ExtractedInformation
 router=APIRouter(prefix='/api',tags=['Citizen Document Intelligence'])
 def dump(x):return {c.name:(getattr(x,c.name).value if hasattr(getattr(x,c.name),'value') else getattr(x,c.name)) for c in x.__table__.columns}
+def document_dump(db,x):
+    data=dump(x)
+    data['extracted_field_count']=db.query(ExtractedInformation).filter_by(document_id=x.id).count()
+    return data
 def service(db):return DocumentIntelligenceService(db)
 @router.post('/documents/{document_type}/upload',response_model=SuccessResponse,status_code=201)
 async def upload(document_type:CitizenDocumentType,file:UploadFile=File(...),user:str=Depends(get_current_user),db:Session=Depends(get_db)):
@@ -20,13 +24,13 @@ async def process(payload:DocumentProcessRequest,user:str=Depends(get_current_us
     except ValueError as e:raise HTTPException(404,{'error':'DOCUMENT_NOT_FOUND','message':str(e)})
 @router.get('/documents',response_model=SuccessResponse)
 async def documents(user:str=Depends(get_current_user),db:Session=Depends(get_db)):
-    return SuccessResponse(success=True,message='Documents retrieved successfully',data={'items':[dump(x) for x in service(db).documents(user)]})
+    return SuccessResponse(success=True,message='Documents retrieved successfully',data={'items':[document_dump(db,x) for x in service(db).documents(user)]})
 @router.post('/documents/process-all',response_model=SuccessResponse)
 async def process_all(user:str=Depends(get_current_user),db:Session=Depends(get_db)):
     return SuccessResponse(success=True,message='Documents processed successfully',data={'results':service(db).process_all(user)})
 @router.get('/documents/status/{document_id}',response_model=SuccessResponse)
 async def status(document_id:str,user:str=Depends(get_current_user),db:Session=Depends(get_db)):
-    try:return SuccessResponse(success=True,message='Document status retrieved successfully',data=dump(service(db)._owned(user,document_id)))
+    try:return SuccessResponse(success=True,message='Document status retrieved successfully',data=document_dump(db,service(db)._owned(user,document_id)))
     except ValueError as e:raise HTTPException(404,{'error':'DOCUMENT_NOT_FOUND','message':str(e)})
 @router.get('/documents/extracted/{document_id}',response_model=SuccessResponse)
 async def extracted(document_id:str,user:str=Depends(get_current_user),db:Session=Depends(get_db)):

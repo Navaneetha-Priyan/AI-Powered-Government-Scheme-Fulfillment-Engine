@@ -156,6 +156,7 @@ class EligibilityCheckResponse(BaseModel):
     passed_rules: int
     eligibility_percentage: float
     eligible: bool
+    eligibility_status: str
     matched_rules: list[dict[str, Any]]
     missing_requirements: list[dict[str, Any]]
     required_documents: list[str]
