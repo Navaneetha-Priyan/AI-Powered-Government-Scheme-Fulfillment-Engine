@@ -6,13 +6,35 @@ the same in-memory DB + auth fixtures from conftest.
 """
 from __future__ import annotations
 
+from datetime import datetime
 from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
 
+from app.models.citizen_profile import LandRecord, LandType
 from app.schemas.normalization import NormalizationResult
 from app.services import government_scheme_service as scheme_service_module
+
+
+def create_land_record(test_db, citizen_id: str):
+    land = LandRecord(
+        citizen_id=citizen_id,
+        survey_number="123/45",
+        land_area=3.2,
+        land_area_unit="acres",
+        land_type=LandType.AGRICULTURAL,
+        village="Periyakulam",
+        taluk="Villupuram",
+        district="Villupuram",
+        state="Tamil Nadu",
+        ownership_type="owned",
+        patta_number="PATTA-12345",
+    )
+    test_db.add(land)
+    test_db.commit()
+    test_db.refresh(land)
+    return land
 
 
 def _fake_result(**overrides) -> NormalizationResult:
@@ -121,6 +143,7 @@ def test_voice_recommend_rejects_no_text(client, auth_headers):
 def test_voice_recommend_scheme_search(client, test_db, monkeypatch):
     from app.core.jwt import create_access_token
     from app.models.citizen import Citizen
+    from datetime import datetime
 
     citizen = Citizen(
         email="voice.search@example.com",
@@ -132,11 +155,13 @@ def test_voice_recommend_scheme_search(client, test_db, monkeypatch):
         account_active=True,
         status="active",
         is_deleted=False,
+        date_of_birth=datetime(1990, 1, 1),
     )
     test_db.add(citizen)
     test_db.commit()
     test_db.refresh(citizen)
     create_profile(test_db, citizen.id)
+    create_land_record(test_db, citizen.id)
     scheme = create_scheme(test_db)
     headers = {"Authorization": f"Bearer {create_access_token({'sub': citizen.id})}"}
 

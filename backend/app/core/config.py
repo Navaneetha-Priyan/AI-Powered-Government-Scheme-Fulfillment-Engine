@@ -79,7 +79,7 @@ class Settings(BaseSettings):
     SCHEME_CHUNK_SIZE: int = 900
     SCHEME_CHUNK_OVERLAP: int = 120
     CHROMA_PERSIST_DIRECTORY: str = "storage/chromadb"
-    CHROMA_COLLECTION_NAME: str = "government_scheme_chunks"
+    CHROMA_COLLECTION_NAME: str = "government_scheme_documents"
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
 
     # Recommendation Engine Configuration
@@ -137,6 +137,36 @@ class Settings(BaseSettings):
     ENABLE_AADHAAR_VALIDATION: bool = True
     ENABLE_RATION_CARD_VALIDATION: bool = True
     ENABLE_AUDIT_LOGGING: bool = True
+
+    # ─── RAG Configuration (Government Scheme RAG) ───────────────────────────
+    # RAG_ENABLED: Master switch for the RAG query endpoint.
+    RAG_ENABLED: bool = True
+    # RAG_TOP_K: Default number of chunks to retrieve per query.
+    RAG_TOP_K: int = 5
+    # RAG_CHUNK_SIZE: Target chunk size in characters for RAG ingestion.
+    # ~900 chars ≈ 200-300 tokens, matching the existing SCHEME_CHUNK_SIZE.
+    RAG_CHUNK_SIZE: int = 900
+    # RAG_CHUNK_OVERLAP: Overlap between consecutive chunks in characters.
+    RAG_CHUNK_OVERLAP: int = 120
+    # RAG_EMBEDDING_MODEL: Sentence Transformers model for RAG embeddings.
+    # Uses a multilingual model to support Tamil, English, and Tanglish queries.
+    RAG_EMBEDDING_MODEL: str = "BAAI/bge-m3"
+    # RAG_EMBEDDING_DIMENSION: Output dimension of the RAG embedding model.
+    # BAAI/bge-m3 outputs 1024-dimensional embeddings.
+    RAG_EMBEDDING_DIMENSION: int = 1024
+    # RAG_COLLECTION_NAME: ChromaDB collection for RAG documents.
+    RAG_COLLECTION_NAME: str = "government_scheme_documents"
+    # RAG_PERSIST_DIRECTORY: ChromaDB persistence directory for RAG.
+    RAG_PERSIST_DIRECTORY: str = "storage/chromadb"
+    # RAG_PDF_DIRECTORY: Directory containing government scheme PDFs for ingestion.
+    RAG_PDF_DIRECTORY: str = "data/schemes"
+    # RAG_SIMILARITY_THRESHOLD: Minimum similarity score for a chunk to be
+    # considered relevant (0.0 to 1.0). Chunks below this are filtered out.
+    RAG_SIMILARITY_THRESHOLD: float = 0.55
+    # RAG_LLM_MAX_TOKENS: Maximum tokens for the LLM response.
+    RAG_LLM_MAX_TOKENS: int = 512
+    # RAG_LLM_TEMPERATURE: Temperature for the LLM response generation.
+    RAG_LLM_TEMPERATURE: float = 0.1
 
     class Config:
         """Pydantic Configuration"""

@@ -15,14 +15,18 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Environment Variables
-.env
-backend/.env
-
 # Python build files
 build/
 dist/
 *.egg-info/
+
+
+# ==============================
+# Environment Variables
+# ==============================
+
+.env
+backend/.env
 
 
 # ==============================
@@ -34,6 +38,9 @@ dist/
 
 # Test cache
 .pytest_cache/
+
+# Temporary test files
+backend/.test-tmp/
 
 # Coverage
 .coverage
@@ -59,11 +66,37 @@ storage/chromadb/
 
 
 # ==============================
-# Generated Storage (Optional)
+# Generated Storage / Runtime Data
 # ==============================
 
-# Uncomment these if you don't want to store uploaded/generated files
-# backend/storage/
+# Local citizen documents
+backend/storage/citizen_documents/
+storage/citizen_documents/
+
+# Runtime uploads
+uploads/
+backend/uploads/
+
+
+# ==============================
+# Local Cache
+# ==============================
+
+backend/.cache/
+.cache/
+
+
+# ==============================
+# Evaluation / Debug Artifacts
+# ==============================
+
+# Generated evaluation outputs
+backend/eval_*.txt
+eval_*.txt
+
+# Keep actual test scripts tracked.
+# Do NOT ignore test_retrieval_tamil.py unless you later decide
+# it is purely temporary.
 
 
 # ==============================
@@ -89,7 +122,11 @@ pubspec.lock
 .gradle/
 local.properties
 
+
+# ==============================
 # Android Studio
+# ==============================
+
 *.iml
 
 
@@ -111,9 +148,3 @@ Desktop.ini
 
 # Mac
 .DS_Store
-
-# Temporary test files
-backend/.test-tmp/
-
-# Uploaded citizen documents
-backend/storage/citizen_documents/

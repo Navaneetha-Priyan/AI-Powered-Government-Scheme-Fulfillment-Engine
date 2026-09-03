@@ -19,7 +19,9 @@ from app.schemas.government_scheme import (
     SchemeSearchResponse,
     SchemeUpdateRequest,
 )
+from app.schemas.rag import RagQueryRequest, RagQueryResponse
 from app.services.government_scheme_service import GovernmentSchemeService
+from app.services.rag_response_service import get_rag_response_service
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api", tags=["Government Scheme Knowledge Base"])
@@ -214,3 +216,41 @@ async def search(
         return SuccessResponse(success=True, message="Semantic search completed successfully", data=response.model_dump(mode="json"))
     except AppException as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.to_dict()) from exc
+
+
+@router.post("/schemes/rag/query", response_model=SuccessResponse)
+async def rag_query(
+    payload: RagQueryRequest,
+    current_user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """RAG query endpoint for government scheme questions.
+
+    This endpoint retrieves relevant chunks from the government-scheme PDF
+    knowledge base and generates a grounded answer using the existing LLM
+    client. The answer is grounded ONLY in the retrieved document content.
+
+    Note: This provides policy information, not citizen-specific eligibility.
+    For eligibility, use the existing recommendation engine.
+    """
+    del db  # RAG does not require database access
+    try:
+        rag_service = get_rag_response_service()
+        response = rag_service.answer(
+            query=payload.query,
+            top_k=payload.top_k,
+            language=payload.language,
+        )
+        return SuccessResponse(
+            success=True,
+            message="RAG query completed successfully",
+            data=response.model_dump(mode="json"),
+        )
+    except AppException as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.to_dict()) from exc
+    except Exception as exc:
+        logger.exception("RAG query failed: %s", exc)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing the RAG query.",
+        ) from exc

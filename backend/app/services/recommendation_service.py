@@ -25,6 +25,7 @@ from app.exceptions.exceptions import (
 )
 from app.models.government_scheme import GovernmentScheme
 from app.models.recommendation import CitizenSchemeMatch, EligibilityRule, RecommendationFeedback, RecommendationHistory
+from app.models.scheme_rules import get_scheme_eligibility_for_scheme
 from app.repositories.citizen_profile_repository import CitizenProfileRepository, LandRecordRepository
 from app.repositories.citizen_repository import CitizenRepository
 from app.repositories.digilocker_repository import GovernmentDocumentRepository
@@ -45,6 +46,7 @@ from app.schemas.recommendation import (
     RecommendationMatchResponse,
     RecommendationSummaryResponse,
 )
+from app.services.eligibility_evaluator import EligibilityEvaluator, get_eligibility_evaluator
 from app.services.government_scheme_service import GovernmentSchemeService
 
 logger = get_logger(__name__)
@@ -604,6 +606,7 @@ class EligibilityEngineService:
         self.ranking_service = RankingService()
         self.scheme_repo = GovernmentSchemeRepository(db)
         self.scheme_service = GovernmentSchemeService(db)
+        self.eligibility_evaluator = get_eligibility_evaluator()
 
     def generate_query(self, context: CitizenContext, category: str | None = None, state: str | None = None, query_override: str | None = None) -> str:
         if query_override:
@@ -710,6 +713,97 @@ class EligibilityEngineService:
         return 60.0 if len(value) > 20 else 50.0
 
     def _evaluate_candidate(self, context: CitizenContext, candidate: SchemeCandidate, category: str | None = None, state: str | None = None) -> tuple[SchemeRecommendation, list[dict[str, Any]]]:
+        # Try structured eligibility evaluation first
+        structured_eligibility = get_scheme_eligibility_for_scheme(candidate.scheme)
+        
+        if structured_eligibility is not None:
+            return self._evaluate_candidate_structured(context, candidate, structured_eligibility)
+        
+        # Fallback to existing rule-based evaluation
+        return self._evaluate_candidate_fallback(context, candidate, category, state)
+
+    def _evaluate_candidate_structured(
+        self, 
+        context: CitizenContext, 
+        candidate: SchemeCandidate, 
+        structured_eligibility: Any
+    ) -> tuple[SchemeRecommendation, list[dict[str, Any]]]:
+        """Evaluate using structured eligibility rules from scheme PDFs."""
+        from app.models.scheme_eligibility import EligibilityStatus
+        
+        eligibility_result = self.eligibility_evaluator.evaluate(structured_eligibility, context)
+        
+        # Map structured result to recommendation fields
+        eligibility_status = eligibility_result.status
+        eligibility_percentage = eligibility_result.eligibility_percentage
+        
+        required_documents = self._extract_required_documents(candidate)
+        estimated_benefit = self._extract_estimated_benefit(candidate)
+        profile_match_percentage = self._profile_match_percentage(context)
+        document_score = self._document_score(required_documents, context)
+        benefit_score = self._benefit_score(candidate)
+        state_bonus = 5.0 if candidate.scheme.state and _normalize_text(candidate.scheme.state) == _normalize_text(context.state) else (2.5 if candidate.scheme.government_level == "central" else 0.0)
+        recency_bonus = self._scheme_recency_bonus(candidate.scheme.updated_at or candidate.scheme.created_at)
+        
+        confidence_score = self.ranking_service.confidence(eligibility_percentage, candidate.semantic_score * 100.0, document_score, profile_match_percentage)
+        overall_score = self.ranking_service.score(
+            eligibility_percentage=eligibility_percentage,
+            similarity_score=candidate.semantic_score * 100.0,
+            benefit_score=benefit_score,
+            profile_match_percentage=profile_match_percentage,
+            document_score=document_score,
+            state_bonus=state_bonus,
+            recency_bonus=recency_bonus,
+        )
+        
+        # Determine application readiness based on structured result
+        has_missing_mandatory = eligibility_result.has_missing_mandatory()
+        has_mandatory_failures = eligibility_result.has_mandatory_failures()
+        application_ready = bool(
+            eligibility_status == EligibilityStatus.ELIGIBLE 
+            and document_score >= 50.0 
+            and profile_match_percentage >= 40.0
+        )
+        
+        # Build recommendation reason from structured result
+        recommendation_reason = self._build_structured_reason(eligibility_result, candidate, required_documents, estimated_benefit)
+        
+        # Serialize structured conditions for API response
+        matched_rules = [self._serialize_structured_condition(c) for c in eligibility_result.matched_conditions]
+        missing_requirements = [self._serialize_structured_condition(c) for c in eligibility_result.failed_conditions + eligibility_result.missing_information]
+        
+        matching = SchemeRecommendation(
+            scheme=candidate.scheme,
+            eligibility_status=eligibility_status,
+            eligibility_percentage=eligibility_percentage,
+            similarity_score=round(candidate.semantic_score * 100.0, 2),
+            confidence_score=confidence_score,
+            overall_score=overall_score,
+            ranking_position=0,
+            recommendation_reason=recommendation_reason,
+            matched_rules=matched_rules,
+            missing_requirements=missing_requirements,
+            required_documents=required_documents,
+            estimated_benefit=estimated_benefit,
+            application_ready=application_ready,
+            profile_match_percentage=profile_match_percentage,
+            semantic_query=candidate.aggregated_text,
+            candidate_chunks=candidate.chunks,
+        )
+        
+        # Build log rows for audit trail
+        log_rows = self._build_structured_log_rows(candidate.scheme.id, eligibility_result)
+        
+        return matching, log_rows
+
+    def _evaluate_candidate_fallback(
+        self, 
+        context: CitizenContext, 
+        candidate: SchemeCandidate, 
+        category: str | None = None, 
+        state: str | None = None
+    ) -> tuple[SchemeRecommendation, list[dict[str, Any]]]:
+        """Existing rule-based evaluation logic (unchanged)."""
         configured_rules = self._active_rules(candidate.scheme, category=category, state=state)
         dynamic_rules = self._infer_dynamic_rules(candidate)
         all_rules = configured_rules + dynamic_rules
@@ -781,6 +875,84 @@ class EligibilityEngineService:
             for evaluation in evaluations
         ]
         return matching, log_rows
+
+    def _serialize_structured_condition(self, condition: Any) -> dict[str, Any]:
+        """Serialize an EligibilityConditionResult for API response."""
+        return {
+            "condition": condition.condition,
+            "passed": condition.passed,
+            "actual_value": condition.actual_value,
+            "expected_value": condition.expected_value,
+            "mandatory": condition.mandatory,
+            "evidence": [
+                {
+                    "chunk_id": e.chunk_id,
+                    "scheme_id": e.scheme_id,
+                    "page_number": e.page_number,
+                    "section_name": e.section_name,
+                    "text": e.text,
+                }
+                for e in condition.evidence
+            ],
+        }
+
+    def _build_structured_reason(
+        self, 
+        eligibility_result: Any, 
+        candidate: SchemeCandidate, 
+        required_documents: list[str], 
+        estimated_benefit: str | None
+    ) -> str:
+        """Build human-readable recommendation reason from structured eligibility result."""
+        matched = [c.condition for c in eligibility_result.matched_conditions if c.mandatory]
+        failed = [c.condition for c in eligibility_result.failed_conditions if c.mandatory]
+        missing = [c.condition for c in eligibility_result.missing_information if c.mandatory]
+        
+        fragments = [f"{candidate.scheme.scheme_name}: {eligibility_result.status.replace('_', ' ').title()}"]
+        
+        if matched:
+            fragments.append("Matched: " + ", ".join(matched[:5]))
+        if failed:
+            fragments.append("Failed: " + ", ".join(failed[:5]))
+        if missing:
+            fragments.append("Missing info: " + ", ".join(missing[:5]))
+        if required_documents:
+            fragments.append("Documents: " + ", ".join(required_documents[:5]))
+        if estimated_benefit:
+            fragments.append(f"Benefit: {estimated_benefit}")
+        fragments.append(f"Similarity Score {round(candidate.semantic_score * 100, 1)}%")
+        
+        return " | ".join(fragments)
+
+    def _build_structured_log_rows(self, scheme_id: str, eligibility_result: Any) -> list[dict[str, Any]]:
+        """Build audit log rows from structured eligibility result."""
+        log_rows = []
+        
+        all_conditions = (
+            eligibility_result.matched_conditions 
+            + eligibility_result.failed_conditions 
+            + eligibility_result.missing_information
+        )
+        
+        for condition in all_conditions:
+            log_rows.append({
+                "scheme_id": scheme_id,
+                "rule_id": None,
+                "rule_code": f"structured-{condition.condition}",
+                "condition": condition.condition,
+                "operator": "structured",
+                "expected_value": condition.expected_value,
+                "actual_value": condition.actual_value,
+                "passed": condition.passed,
+                "severity": "high" if condition.mandatory and not condition.passed else "info",
+                "details": {
+                    "mandatory": condition.mandatory,
+                    "missing": condition in eligibility_result.missing_information,
+                    "evidence_count": len(condition.evidence),
+                },
+            })
+        
+        return log_rows
 
     def _serialize_evaluation(self, evaluation: RuleEvaluation) -> dict[str, Any]:
         return {
@@ -880,7 +1052,8 @@ class EligibilityEngineService:
             if recommendation.eligibility_status in {"eligible", "possibly_eligible"}:
                 recommendations.append(recommendation)
 
-        recommendations.sort(key=lambda item: item.overall_score, reverse=True)
+        # Sort by overall_score, but apply eligibility status as a tiebreaker/boost
+        recommendations.sort(key=lambda item: (self._eligibility_rank_boost(item.eligibility_status), item.overall_score), reverse=True)
         recommendations = recommendations[:limit]
         for position, recommendation in enumerate(recommendations, start=1):
             recommendation.ranking_position = position
@@ -922,6 +1095,21 @@ class EligibilityEngineService:
             },
         )
         return history, recommendations, log_rows, context, query, execution_time_ms
+
+    def _eligibility_rank_boost(self, eligibility_status: str) -> float:
+        """Return a ranking boost factor based on eligibility status.
+        
+        This ensures eligible schemes rank higher than potentially_eligible,
+        which rank higher than insufficient_information, when overall_score is similar.
+        """
+        boost_map = {
+            "eligible": 1000.0,           # Highest priority
+            "potentially_eligible": 500.0,  # Medium priority
+            "insufficient_information": 100.0,  # Lower priority but still visible
+            "not_eligible": 0.0,          # Excluded (filtered out earlier)
+            "ineligible": 0.0,            # Legacy fallback status
+        }
+        return boost_map.get(eligibility_status, 0.0)
 
     def _persist_logs(self, citizen_id: str, history_id: str, log_rows: list[dict[str, Any]]) -> None:
         repository = EligibilityLogRepository(self.db)
