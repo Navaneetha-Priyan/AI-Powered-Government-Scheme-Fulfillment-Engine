@@ -10,7 +10,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_user
@@ -136,6 +136,10 @@ async def _save_upload(audio: UploadFile) -> str:
 )
 async def transcribe_audio(
     audio: UploadFile = File(..., description="Audio file (.m4a or .wav)"),
+    language: str | None = Form(
+        None,
+        description="Optional language hint: en for English, ta for Tamil/Tanglish",
+    ),
     current_user_id: str = Depends(get_current_user),
     speech_service: SpeechToTextService = Depends(get_speech_service),
 ):
@@ -150,7 +154,7 @@ async def transcribe_audio(
     temp_path: str | None = None
     try:
         temp_path = await _save_upload(audio)
-        text = await asyncio.to_thread(speech_service.transcribe, temp_path)
+        text = await asyncio.to_thread(speech_service.transcribe, temp_path, language)
         return {"text": text}
     finally:
         if temp_path is not None:

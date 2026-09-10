@@ -55,6 +55,8 @@ class ProfilePreview {
   final List<Map<String, dynamic>> conflicts;
   final int needsReview;
 
+  bool get hasReviewItems => fields.isNotEmpty || conflicts.isNotEmpty;
+
   factory ProfilePreview.fromJson(Map<String, dynamic> json) => ProfilePreview(
     fields: Map<String, dynamic>.from(json['fields'] as Map? ?? const {}),
     conflicts: (json['conflicts'] as List? ?? const [])

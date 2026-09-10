@@ -139,11 +139,14 @@ class SpeechToTextService:
 
         logger.info("Faster-Whisper model '%s' loaded successfully.", self.model_name)
 
-    def transcribe(self, audio_path: str | Path) -> str:
+    def transcribe(self, audio_path: str | Path, language: Optional[str] = None) -> str:
         """Transcribe an audio file and return the recognized text.
 
         Tamil-specific decoding settings are passed explicitly so we never rely
-        on automatic language detection for Tamil-only recordings:
+        on automatic language detection for Tamil-only recordings. Callers may
+        override the configured language for clearly English or mixed input;
+        mixed input continues to use Tamil decoding so Tanglish behavior stays
+        unchanged.
 
         - ``language``/``task``: force Tamil transcription (not translation).
         - ``vad_filter``: enable Faster-Whisper's built-in Silero VAD to better
@@ -157,7 +160,15 @@ class SpeechToTextService:
             self.load_model()
 
         try:
-            whisper_language = None if self.language == "auto" else self.language
+            requested_language = (language or self.language or "ta").strip().lower()
+            if requested_language == "en":
+                whisper_language = "en"
+            elif requested_language in {"ta", "ta-en", "mixed"}:
+                whisper_language = "ta"
+            elif requested_language == "auto":
+                whisper_language = None
+            else:
+                whisper_language = self.language if self.language != "auto" else None
             segments, _info = self._model.transcribe(
                 str(audio_path),
                 language=whisper_language,
@@ -167,11 +178,19 @@ class SpeechToTextService:
                 condition_on_previous_text=self.condition_on_previous_text,
             )
             text = " ".join(segment.text.strip() for segment in segments).strip()
-            print("\n" + "=" * 60)
-            print("🎤 WHISPER TRANSCRIPTION")
-            print("=" * 60)
-            print(text)
-            print("=" * 60 + "\n")
+            try:
+                print("\n" + "=" * 60)
+                print("WHISPER TRANSCRIPTION")
+                print("=" * 60)
+                print(text)
+                print("=" * 60 + "\n")
+            except UnicodeEncodeError:
+                # Windows console may not support Unicode characters
+                print("\n" + "=" * 60)
+                print("WHISPER TRANSCRIPTION")
+                print("=" * 60)
+                print("[Unicode output - see logs]")
+                print("=" * 60 + "\n")
         except Exception as exc:
             logger.exception("Transcription failed for %s", audio_path)
             raise SpeechToTextError(f"Transcription failed: {exc}") from exc

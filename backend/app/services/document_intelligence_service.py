@@ -52,20 +52,31 @@ class DocumentIntelligenceService:
         self.db = db
         self.profiles = CitizenProfileRepository(db)
 
-    def upload(self, citizen_id: str, file: UploadFile, document_type: CitizenDocumentType):
+    def upload(self, citizen_id: str, file: UploadFile, document_type: CitizenDocumentType, replace: bool = False):
         suffix = Path(file.filename or "").suffix.lower()
         if suffix not in self.ALLOWED:
             raise ValueError("Only PDF, PNG, JPG, and JPEG documents are allowed")
         raw = file.file.read()
         if not raw or len(raw) > settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024:
             raise ValueError("Invalid or oversized document")
-        if self.db.query(UploadedDocument).filter_by(citizen_id=citizen_id, document_type=document_type).first():
+        existing = self.db.query(UploadedDocument).filter_by(
+            citizen_id=citizen_id, document_type=document_type
+        ).first()
+        if existing and not replace:
             raise ValueError(f"{document_type.value} has already been uploaded")
 
         location = Path(settings.DOCUMENT_STORAGE_DIR) / citizen_id
         location.mkdir(parents=True, exist_ok=True)
         target = location / f"{uuid4()}{suffix}"
         target.write_bytes(raw)
+        if existing:
+            self.db.query(ExtractedInformation).filter_by(document_id=existing.id).delete()
+            self.db.query(ProfileConflict).filter(
+                (ProfileConflict.primary_document_id == existing.id)
+                | (ProfileConflict.conflicting_document_id == existing.id)
+            ).delete(synchronize_session=False)
+            self.db.delete(existing)
+            self.db.flush()
         document = UploadedDocument(
             citizen_id=citizen_id, document_type=document_type,
             original_file_name=file.filename, file_path=str(target), file_size=len(raw),
@@ -273,10 +284,17 @@ class DocumentIntelligenceService:
                 pass
         if data.get("gender") in {item.value for item in Gender}:
             citizen.gender = Gender(data["gender"])
-        # Store a ration-card identifier only; Aadhaar numbers and bank account
-        # numbers are deliberately not extracted into the profile.
-        if data.get("card_number"):
-            citizen.smart_ration_card = data["card_number"]
+        # Store a ration-card identifier only when it is not already owned by
+        # another citizen; the database uniqueness rule must not abort the
+        # rest of profile confirmation for a duplicate document value.
+        card_number = data.get("card_number")
+        if card_number:
+            duplicate = self.db.query(Citizen).filter(
+                Citizen.smart_ration_card == card_number,
+                Citizen.id != citizen_id,
+            ).first()
+            if duplicate is None:
+                citizen.smart_ration_card = card_number
         self.db.flush()
 
     @staticmethod

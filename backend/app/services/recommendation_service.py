@@ -51,6 +51,40 @@ from app.services.government_scheme_service import GovernmentSchemeService
 
 logger = get_logger(__name__)
 
+# ── Canonical eligibility-status vocabulary ─────────────────────────────────
+# Two vocabularies coexist in the codebase:
+#   - Fallback rule-based path: "eligible" | "possibly_eligible" | "not_eligible"
+#   - Structured path (EligibilityStatus): "eligible" | "potentially_eligible" |
+#     "insufficient_information" | "not_eligible"
+# They mean the same thing and MUST be filtered and ranked consistently.
+# Filtering only on the fallback vocabulary silently drops every
+# structured-evaluated scheme that is not fully "eligible" (e.g. schemes whose
+# evaluation is pending missing citizen information), which removes correct
+# rank-1 candidates from the final recommendations.
+ELIGIBILITY_STATUS_RANK_BOOST: dict[str, float] = {
+    "eligible": 1000.0,
+    "possibly_eligible": 750.0,         # fallback vocabulary: mandatory rules with unknowns
+    "potentially_eligible": 500.0,      # structured vocabulary
+    "insufficient_information": 100.0,  # structured: mandatory info missing, nothing failed
+    "not_eligible": 0.0,
+    "ineligible": 0.0,                  # legacy alias
+}
+# Statuses that may appear in recommendations (anything not ruled out).
+RECOMMENDABLE_ELIGIBILITY_STATUSES = frozenset(
+    status for status, boost in ELIGIBILITY_STATUS_RANK_BOOST.items() if boost > 0
+)
+
+# Bonus applied when the user's query explicitly names the scheme. This prevents
+# an unrelated adjacent scheme from outranking an eligible exact/strongly
+# matching scheme purely on a marginally higher generic similarity score.
+# The bonus is smaller than every status-tier gap, so it never reorders schemes
+# across eligibility statuses (eligible > possibly/potentially > insufficient).
+STRONG_NAME_MATCH_BONUS: float = 150.0
+_NAME_GENERIC_TOKENS = {
+    "scheme", "schemes", "guidelines", "document", "documents", "operational",
+    "yojana", "and", "the", "for", "mission", "2", "3",
+}
+
 
 @dataclass
 class CitizenContext:
@@ -1046,14 +1080,35 @@ class EligibilityEngineService:
 
         recommendations: list[SchemeRecommendation] = []
         log_rows: list[dict[str, Any]] = []
+        farmer_discovery_query = (
+            request_type == "voice"
+            and not any(self._strong_name_match(query, candidate.scheme.scheme_name) for candidate in candidates)
+            and any(
+                token in _normalize_text(query).lower().split()
+                for token in ("farmer", "farmers", "agriculture", "agricultural", "cultivator")
+            )
+        )
         for candidate in candidates:
             recommendation, logs = self._evaluate_candidate(context, candidate, category=category, state=state)
             log_rows.extend(logs)
-            if recommendation.eligibility_status in {"eligible", "possibly_eligible"}:
+            if (
+                recommendation.eligibility_status in RECOMMENDABLE_ELIGIBILITY_STATUSES
+                or farmer_discovery_query
+            ):
                 recommendations.append(recommendation)
 
-        # Sort by overall_score, but apply eligibility status as a tiebreaker/boost
-        recommendations.sort(key=lambda item: (self._eligibility_rank_boost(item.eligibility_status), item.overall_score), reverse=True)
+        # Sort by overall_score, but apply eligibility status as a tiebreaker/boost.
+        # Additionally, when the user's query explicitly names a scheme, that
+        # scheme receives a bonus so an unrelated adjacent scheme cannot outrank
+        # it on a marginally higher generic similarity score. The bonus is smaller
+        # than any status-tier gap, so eligibility status still dominates.
+        def _rank_key(item: SchemeRecommendation):
+            status_boost = self._eligibility_rank_boost(item.eligibility_status)
+            if self._strong_name_match(query, item.scheme.scheme_name):
+                status_boost += STRONG_NAME_MATCH_BONUS
+            return (status_boost, item.overall_score)
+
+        recommendations.sort(key=_rank_key, reverse=True)
         recommendations = recommendations[:limit]
         for position, recommendation in enumerate(recommendations, start=1):
             recommendation.ranking_position = position
@@ -1096,20 +1151,34 @@ class EligibilityEngineService:
         )
         return history, recommendations, log_rows, context, query, execution_time_ms
 
+    def _strong_name_match(self, query_text: str, scheme_name: str) -> bool:
+        """True when the user's query explicitly names this scheme.
+
+        Compares distinctive tokens of the catalog scheme name against the
+        query text (generic words like "scheme"/"guidelines" are ignored).
+        For names with 1-2 distinctive tokens all must appear; longer names
+        allow one token to be missing (e.g. version suffixes).
+        """
+        query_norm = _normalize_text(query_text or "").lower()
+        name_norm = _normalize_text(scheme_name or "").lower()
+        if not query_norm or not name_norm:
+            return False
+        tokens = [t for t in re.split(r"\s+", name_norm) if len(t) > 1 and t not in _NAME_GENERIC_TOKENS]
+        if not tokens:
+            return False
+        required = len(tokens) if len(tokens) <= 2 else len(tokens) - 1
+        hits = sum(1 for token in tokens if token in query_norm)
+        return hits >= required
+
     def _eligibility_rank_boost(self, eligibility_status: str) -> float:
         """Return a ranking boost factor based on eligibility status.
-        
+
         This ensures eligible schemes rank higher than potentially_eligible,
         which rank higher than insufficient_information, when overall_score is similar.
+        Uses the canonical vocabulary map so the fallback path ("possibly_eligible")
+        and the structured path are ranked consistently.
         """
-        boost_map = {
-            "eligible": 1000.0,           # Highest priority
-            "potentially_eligible": 500.0,  # Medium priority
-            "insufficient_information": 100.0,  # Lower priority but still visible
-            "not_eligible": 0.0,          # Excluded (filtered out earlier)
-            "ineligible": 0.0,            # Legacy fallback status
-        }
-        return boost_map.get(eligibility_status, 0.0)
+        return ELIGIBILITY_STATUS_RANK_BOOST.get(eligibility_status, 0.0)
 
     def _persist_logs(self, citizen_id: str, history_id: str, log_rows: list[dict[str, Any]]) -> None:
         repository = EligibilityLogRepository(self.db)

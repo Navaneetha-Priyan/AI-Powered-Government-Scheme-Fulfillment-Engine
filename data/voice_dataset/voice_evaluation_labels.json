@@ -1,0 +1,282 @@
+[
+  {
+    "id": 1,
+    "speaker": "M02",
+    "language": "ta",
+    "type": "tamil",
+    "reference_text": "எனக்கு விவசாயத்துக்கு ஏதாவது அரசு திட்டம் இருக்கா?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 2,
+    "speaker": "M02",
+    "language": "ta-en",
+    "type": "tanglish",
+    "reference_text": "Enakku farmer scheme edhavadhu irukka?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 3,
+    "speaker": "M02",
+    "language": "ta",
+    "type": "tamil",
+    "reference_text": "விவசாயிகளுக்கு என்ன அரசு திட்டங்கள் இருக்கிறது?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 4,
+    "speaker": "M02",
+    "language": "en",
+    "type": "english",
+    "reference_text": "Am I eligible for any government scheme?",
+    "expected_intent": "scheme_eligibility",
+    "expected_schemes": []
+  },
+  {
+    "id": 5,
+    "speaker": "M02",
+    "language": "ta-en",
+    "type": "mixed",
+    "reference_text": "PM Kisan schemeக்கு நான் eligibleஆ?",
+    "expected_intent": "scheme_eligibility",
+    "expected_schemes": [
+      "PM Kisan"
+    ]
+  },
+  {
+    "id": 6,
+    "speaker": "M02",
+    "language": "ta-en",
+    "type": "tanglish",
+    "reference_text": "Farmers-ku enna government schemes irukku?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 7,
+    "speaker": "M02",
+    "language": "ta",
+    "type": "tamil",
+    "reference_text": "இந்த திட்டத்திற்கு என்னென்ன ஆவணங்கள் தேவை?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 8,
+    "speaker": "M02",
+    "language": "ta-en",
+    "type": "tanglish",
+    "reference_text": "Indha scheme-ku enna documents venum?",
+    "expected_intent": "document_requirement",
+    "expected_schemes": []
+  },
+  {
+    "id": 9,
+    "speaker": "M02",
+    "language": "ta-en",
+    "type": "mixed",
+    "reference_text": "Government schemeக்கு online-ல எப்படி apply பண்ணுவது?",
+    "expected_intent": "application_status",
+    "expected_schemes": []
+  },
+  {
+    "id": 10,
+    "speaker": "M02",
+    "language": "ta",
+    "type": "tamil",
+    "reference_text": "விவசாயிகளுக்கு பண உதவி வழங்கும் திட்டங்கள் என்ன?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 11,
+    "speaker": "M03",
+    "language": "ta-en",
+    "type": "tanglish",
+    "reference_text": "Enakku farmer scheme edhavadhu irukka?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 12,
+    "speaker": "M03",
+    "language": "ta",
+    "type": "tamil",
+    "reference_text": "எனக்கு கிடைக்கக்கூடிய அரசு திட்டங்கள் பற்றி சொல்லுங்க.",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 13,
+    "speaker": "M03",
+    "language": "ta-en",
+    "type": "mixed",
+    "reference_text": "எனக்கு agricultureக்கு ஏதாவது government scheme இருக்கா?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 14,
+    "speaker": "M03",
+    "language": "en",
+    "type": "english",
+    "reference_text": "What documents do I need to apply for this scheme?",
+    "expected_intent": "document_requirement",
+    "expected_schemes": []
+  },
+  {
+    "id": 15,
+    "speaker": "M03",
+    "language": "ta-en",
+    "type": "tanglish",
+    "reference_text": "Naan PM Kisan-ku eligible ah?",
+    "expected_intent": "scheme_eligibility",
+    "expected_schemes": [
+      "PM Kisan"
+    ]
+  },
+  {
+    "id": 16,
+    "speaker": "M03",
+    "language": "ta",
+    "type": "tamil",
+    "reference_text": "அரசு திட்டத்திற்கு எப்படி விண்ணப்பிப்பது?",
+    "expected_intent": "application_status",
+    "expected_schemes": []
+  },
+  {
+    "id": 17,
+    "speaker": "M03",
+    "language": "ta-en",
+    "type": "mixed",
+    "reference_text": "Farmersக்கு என்ன benefits கிடைக்கும்?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 18,
+    "speaker": "M03",
+    "language": "ta-en",
+    "type": "tanglish",
+    "reference_text": "Farmer-ku government-la enna benefits kidaikkum?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 19,
+    "speaker": "M03",
+    "language": "ta",
+    "type": "tamil",
+    "reference_text": "என்னுடைய நிலத்திற்கு ஏதாவது அரசு திட்டம் கிடைக்குமா?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 20,
+    "speaker": "M03",
+    "language": "ta-en",
+    "type": "mixed",
+    "reference_text": "PM Kisanக்கு eligibility என்ன?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": [
+      "PM Kisan"
+    ]
+  },
+  {
+    "id": 21,
+    "speaker": "M05",
+    "language": "ta-en",
+    "type": "tanglish",
+    "reference_text": "Enakku farmer scheme edhavadhu irukka?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 22,
+    "speaker": "M05",
+    "language": "ta",
+    "type": "tamil",
+    "reference_text": "விவசாயிகளுக்கு என்ன அரசு திட்டங்கள் இருக்கிறது?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 23,
+    "speaker": "M05",
+    "language": "en",
+    "type": "english",
+    "reference_text": "What benefits can farmers get from government schemes?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 24,
+    "speaker": "M05",
+    "language": "ta-en",
+    "type": "mixed",
+    "reference_text": "PM Kisan schemeக்கு நான் eligibleஆ?",
+    "expected_intent": "scheme_eligibility",
+    "expected_schemes": [
+      "PM Kisan"
+    ]
+  },
+  {
+    "id": 25,
+    "speaker": "M05",
+    "language": "ta-en",
+    "type": "tanglish",
+    "reference_text": "Indha scheme-ku enna documents venum?",
+    "expected_intent": "document_requirement",
+    "expected_schemes": []
+  },
+  {
+    "id": 26,
+    "speaker": "M05",
+    "language": "ta",
+    "type": "tamil",
+    "reference_text": "அரசு திட்டத்திற்கு எப்படி விண்ணப்பிப்பது?",
+    "expected_intent": "application_status",
+    "expected_schemes": []
+  },
+  {
+    "id": 27,
+    "speaker": "M05",
+    "language": "ta-en",
+    "type": "mixed",
+    "reference_text": "என் land details வைத்து என்ன schemes கிடைக்கும்?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 28,
+    "speaker": "M05",
+    "language": "ta-en",
+    "type": "tanglish",
+    "reference_text": "Crop insurance scheme edhavadhu irukka?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": [
+      "PM Fasal Bima"
+    ]
+  },
+  {
+    "id": 29,
+    "speaker": "M05",
+    "language": "ta",
+    "type": "tamil",
+    "reference_text": "விவசாயிகளுக்கு பண உதவி வழங்கும் திட்டங்கள் என்ன?",
+    "expected_intent": "scheme_search",
+    "expected_schemes": []
+  },
+  {
+    "id": 30,
+    "speaker": "M05",
+    "language": "ta-en",
+    "type": "mixed",
+    "reference_text": "எனக்கு eligible-ஆ இருக்கிற schemes என்னென்ன?",
+    "expected_intent": "scheme_eligibility",
+    "expected_schemes": []
+  }
+]

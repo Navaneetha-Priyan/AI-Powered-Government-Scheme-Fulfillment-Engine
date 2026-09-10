@@ -199,7 +199,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
     // Step 4: upload
     try {
-      await provider.upload(type.id, file);
+      final replacing = provider.documents?.any((doc) => doc.type == type.id) ?? false;
+      await provider.upload(type.id, file, replace: replacing);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

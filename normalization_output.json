@@ -1,0 +1,10 @@
+{
+  "language": "ta",
+  "intent": "scheme_search",
+  "normalized_text": "எனக்கு விவசாயத்துக்கு ஏதாவது அரசித்து திட்டம் இருக்கார்",
+  "entities": {
+    "occupation": "farmer"
+  },
+  "confidence": 0.55,
+  "source": "heuristic"
+}

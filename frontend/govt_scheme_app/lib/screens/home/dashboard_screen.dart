@@ -52,6 +52,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
+          floatingActionButton: _VoiceAssistantFab(onTap: () {
+            Navigator.of(context).pushNamed(AppRoutes.chat);
+          }),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           body: provider.isLoading && dashboard == null
               ? const AppLoadingView(message: 'Loading your information...')
               : dashboard == null
@@ -65,6 +69,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
         );
       },
+    );
+  }
+}
+
+// ─── Voice Assistant FAB ────────────────────────────────────────────────────────
+
+class _VoiceAssistantFab extends StatelessWidget {
+  const _VoiceAssistantFab({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton.extended(
+      onPressed: onTap,
+      backgroundColor: const Color(0xFFD97706),
+      foregroundColor: Colors.white,
+      icon: const Icon(Icons.mic_rounded, size: 24),
+      label: const Text(
+        'Voice Assistant',
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+      ),
+      extendedPadding: const EdgeInsets.symmetric(horizontal: 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      elevation: 6,
+      tooltip: 'Ask about schemes using your voice',
     );
   }
 }
@@ -133,14 +162,6 @@ class _DashboardContent extends StatelessWidget {
                 subtitle: 'Explore all available government schemes',
                 color: const Color(0xFF6A3DE8),
                 onTap: () => Navigator.of(context).pushNamed(AppRoutes.schemes),
-              ),
-              const SizedBox(height: 10),
-              _QuickAction(
-                icon: Icons.mic_rounded,
-                label: 'Voice Assistant',
-                subtitle: 'Ask about schemes using your voice',
-                color: const Color(0xFFD97706),
-                onTap: () => Navigator.of(context).pushNamed(AppRoutes.chat),
               ),
 
               // ── Document summary ───────────────────────────────────────

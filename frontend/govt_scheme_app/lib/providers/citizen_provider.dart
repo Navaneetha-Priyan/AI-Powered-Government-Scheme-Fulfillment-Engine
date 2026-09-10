@@ -23,6 +23,14 @@ class CitizenProvider extends ChangeNotifier {
   void attachEligibilityProvider(EligibilityProvider provider) =>
       _eligibilityProvider = provider;
 
+  /// Invalidate cached profile details so they refetch on next access.
+  void invalidateProfile() {
+    _extendedProfile = null;
+    _profileDetails = null;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   Future<void> loadProfileDetails() async {
     await _load(() async {
       _profileDetails = await _repository.getProfileDetails();

@@ -1,5 +1,5 @@
 """JWT-protected citizen document intelligence APIs."""
-from fastapi import APIRouter,Depends,File,HTTPException,UploadFile
+from fastapi import APIRouter,Depends,File,Form,HTTPException,UploadFile
 from sqlalchemy.orm import Session
 from app.api.dependencies import get_current_user
 from app.database.connection import get_db
@@ -15,8 +15,8 @@ def document_dump(db,x):
     return data
 def service(db):return DocumentIntelligenceService(db)
 @router.post('/documents/{document_type}/upload',response_model=SuccessResponse,status_code=201)
-async def upload(document_type:CitizenDocumentType,file:UploadFile=File(...),user:str=Depends(get_current_user),db:Session=Depends(get_db)):
-    try:return SuccessResponse(success=True,message='Document uploaded successfully',data=dump(service(db).upload(user,file,document_type)))
+async def upload(document_type:CitizenDocumentType,file:UploadFile=File(...),replace:bool=Form(False),user:str=Depends(get_current_user),db:Session=Depends(get_db)):
+    try:return SuccessResponse(success=True,message='Document uploaded successfully',data=dump(service(db).upload(user,file,document_type,replace=replace)))
     except ValueError as e:raise HTTPException(422,{'error':'INVALID_DOCUMENT','message':str(e)})
 @router.post('/documents/process',response_model=SuccessResponse)
 async def process(payload:DocumentProcessRequest,user:str=Depends(get_current_user),db:Session=Depends(get_db)):
@@ -49,7 +49,8 @@ async def completeness(user:str=Depends(get_current_user),db:Session=Depends(get
 @router.get('/profile/preview',response_model=SuccessResponse)
 async def preview(user:str=Depends(get_current_user),db:Session=Depends(get_db)):
     fields,conflicts=service(db).preview(user)
-    return SuccessResponse(success=True,message='Profile preview generated successfully',data={'fields':fields,'conflicts':[dump(x) for x in conflicts],'verified_fields':0,'needs_review':len(fields)})
+    review_fields={item.field_name for item in conflicts}
+    return SuccessResponse(success=True,message='Profile preview generated successfully',data={'fields':fields,'conflicts':[dump(x) for x in conflicts],'verified_fields':len(set(fields)-review_fields),'needs_review':len(review_fields)})
 @router.get('/profile/conflicts',response_model=SuccessResponse)
 async def conflicts(user:str=Depends(get_current_user),db:Session=Depends(get_db)):
     items=db.query(ProfileConflict).filter_by(citizen_id=user,is_resolved=False).all()
