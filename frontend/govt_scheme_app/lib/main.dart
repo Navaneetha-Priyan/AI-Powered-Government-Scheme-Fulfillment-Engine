@@ -80,8 +80,7 @@ Future<void> main() async {
           create: (_) => RecommendationProvider(recommendationRepository),
           update: (_, eligibilityProvider, recommendationProvider) {
             final provider =
-                recommendationProvider ??
-                RecommendationProvider(recommendationRepository);
+                recommendationProvider ?? RecommendationProvider(recommendationRepository);
             eligibilityProvider.onInvalidateAll = provider.invalidateAll;
             return provider;
           },
@@ -94,18 +93,34 @@ Future<void> main() async {
           create: (context) => DigiLockerProvider(digiLockerRepository)
             ..attachEligibilityProvider(context.read<EligibilityProvider>()),
         ),
-        ChangeNotifierProxyProvider<
-          RecommendationProvider,
+        ChangeNotifierProvider(
+          create: (_) =>
+              AuthProvider(authRepository, profileRepository, storageService),
+        ),
+        ChangeNotifierProxyProvider3<
+          AuthProvider,
+          EligibilityProvider,
+          CitizenProvider,
           DocumentIntelligenceProvider
         >(
           create: (_) =>
-              DocumentIntelligenceProvider(documentIntelligenceRepository),
-          update: (_, recommendations, documents) {
+              DocumentIntelligenceProvider(
+                documentIntelligenceRepository,
+                citizenRepository,
+              ),
+          update: (_, authProvider, eligibilityProvider, citizenProvider,
+              documents) {
             final provider =
-                documents ??
-                DocumentIntelligenceProvider(documentIntelligenceRepository);
+                documents ?? DocumentIntelligenceProvider(
+                  documentIntelligenceRepository,
+                  citizenRepository,
+                );
             provider.attachRecommendationInvalidator(
-              recommendations.invalidateAll,
+              eligibilityProvider.invalidateAll,
+            );
+            provider.attachProfileInvalidators(
+              onCitizenProfileInvalidate: citizenProvider.invalidateProfile,
+              onBaseProfileInvalidate: authProvider.invalidateProfile,
             );
             return provider;
           },
@@ -113,10 +128,6 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => SchemeProvider(schemeRepository)),
         ChangeNotifierProvider(
           create: (_) => IndiaLocationProvider(indiaLocationRepository),
-        ),
-        ChangeNotifierProvider(
-          create: (_) =>
-              AuthProvider(authRepository, profileRepository, storageService),
         ),
         ChangeNotifierProxyProvider2<
           AuthProvider,

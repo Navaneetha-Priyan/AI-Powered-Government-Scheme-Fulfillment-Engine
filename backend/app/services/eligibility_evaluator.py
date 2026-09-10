@@ -366,23 +366,50 @@ class EligibilityEvaluator:
         max_acres = scheme.land_max_acres
 
         satisfied = False
+        inconclusive = False
         for record in land_records:
             record_type = _norm(getattr(record, "land_type", None))
             record_ownership = _norm(getattr(record, "ownership_type", None))
             record_area = getattr(record, "land_area", None)
 
-            if required_types and not self._land_type_matches(record_type, required_types):
+            # A land record whose required attributes are UNKNOWN (not digitized)
+            # cannot be evaluated against the scheme requirement. Per the design
+            # rules, "data absent" is missing information — NOT a failure. Only a
+            # record with KNOWN attributes that do not satisfy the requirement is
+            # a definitive failure.
+            type_unknown = bool(required_types) and not record_type
+            ownership_unknown = bool(required_ownership) and not record_ownership
+
+            # Definitive rejections first: KNOWN value that does not qualify.
+            if required_ownership and not ownership_unknown and record_ownership not in required_ownership:
                 continue
-            if required_ownership and record_ownership not in required_ownership:
+            if required_types and not type_unknown and not self._land_type_matches(record_type, required_types):
                 continue
-            if min_acres is not None:
-                if record_area is None or float(record_area) < float(min_acres):
-                    continue
-            if max_acres is not None:
-                if record_area is None or float(record_area) > float(max_acres):
-                    continue
+            if min_acres is not None and record_area is not None and float(record_area) < float(min_acres):
+                continue
+            if max_acres is not None and record_area is not None and float(record_area) > float(max_acres):
+                continue
+
+            # Record satisfies every KNOWN criterion, but some required
+            # attribute is unknown → inconclusive (pending information).
+            if type_unknown or ownership_unknown:
+                inconclusive = True
+                continue
+            if (min_acres is not None or max_acres is not None) and record_area is None:
+                inconclusive = True
+                continue
+
             satisfied = True
             break
+
+        if satisfied:
+            passed, is_missing = True, False
+        elif inconclusive:
+            # At least one record might qualify but the data is incomplete.
+            passed, is_missing = False, True
+        else:
+            # Every record was fully evaluated and none satisfies the requirement.
+            passed, is_missing = False, False
 
         return self._condition(
             scheme,
@@ -390,9 +417,9 @@ class EligibilityEvaluator:
             "Citizen must own/lease qualifying land for this scheme",
             expected=self._land_requirement_text(scheme),
             actual=self._land_actual_text(land_records),
-            passed=satisfied,
+            passed=passed,
             mandatory=True,
-            missing=False,
+            missing=is_missing,
         )
 
     def _evaluate_social_category(

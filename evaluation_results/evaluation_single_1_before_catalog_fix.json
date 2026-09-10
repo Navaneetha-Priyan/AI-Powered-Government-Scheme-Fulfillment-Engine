@@ -1,0 +1,39 @@
+{
+  "dataset_id": 1,
+  "speaker": "M02",
+  "language": "ta",
+  "type": "tamil",
+  "reference_text": "எனக்கு விவசாயத்துக்கு ஏதாவது அரசு திட்டம் இருக்கா?",
+  "audio_file": "data/voice_dataset/audio/WhatsApp Audio 2026-09-05 at 10.54.26 AM.wav",
+  "whisper_transcription": "எனக்கு விவசாயத்துக்கு ஏதாவது அரசித்து திட்டம் இருக்கார்",
+  "normalized_text": "I need a government scheme related to agriculture/farmers",
+  "expected_intent": "scheme_search",
+  "detected_intent": "scheme_search",
+  "extracted_entities": {
+    "occupation": "farmer"
+  },
+  "retrieved_schemes": [
+    "PM RKVY and PKVY Guidelines",
+    "PMFME Scheme Guidelines",
+    "PM KUSUM Guidelines",
+    "e NAM National Agriculture Market 3",
+    "PMFBY Scheme Document"
+  ],
+  "recommended_schemes": [],
+  "wer": 33.33,
+  "cer": 13.33,
+  "transcription_correctness": "fail",
+  "normalization_correctness": "pass",
+  "intent_correctness": "pass",
+  "retrieval_hit_at_1": 0,
+  "retrieval_hit_at_3": 0,
+  "retrieval_hit_at_5": 0,
+  "recommendation_correctness": "fail",
+  "failure_stage": null,
+  "errors": {
+    "whisper": null,
+    "normalization": null,
+    "retrieval": null,
+    "recommendation": null
+  }
+}

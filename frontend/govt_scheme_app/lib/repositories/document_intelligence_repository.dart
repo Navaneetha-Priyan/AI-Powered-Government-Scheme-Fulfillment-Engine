@@ -21,11 +21,14 @@ class DocumentIntelligenceRepository {
   Future<void> upload(
     String type,
     File file,
-    void Function(int, int) progress,
+    void Function(int, int) progress, {
+    bool replace = false,
+  }
   ) async {
     await _api.postMultipart(
       ApiConstants.intelligentDocumentUpload(type),
       formData: FormData.fromMap({
+        'replace': replace.toString(),
         'file': await MultipartFile.fromFile(
           file.path,
           filename: file.uri.pathSegments.last,

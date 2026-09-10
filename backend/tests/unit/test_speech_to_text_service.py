@@ -170,6 +170,34 @@ class TestTamilLanguageConfiguration:
         assert kwargs["language"] == "ta"
         assert kwargs["task"] == "transcribe"
 
+    def test_transcribe_language_override_uses_english(self):
+        service = SpeechToTextService(device="cpu", compute_type="int8")
+        fake_model = MagicMock()
+        fake_model.transcribe.return_value = (
+            iter([SimpleNamespace(text="English text")]),
+            SimpleNamespace(language="en"),
+        )
+        service._model = fake_model
+
+        service.transcribe("/tmp/sample.wav", language="en")
+
+        _, kwargs = fake_model.transcribe.call_args
+        assert kwargs["language"] == "en"
+
+    def test_mixed_language_override_keeps_tamil_decoding(self):
+        service = SpeechToTextService(device="cpu", compute_type="int8")
+        fake_model = MagicMock()
+        fake_model.transcribe.return_value = (
+            iter([SimpleNamespace(text="mixed text")]),
+            SimpleNamespace(language="ta"),
+        )
+        service._model = fake_model
+
+        service.transcribe("/tmp/sample.wav", language="ta-en")
+
+        _, kwargs = fake_model.transcribe.call_args
+        assert kwargs["language"] == "ta"
+
 
 class TestTranscriptionConfiguration:
     """Decoding parameters are code-level defaults (beam_size, conditioning)."""

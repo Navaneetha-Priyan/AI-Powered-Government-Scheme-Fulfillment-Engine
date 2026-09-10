@@ -42,6 +42,10 @@ from app.schemas.voice_recommendation import (
     VoiceRecommendationProfileView,
     VoiceRecommendationResponse,
 )
+from app.services.scheme_query_helpers import (
+    detect_scheme_names_in_text,
+    expand_query_for_occupation,
+)
 from app.services.recommendation_service import RecommendationService
 
 logger = get_logger(__name__)
@@ -249,7 +253,14 @@ class VoiceQueryService:
             if isinstance(value, str) and value.strip():
                 parts.append(value.strip())
 
-        return " ".join(part for part in parts if part).strip()
+        base_query = " ".join(part for part in parts if part).strip()
+
+        # Expand generic farmer-domain queries with canonical scheme aliases so
+        # relevant schemes (e.g. PM Kisan) are recalled even when not named.
+        occupation = entities.get("occupation") if isinstance(entities, dict) else None
+        if isinstance(occupation, str):
+            occupation = occupation.strip() or None
+        return expand_query_for_occupation(base_query, occupation, entities)
 
     # ── Helpers ───────────────────────────────────────────────────────────
 

@@ -31,6 +31,13 @@ class ProfileProvider extends ChangeNotifier {
     _eligibilityProvider = eligibilityProvider;
   }
 
+  /// Invalidate cached profile so it refetches on next access.
+  void invalidateProfile() {
+    _profile = null;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   Future<void> loadProfile() async {
     _setLoading(true);
     try {

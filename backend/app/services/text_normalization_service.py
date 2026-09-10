@@ -29,6 +29,7 @@ from app.core.config import settings
 from app.core.logging import get_logger
 from app.exceptions.exceptions import LLMUnavailableError, NormalizationError
 from app.schemas.normalization import NormalizationResult
+from app.services.scheme_query_helpers import detect_scheme_names_in_text
 from app.services.llm_client import LLMClient, get_llm_client
 
 logger = get_logger(__name__)
@@ -41,6 +42,14 @@ _ALLOWED_INTENTS = {
     "document_requirement",
     "profile_query",
     "unknown",
+}
+
+# Scheme-related occupations recognized by the normalization heuristics.
+# Used to detect likely LLM hallucinations (e.g. "musician" from corrupted audio).
+_KNOWN_SCHEME_OCCUPATIONS_SET = {
+    "farmer", "cultivator", "agricultural labourer", "farm worker",
+    "agricultural worker", "landowner", "tenant", "student", "laborer",
+    "labourer", "none",
 }
 
 # Allowed language tags (shared with the schema Literal).
@@ -92,14 +101,78 @@ class TextNormalizationService:
         try:
             result = self._normalize_with_llm(cleaned)
             if result is not None:
-                return result
+                return self._recover_scheme_names(cleaned, result)
         except LLMUnavailableError:
             logger.warning("LLM unavailable; using heuristic fallback")
         except NormalizationError:
             logger.warning("LLM returned invalid result; using heuristic fallback")
 
         # 2) Deterministic heuristic fallback.
-        return self._normalize_with_heuristics(cleaned)
+        return self._recover_scheme_names(cleaned, self._normalize_with_heuristics(cleaned))
+
+    def _recover_scheme_names(self, raw_text: str, result: NormalizationResult) -> NormalizationResult:
+        """Reconcile LLM/heuristic output against scheme names found in the raw text.
+
+        Whisper frequently corrupts or drops proper-noun scheme names (e.g. PM Kisan),
+        and the LLM can then hallucinate an unrelated concept (e.g. "musician").
+        This step detects known scheme names directly from the raw transcript
+        (Tamil markers + romanized aliases) and ensures they are reflected in the
+        output, so downstream retrieval has a chance to find them.
+
+        This is intentionally conservative: it only ADDS a scheme name when one is
+        detectable in the raw text but missing from the result, and it downgrades
+        confidence when the LLM appears to have invented an unrelated occupation.
+        """
+        detected = detect_scheme_names_in_text(raw_text)
+        if not detected:
+            return result
+
+        entities = dict(result.entities or {})
+        existing_scheme = entities.get("scheme_name")
+        existing_scheme_str = str(existing_scheme).strip() if existing_scheme else ""
+
+        # If no scheme name was extracted but we detected one in the raw text,
+        # add the first detected scheme name.
+        new_scheme = None
+        if not existing_scheme_str:
+            new_scheme = detected[0]
+            entities["scheme_name"] = new_scheme
+
+        # Hallucination guard: if the LLM invented an occupation that is not a
+        # known scheme-related occupation while a scheme name is present in the
+        # raw text, the occupation is likely spurious. Downgrade confidence so
+        # the pipeline treats the result as uncertain rather than confidently wrong.
+        occupation = entities.get("occupation")
+        if isinstance(occupation, str) and occupation:
+            occ_key = occupation.strip().lower().replace("_", " ")
+            if occ_key not in _KNOWN_SCHEME_OCCUPATIONS_SET and detected:
+                confidence = min(result.confidence, 0.55)
+                # Strip the hallucinated occupation from entities so downstream
+                # retrieval uses the real query signal, not the hallucination.
+                entities.pop("occupation", None)
+                if new_scheme is None and not existing_scheme_str:
+                    entities["scheme_name"] = detected[0]
+                    new_scheme = detected[0]
+                return NormalizationResult(
+                    language=result.language,
+                    intent=result.intent,
+                    normalized_text=result.normalized_text,
+                    entities=entities,
+                    confidence=confidence,
+                    source=result.source,
+                )
+
+        if new_scheme is None:
+            return result
+
+        return NormalizationResult(
+            language=result.language,
+            intent=result.intent,
+            normalized_text=result.normalized_text,
+            entities=entities,
+            confidence=result.confidence,
+            source=result.source,
+        )
 
     # ── LLM path ──────────────────────────────────────────────────────────
 
@@ -744,6 +817,10 @@ _INCOME_LOW_PATTERNS = [
 _OCCUPATION_PATTERNS = {
     "farmer": [
         "farmer",
+        "cultivator",
+        "agricultural worker",
+        "agricultural labourer",
+        "farm worker",
         "விவசாயி",
         "விவசாயம்",
         "விவசாய",

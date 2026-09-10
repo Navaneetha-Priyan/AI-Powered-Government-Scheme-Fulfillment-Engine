@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/network/api_exception.dart';
 import '../../core/widgets/app_buttons.dart';
 import '../../core/widgets/app_states.dart';
+import '../../providers/dashboard_provider.dart';
 import '../../providers/document_intelligence_provider.dart';
 import '../../routes/app_routes.dart';
 
@@ -37,6 +39,10 @@ class _ProfileReviewScreenState extends State<ProfileReviewScreen> {
 
         final overall = provider.completeness?['overall'] ?? 0;
         final hasConflicts = preview.conflicts.isNotEmpty;
+        final conflictFields = preview.conflicts
+          .map((conflict) => conflict['field_name']?.toString())
+          .whereType<String>()
+          .toSet();
 
         return Scaffold(
           appBar: AppBar(title: const Text('Review Your Profile')),
@@ -58,7 +64,10 @@ class _ProfileReviewScreenState extends State<ProfileReviewScreen> {
                 ...preview.conflicts.map(
                   (c) => Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: _ConflictCard(conflict: c),
+                    child: _ConflictCard(
+                      conflict: c,
+                      onEdit: (field, value) => provider.correct(field, value),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -75,6 +84,7 @@ class _ProfileReviewScreenState extends State<ProfileReviewScreen> {
                   (group) => _FieldGroup(
                     groupName: group.key,
                     fields: group.value,
+                    reviewFields: conflictFields,
                     onCorrect: (key, value) => provider.correct(key, value),
                   ),
                 ),
@@ -98,7 +108,7 @@ class _ProfileReviewScreenState extends State<ProfileReviewScreen> {
                     ),
                   ),
                   child: Text(
-                    'Please resolve the highlighted conflicts before confirming your profile.',
+                    'Resolve the fields marked Needs review, then confirm your profile. Other extracted fields are ready to use.',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                       fontWeight: FontWeight.w600,
@@ -108,10 +118,14 @@ class _ProfileReviewScreenState extends State<ProfileReviewScreen> {
                 )
               else
                 PrimaryButton(
-                  label: 'Confirm & Create Profile',
+                  label: provider.showingPersistedProfile
+                      ? 'Continue to Dashboard'
+                      : 'Confirm & Continue',
                   icon: Icons.verified_user_rounded,
                   isLoading: _isConfirming,
-                  onPressed: _confirm,
+                  onPressed: provider.showingPersistedProfile
+                      ? _continueToDashboard
+                      : _confirm,
                 ),
             ],
           ),
@@ -121,9 +135,12 @@ class _ProfileReviewScreenState extends State<ProfileReviewScreen> {
   }
 
   Future<void> _confirm() async {
+    final documentProvider = context.read<DocumentIntelligenceProvider>();
+    final dashboardProvider = context.read<DashboardProvider>();
     setState(() => _isConfirming = true);
     try {
-      await context.read<DocumentIntelligenceProvider>().confirm();
+      await documentProvider.confirm();
+      await dashboardProvider.refresh();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -131,16 +148,43 @@ class _ProfileReviewScreenState extends State<ProfileReviewScreen> {
             backgroundColor: Color(0xFF16803C),
           ),
         );
-        Navigator.of(context).popUntil(
-          (route) => route.settings.name == AppRoutes.home || route.isFirst,
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.home,
+          (route) => false,
         );
       }
-    } catch (_) {
+    } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please review the highlighted information first.'),
+          SnackBar(
+            content: Text(
+              error is ApiException
+                  ? error.message
+                  : 'We could not save your profile. Please review the fields marked Needs review.',
+            ),
           ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isConfirming = false);
+    }
+  }
+
+  Future<void> _continueToDashboard() async {
+    final dashboardProvider = context.read<DashboardProvider>();
+    setState(() => _isConfirming = true);
+    try {
+      await dashboardProvider.refresh();
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.home,
+          (route) => false,
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error is ApiException ? error.message : 'Could not load your saved profile.')),
         );
       }
     } finally {
@@ -332,8 +376,9 @@ class _ConflictBanner extends StatelessWidget {
 // ─── Conflict card ─────────────────────────────────────────────────────────────
 
 class _ConflictCard extends StatelessWidget {
-  const _ConflictCard({required this.conflict});
+  const _ConflictCard({required this.conflict, required this.onEdit});
   final Map<String, dynamic> conflict;
+  final Future<void> Function(String field, String value) onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -372,10 +417,42 @@ class _ConflictCard extends StatelessWidget {
             _ConflictValue(label: 'Source 1', value: v1),
             const SizedBox(height: 6),
             _ConflictValue(label: 'Source 2', value: v2),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () => _edit(context, field, v1),
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: const Text('Edit and confirm'),
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _edit(BuildContext context, String field, String value) async {
+    final controller = TextEditingController(text: value);
+    final next = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Confirm ${field.replaceAll('_', ' ')}'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Enter the correct value'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, controller.text), child: const Text('Save')),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (next != null && next.trim().isNotEmpty) {
+      await onEdit(field, next.trim());
+    }
   }
 }
 
@@ -412,10 +489,12 @@ class _FieldGroup extends StatelessWidget {
   const _FieldGroup({
     required this.groupName,
     required this.fields,
+    required this.reviewFields,
     required this.onCorrect,
   });
   final String groupName;
   final Map<String, dynamic> fields;
+  final Set<String> reviewFields;
   final Future<void> Function(String key, String value) onCorrect;
 
   @override
@@ -439,6 +518,7 @@ class _FieldGroup extends StatelessWidget {
               return _FieldTile(
                 fieldKey: entry.key,
                 value: entry.value?.toString() ?? '',
+                needsReview: reviewFields.contains(entry.key),
                 onCorrect: (v) => onCorrect(entry.key, v),
               );
             }).toList(),
@@ -456,9 +536,11 @@ class _FieldTile extends StatelessWidget {
   const _FieldTile({
     required this.fieldKey,
     required this.value,
+    required this.needsReview,
     required this.onCorrect,
   });
   final String fieldKey, value;
+  final bool needsReview;
   final Future<void> Function(String) onCorrect;
 
   @override
@@ -469,22 +551,59 @@ class _FieldTile extends StatelessWidget {
         .map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1)}')
         .join(' ');
 
-    return ListTile(
-      title: Text(
-        label,
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-      ),
-      subtitle: Text(
-        value.isEmpty ? '—' : value,
-        style: const TextStyle(fontSize: 15),
-      ),
-      trailing: TextButton(
-        style: TextButton.styleFrom(
-          minimumSize: const Size(56, 36),
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-        ),
-        onPressed: () => _edit(context),
-        child: const Text('Correct'),
+    final status = needsReview ? 'Needs review' : (value.isEmpty ? 'Missing' : 'Verified');
+    final statusColor = needsReview
+        ? Theme.of(context).colorScheme.error
+        : Theme.of(context).colorScheme.primary;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value.isEmpty ? '—' : value,
+                  style: const TextStyle(fontSize: 15),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                status,
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                  color: statusColor,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(56, 30),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                onPressed: () => _edit(context),
+                child: Text(needsReview ? 'Edit' : 'Correct'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -1,0 +1,132 @@
+{
+  "total_recordings": 30,
+  "processed": 30,
+  "successful": 30,
+  "failed": 0,
+  "explicit_scheme_queries": [
+    5,
+    15,
+    20,
+    24,
+    28
+  ],
+  "broad_discovery_queries": [
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    16,
+    17,
+    18,
+    19,
+    21,
+    22,
+    23,
+    25,
+    26,
+    27,
+    29,
+    30
+  ],
+  "wer": {
+    "count": 30,
+    "mean": 90.44,
+    "median": 100.0,
+    "min": 33.33,
+    "max": 125.0
+  },
+  "cer": {
+    "count": 30,
+    "mean": 75.34,
+    "median": 80.17,
+    "min": 13.33,
+    "max": 179.41
+  },
+  "transcription_accuracy_pct": 0.0,
+  "normalization_accuracy_pct": 93.33,
+  "intent_accuracy_pct": 56.67,
+  "retrieval_hit_at_1_pct": 0.0,
+  "retrieval_hit_at_3_pct": 0.0,
+  "retrieval_hit_at_5_pct": 0.0,
+  "retrieval_evaluated_rows": 5,
+  "recommendation_accuracy_pct": 80.0,
+  "by_language": {
+    "ta": {
+      "n": 10,
+      "intent_pass": 7,
+      "rec_pass": 10,
+      "failed": 0
+    },
+    "ta-en": {
+      "n": 17,
+      "intent_pass": 10,
+      "rec_pass": 12,
+      "failed": 0
+    },
+    "en": {
+      "n": 3,
+      "intent_pass": 0,
+      "rec_pass": 2,
+      "failed": 0
+    }
+  },
+  "by_type": {
+    "tamil": {
+      "n": 10,
+      "intent_pass": 7,
+      "rec_pass": 10,
+      "failed": 0
+    },
+    "tanglish": {
+      "n": 9,
+      "intent_pass": 6,
+      "rec_pass": 7,
+      "failed": 0
+    },
+    "english": {
+      "n": 3,
+      "intent_pass": 0,
+      "rec_pass": 2,
+      "failed": 0
+    },
+    "mixed": {
+      "n": 8,
+      "intent_pass": 4,
+      "rec_pass": 5,
+      "failed": 0
+    }
+  },
+  "by_speaker": {
+    "M02": {
+      "n": 10,
+      "intent_pass": 5,
+      "rec_pass": 9,
+      "failed": 0
+    },
+    "M03": {
+      "n": 10,
+      "intent_pass": 6,
+      "rec_pass": 8,
+      "failed": 0
+    },
+    "M05": {
+      "n": 10,
+      "intent_pass": 6,
+      "rec_pass": 7,
+      "failed": 0
+    }
+  },
+  "failure_stages": {
+    "none": 30
+  },
+  "generated_at": "2026-09-07 13:13:18"
+}

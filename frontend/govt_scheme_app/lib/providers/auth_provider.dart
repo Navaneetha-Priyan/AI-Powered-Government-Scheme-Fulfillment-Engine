@@ -169,6 +169,13 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Invalidate the cached user profile so it refetches from the server.
+  void invalidateProfile() {
+    _currentUser = null;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   void _setBusy(bool value) {
     _isBusy = value;
     notifyListeners();

@@ -1,0 +1,334 @@
+======================================================================
+VOICE EVALUATION ERROR LOG
+Generated: 2026-09-07 00:22:05
+======================================================================
+
+──────────────────────────────────────────────────────────────────────
+Recording 1 | speaker=M02 | lang=ta | type=tamil
+  failure_stage : None
+  ref           : எனக்கு விவசாயத்துக்கு ஏதாவது அரசு திட்டம் இருக்கா?
+  whisper       : எனக்கு விவசாயத்துக்கு ஏதாவது அரசித்து திட்டம் இருக்கார்
+  normalized    : I need a government scheme related to agriculture/farmers
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PM RKVY and PKVY Guidelines', 'PMFME Scheme Guidelines', 'PM KUSUM Guidelines', 'e NAM National Agriculture Market 3', 'PMFBY Scheme Document']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 2 | speaker=M02 | lang=ta-en | type=tanglish
+  failure_stage : None
+  ref           : Enakku farmer scheme edhavadhu irukka?
+  whisper       : எனக்குப் பார்மர்ஸ்க்கிம் ஏதாவது இருக்காது.
+  normalized    : I need government scheme related to Parmar's
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PMAY G Guidelines', 'PMFME Scheme Guidelines', 'Pradhan Mantri Matru Vandana Yojana PMMVY', 'Swachh Bharat Mission Gramin', 'PM RKVY and PKVY Guidelines']
+  recommended   : ['PM RKVY and PKVY Guidelines', 'PMAY G Guidelines', 'e NAM National Agriculture Market 3']
+
+──────────────────────────────────────────────────────────────────────
+Recording 3 | speaker=M02 | lang=ta | type=tamil
+  failure_stage : None
+  ref           : விவசாயிகளுக்கு என்ன அரசு திட்டங்கள் இருக்கிறது?
+  whisper       : எனக்கு விவசாயத்துக்கு ஏதாவது அரசித்து திட்டம் இருக்கா?
+  normalized    : I need a government scheme related to agriculture/farmers
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PM RKVY and PKVY Guidelines', 'PMFME Scheme Guidelines', 'PM KUSUM Guidelines', 'e NAM National Agriculture Market 3', 'PMFBY Scheme Document']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 4 | speaker=M02 | lang=en | type=english
+  failure_stage : None
+  ref           : Am I eligible for any government scheme?
+  whisper       : நான் எல்லாருக்கும் காவல்துகளுக்கு வேண்டும் என்பதைத் தொடர்புகிறேன்.
+  normalized    : I need government schemes for everyone and for loans
+  expected      : intent=scheme_eligibility schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PM RKVY and PKVY Guidelines', 'PMFME Scheme Guidelines', 'Pradhan Mantri Awas Yojana Urban PMAY U 2', 'PMAY G Guidelines', 'Pradhan Mantri Jan Dhan Yojana PMJDY 3']
+  recommended   : ['PMAY G Guidelines', 'Unified Package Insurance Scheme Guidelines', 'Jal Jeevan Mission', 'PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 5 | speaker=M02 | lang=ta-en | type=mixed
+  failure_stage : None
+  ref           : PM Kisan schemeக்கு நான் eligibleஆ?
+  whisper       : பியம் கிஷான் சகிம் நான் வில்ஜுகலா
+  normalized    : I need a government scheme related to farmers
+  expected      : intent=scheme_eligibility schemes=['PM Kisan']
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PMFME Scheme Guidelines', 'PM RKVY and PKVY Guidelines', 'PM KUSUM Guidelines', 'PM KISAN Operational Guidelines', 'PMFBY Scheme Document']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 6 | speaker=M02 | lang=ta-en | type=tanglish
+  failure_stage : None
+  ref           : Farmers-ku enna government schemes irukku?
+  whisper       : பார்மத்துக்கு என்ன காவர்மன்ஸ்க்கின் இருக்கு?
+  normalized    : I need government schemes for farmers
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PMFME Scheme Guidelines', 'PM KUSUM Guidelines', 'PM RKVY and PKVY Guidelines', 'SMAM Operational Guidelines 2025', 'PM KISAN Operational Guidelines']
+  recommended   : ['Jal Jeevan Mission', 'PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 7 | speaker=M02 | lang=ta | type=tamil
+  failure_stage : None
+  ref           : இந்த திட்டத்திற்கு என்னென்ன ஆவணங்கள் தேவை?
+  whisper       : இந்த திட்டத்திற்கு என்ன நான் அவனங்கள் தேவை
+  normalized    : I need this scheme for them
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_eligibility entities={'occupation': 'farmer'}
+  retrieved     : ['PMFME Scheme Guidelines', 'PM Vishwakarma Yojana', 'PM RKVY and PKVY Guidelines', 'PM KISAN Operational Guidelines', 'Pradhan Mantri Matru Vandana Yojana PMMVY']
+  recommended   : ['Unified Package Insurance Scheme Guidelines', 'PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 8 | speaker=M02 | lang=ta-en | type=tanglish
+  failure_stage : None
+  ref           : Indha scheme-ku enna documents venum?
+  whisper       : இந்த ஸ்கீமுக்கு என்ன டாக்மான் வேண்டும்
+  normalized    : I need a government scheme related to this
+  expected      : intent=document_requirement schemes=[]
+  detected      : intent=scheme_eligibility entities={'scheme_name': 'this'}
+  retrieved     : ['PMAY G Guidelines', 'PMFME Scheme Guidelines', 'PM RKVY and PKVY Guidelines', 'PM KISAN Operational Guidelines', 'PMFBY Scheme Document']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 9 | speaker=M02 | lang=ta-en | type=mixed
+  failure_stage : None
+  ref           : Government schemeக்கு online-ல எப்படி apply பண்ணுவது?
+  whisper       : காவர்மன்ட் ச்கீமுக்கு அன்லனில் எப்படி அப்படிப் பண்ணுவது
+  normalized    : I need to find out when to apply for the Karmam Samcheme
+  expected      : intent=application_status schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PM Vishwakarma Yojana', 'Free Bus Travel Scheme for Women TN Government Buses 2', 'Pradhan Mantri Matru Vandana Yojana PMMVY', 'PM KISAN Operational Guidelines', 'PM RKVY and PKVY Guidelines']
+  recommended   : ['PM RKVY and PKVY Guidelines', 'Unified Package Insurance Scheme Guidelines', 'PM Vishwakarma Yojana']
+
+──────────────────────────────────────────────────────────────────────
+Recording 10 | speaker=M02 | lang=ta | type=tamil
+  failure_stage : None
+  ref           : விவசாயிகளுக்கு பண உதவி வழங்கும் திட்டங்கள் என்ன?
+  whisper       : விவுசாய்களுக்கு பணமுதிவு வளங்கம் திட்டங்கள் என்னன்
+  normalized    : government schemes for farmers
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PM KUSUM Guidelines', 'PM RKVY and PKVY Guidelines', 'PM KISAN Operational Guidelines', 'PMFME Scheme Guidelines', 'SMAM Operational Guidelines 2025']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 11 | speaker=M03 | lang=ta-en | type=tanglish
+  failure_stage : None
+  ref           : Enakku farmer scheme edhavadhu irukka?
+  whisper       : எனக்குப் பார்மர்ஸ்க்கிம் ஏதாவது இருக்காது.
+  normalized    : I need government scheme related to Parmar's
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PMAY G Guidelines', 'PMFME Scheme Guidelines', 'Pradhan Mantri Matru Vandana Yojana PMMVY', 'Swachh Bharat Mission Gramin', 'PM RKVY and PKVY Guidelines']
+  recommended   : ['PM RKVY and PKVY Guidelines', 'PMAY G Guidelines', 'e NAM National Agriculture Market 3']
+
+──────────────────────────────────────────────────────────────────────
+Recording 12 | speaker=M03 | lang=ta | type=tamil
+  failure_stage : None
+  ref           : எனக்கு கிடைக்கக்கூடிய அரசு திட்டங்கள் பற்றி சொல்லுங்க.
+  whisper       : எனக்கிடக்குக்கூட ரசத்துட்ட டெங்கல் கொட்டிச் சொல்லுங்க
+  normalized    : I need government scheme for additional income
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer', 'income_status': 'low'}
+  retrieved     : ['Pradhan Mantri Matru Vandana Yojana PMMVY', 'PMFME Scheme Guidelines', 'PM KISAN Operational Guidelines', 'PMFBY Scheme Document', 'PM RKVY and PKVY Guidelines']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 13 | speaker=M03 | lang=ta-en | type=mixed
+  failure_stage : None
+  ref           : எனக்கு agricultureக்கு ஏதாவது government scheme இருக்கா?
+  whisper       : எனக்கு அக்ரிக்ரல்ச்சருக்கு ஏதாவது தொருமணம் ச்கீம் இருக்கா
+  normalized    : I need a matchmaking scheme for farmers
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PMFME Scheme Guidelines', 'PM RKVY and PKVY Guidelines', 'SMAM Operational Guidelines 2025', 'MIDH Operational Guidelines 2025', 'PMFBY Scheme Document']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 14 | speaker=M03 | lang=en | type=english
+  failure_stage : None
+  ref           : What documents do I need to apply for this scheme?
+  whisper       : நீங்கள் எனக்கு இந்த விஷயத்திற்கு வேண்டாம் என்று கூறுகிறீர்களா?
+  normalized    : I need a government scheme related to this topic
+  expected      : intent=document_requirement schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PMAY G Guidelines', 'PMFME Scheme Guidelines', 'PM RKVY and PKVY Guidelines', 'Pradhan Mantri Matru Vandana Yojana PMMVY', 'PMFBY Scheme Document']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 15 | speaker=M03 | lang=ta-en | type=tanglish
+  failure_stage : None
+  ref           : Naan PM Kisan-ku eligible ah?
+  whisper       : நான் பியன் கிசாந்துக்கு எழுந்து விலா
+  normalized    : I am qualified for music scholarship
+  expected      : intent=scheme_eligibility schemes=['PM Kisan']
+  detected      : intent=unknown entities={'occupation': 'farmer', 'scheme_name': 'music scholarship'}
+  retrieved     : ['National Scholarship Portal Post Matric Scholarship SCSTOBC 2', 'PMAY G Guidelines', 'Pradhan Mantri Awas Yojana Urban PMAY U 2', 'PMFME Scheme Guidelines', 'PM KISAN Operational Guidelines']
+  recommended   : []
+
+──────────────────────────────────────────────────────────────────────
+Recording 16 | speaker=M03 | lang=ta | type=tamil
+  failure_stage : None
+  ref           : அரசு திட்டத்திற்கு எப்படி விண்ணப்பிப்பது?
+  whisper       : அரசத்து திட்டத் திருப்பு எப்படி விண்ணப்புப் போகும்
+  normalized    : government scheme availability
+  expected      : intent=application_status schemes=[]
+  detected      : intent=scheme_search entities={}
+  retrieved     : ['PMFME Scheme Guidelines', 'PMAY G Guidelines', 'PM Vishwakarma Yojana', 'Pradhan Mantri Matru Vandana Yojana PMMVY', 'PM RKVY and PKVY Guidelines']
+  recommended   : ['Pradhan Mantri Matru Vandana Yojana PMMVY', 'PM Vishwakarma Yojana', 'PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 17 | speaker=M03 | lang=ta-en | type=mixed
+  failure_stage : None
+  ref           : Farmersக்கு என்ன benefits கிடைக்கும்?
+  whisper       : பார்மர்ஸ்க்கு என்ன விட்பிஞ்சு இருக்கிறது?
+  normalized    : Are there any government schemes available in Parask?
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'location': 'Parask'}
+  retrieved     : ['PMAY G Guidelines', 'PM RKVY and PKVY Guidelines', 'Jal Jeevan Mission', 'PMFME Scheme Guidelines', 'SMAM Operational Guidelines 2025']
+  recommended   : ['PMAY G Guidelines', 'PM RKVY and PKVY Guidelines', 'Jal Jeevan Mission', 'Pradhan Mantri Matru Vandana Yojana PMMVY']
+
+──────────────────────────────────────────────────────────────────────
+Recording 18 | speaker=M03 | lang=ta-en | type=tanglish
+  failure_stage : None
+  ref           : Farmer-ku government-la enna benefits kidaikkum?
+  whisper       : பார்மணத்து தார்மணத்தில் என்ன மெடிபிட்ஸ் கிடைக்கும்
+  normalized    : I need a government scheme related to medical insurance in PARMANATHAPURAM
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer', 'location': 'PARMANATHAPURAM'}
+  retrieved     : ['Unified Package Insurance Scheme Guidelines', 'Pradhan Mantri Matru Vandana Yojana PMMVY', 'PMFBY Scheme Document', 'Pradhan Mantri Ujjwala Yojana PMUY', 'PM Vishwakarma Yojana']
+  recommended   : ['Unified Package Insurance Scheme Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 19 | speaker=M03 | lang=ta | type=tamil
+  failure_stage : None
+  ref           : என்னுடைய நிலத்திற்கு ஏதாவது அரசு திட்டம் கிடைக்குமா?
+  whisper       : இன்னுடைய நடத்திற்கு ஏதாவது அஸ்துத்தம் கிடைக்கும்
+  normalized    : I need a government scheme for the upcoming season
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PM RKVY and PKVY Guidelines', 'PMFBY Scheme Document', 'PMAY G Guidelines', 'PMFME Scheme Guidelines', 'Jal Jeevan Mission']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 20 | speaker=M03 | lang=ta-en | type=mixed
+  failure_stage : None
+  ref           : PM Kisanக்கு eligibility என்ன?
+  whisper       : பியம் கிஸானுக்கு யார் வேலையம் இல்லை
+  normalized    : I need government assistance for farmers
+  expected      : intent=scheme_search schemes=['PM Kisan']
+  detected      : intent=scheme_eligibility entities={'occupation': 'farmer', 'income_status': 'low'}
+  retrieved     : ['PM RKVY and PKVY Guidelines', 'SMAM Operational Guidelines 2025', 'PMFME Scheme Guidelines', 'PM KUSUM Guidelines', 'PMFBY Scheme Document']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 21 | speaker=M05 | lang=ta-en | type=tanglish
+  failure_stage : None
+  ref           : Enakku farmer scheme edhavadhu irukka?
+  whisper       : எனக்கு பார்மத்கு ஏதாவது இருக்கா
+  normalized    : Are there any government schemes available for farmers?
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PMFME Scheme Guidelines', 'PM KUSUM Guidelines', 'PMFBY Scheme Document', 'PM KISAN Operational Guidelines', 'PM RKVY and PKVY Guidelines']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 22 | speaker=M05 | lang=ta | type=tamil
+  failure_stage : None
+  ref           : விவசாயிகளுக்கு என்ன அரசு திட்டங்கள் இருக்கிறது?
+  whisper       : விவாசாயுகளுக்கு என்ன ஆரச்சத் திட்டங்கள் இருக்கிறது?
+  normalized    : What government schemes are available for farmers?
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PM KUSUM Guidelines', 'PMFBY Scheme Document', 'PM KISAN Operational Guidelines', 'PM RKVY and PKVY Guidelines', 'PMFME Scheme Guidelines']
+  recommended   : ['PM RKVY and PKVY Guidelines', 'Unified Package Insurance Scheme Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 23 | speaker=M05 | lang=en | type=english
+  failure_stage : None
+  ref           : What benefits can farmers get from government schemes?
+  whisper       : நாங்கள் நிறுவனத்தையும் நிறுவனத்தையும் பார்த்து வருகிறதா?
+  normalized    : Are there any schemes for running a business?
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PMFME Scheme Guidelines', 'PM RKVY and PKVY Guidelines', 'PM Vishwakarma Yojana', 'Pradhan Mantri Matru Vandana Yojana PMMVY', 'Swachh Bharat Mission Gramin']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 24 | speaker=M05 | lang=ta-en | type=mixed
+  failure_stage : None
+  ref           : PM Kisan schemeக்கு நான் eligibleஆ?
+  whisper       : பியம் கிசான்ஸ் கேன்கு நான் எலிர்ட்டு பிள்ளா
+  normalized    : I need to know if I am eligible for PM Kisan scheme
+  expected      : intent=scheme_eligibility schemes=['PM Kisan']
+  detected      : intent=scheme_eligibility entities={'occupation': 'farmer', 'scheme_name': 'PM Kisan'}
+  retrieved     : ['PM KISAN Operational Guidelines', 'PM RKVY and PKVY Guidelines', 'SMAM Operational Guidelines 2025', 'PM Vishwakarma Yojana', 'PMAY G Guidelines']
+  recommended   : ['Unified Package Insurance Scheme Guidelines', 'PM RKVY and PKVY Guidelines', 'PMAY G Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 25 | speaker=M05 | lang=ta-en | type=tanglish
+  failure_stage : None
+  ref           : Indha scheme-ku enna documents venum?
+  whisper       : இந்த ஸ்கீம்கு என்ன டாக்குமென்று வேண்டும்?
+  normalized    : I need this scheme
+  expected      : intent=document_requirement schemes=[]
+  detected      : intent=scheme_search entities={}
+  retrieved     : ['PMFME Scheme Guidelines', 'Pradhan Mantri Matru Vandana Yojana PMMVY', 'PM RKVY and PKVY Guidelines', 'PM Vishwakarma Yojana', 'PM KISAN Operational Guidelines']
+  recommended   : ['Pradhan Mantri Awas Yojana Urban PMAY U 2', 'PMAY G Guidelines', 'Free Bus Travel Scheme for Women TN Government Buses', 'PM RKVY and PKVY Guidelines', 'PM Vishwakarma Yojana']
+
+──────────────────────────────────────────────────────────────────────
+Recording 26 | speaker=M05 | lang=ta | type=tamil
+  failure_stage : None
+  ref           : அரசு திட்டத்திற்கு எப்படி விண்ணப்பிப்பது?
+  whisper       : அரசி திட்டத்து இருக்கு எப்படி விண்ணப்பிப்பது
+  normalized    : are there government schemes available
+  expected      : intent=application_status schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['PMFME Scheme Guidelines', 'PMAY G Guidelines', 'Pradhan Mantri Matru Vandana Yojana PMMVY', 'PM RKVY and PKVY Guidelines', 'PM Vishwakarma Yojana']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 27 | speaker=M05 | lang=ta-en | type=mixed
+  failure_stage : None
+  ref           : என் land details வைத்து என்ன schemes கிடைக்கும்?
+  whisper       : எல்லாம் தெரிவுகள் வைத்து என்ன ச்கீன்ஸ் கிடைக்கும்
+  normalized    : I need to know about all the exams available
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={}
+  retrieved     : ['National Scholarship Portal Post Matric Scholarship SCSTOBC 2', 'Pradhan Mantri Matru Vandana Yojana PMMVY', 'PM Vishwakarma Yojana', 'Free Bus Travel Scheme for Women TN Government Buses 2', 'PM RKVY and PKVY Guidelines']
+  recommended   : ['Pradhan Mantri Matru Vandana Yojana PMMVY', 'Free Bus Travel Scheme for Women TN Government Buses', 'PM Vishwakarma Yojana']
+
+──────────────────────────────────────────────────────────────────────
+Recording 28 | speaker=M05 | lang=ta-en | type=tanglish
+  failure_stage : None
+  ref           : Crop insurance scheme edhavadhu irukka?
+  whisper       : க்ராப் இஞ்சுடன்ஸ்கீன்ஸ் ஏதாவது இருக்கா
+  normalized    : Are there any government schemes related to crop insurance?
+  expected      : intent=scheme_search schemes=['PM Fasal Bima']
+  detected      : intent=scheme_search entities={'occupation': 'farmer', 'scheme_name': 'crop insurance'}
+  retrieved     : ['PMFBY Scheme Document', 'Unified Package Insurance Scheme Guidelines', 'MIDH Operational Guidelines 2025', 'PM RKVY and PKVY Guidelines', 'e NAM National Agriculture Market 3']
+  recommended   : ['Unified Package Insurance Scheme Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 29 | speaker=M05 | lang=ta | type=tamil
+  failure_stage : None
+  ref           : விவசாயிகளுக்கு பண உதவி வழங்கும் திட்டங்கள் என்ன?
+  whisper       : விவசாய்களுக்கு பணமுதவி வழங்கும் திட்டம் என்ன?
+  normalized    : scheme for agricultural assistance
+  expected      : intent=scheme_search schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer'}
+  retrieved     : ['SMAM Operational Guidelines 2025', 'PM RKVY and PKVY Guidelines', 'MIDH Operational Guidelines 2025', 'PM KUSUM Guidelines', 'PM KISAN Operational Guidelines']
+  recommended   : ['PM RKVY and PKVY Guidelines']
+
+──────────────────────────────────────────────────────────────────────
+Recording 30 | speaker=M05 | lang=ta-en | type=mixed
+  failure_stage : None
+  ref           : எனக்கு eligible-ஆ இருக்கிற schemes என்னென்ன?
+  whisper       : எனக்கு எலிர்ஜுபலா இருக்கும் ச்கீன்ஸ் என்னன்ன?
+  normalized    : I need a government scheme for low-income people
+  expected      : intent=scheme_eligibility schemes=[]
+  detected      : intent=scheme_search entities={'occupation': 'farmer', 'income_status': 'low'}
+  retrieved     : ['PM Vishwakarma Yojana', 'Pradhan Mantri Awas Yojana Urban PMAY U 2', 'Pradhan Mantri Matru Vandana Yojana PMMVY', 'PMFME Scheme Guidelines', 'PM KISAN Operational Guidelines']
+  recommended   : ['PM RKVY and PKVY Guidelines']
