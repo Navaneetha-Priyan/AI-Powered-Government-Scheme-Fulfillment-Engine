@@ -30,7 +30,11 @@ from app.models.government_scheme import GovernmentScheme
 from app.models.scheme_eligibility import (
     EligibilityConditionResult,
     EligibilityResult,
+    EligibilityStatus,
+    EvidenceSource,
     SchemeEligibility,
+    SchemeEligibilityCatalogueEntry,
+    StructuredEligibilityRule,
     determine_status,
 )
 from app.models.scheme_rules import get_scheme_eligibility_for_scheme
@@ -42,6 +46,15 @@ __all__ = [
     "EligibilityEvaluator",
     "get_eligibility_evaluator",
 ]
+
+
+PASS = "PASS"
+FAIL = "FAIL"
+UNKNOWN = "UNKNOWN"
+NOT_APPLICABLE = "NOT_APPLICABLE"
+
+_NON_INDIVIDUAL_SCOPES = {"COMMUNITY", "STATE_UT", "LOCAL_BODY", "INSTITUTION"}
+_REVIEW_STATUSES = {"review_required", "manual_review_required"}
 
 
 def _norm(value: Any) -> str:
@@ -123,7 +136,381 @@ class EligibilityEvaluator:
         """Evaluate multiple schemes against one citizen context."""
         return [self.evaluate(scheme, context) for scheme in schemes]
 
+    def evaluate_catalogue_entry(
+        self,
+        entry: SchemeEligibilityCatalogueEntry,
+        context: "CitizenContext",
+    ) -> EligibilityResult:
+        """Evaluate catalogue rules with deterministic PASS/FAIL/UNKNOWN semantics.
+
+        Entries marked for review, entries without safe machine rules, and
+        programme-level scopes are returned as ``insufficient_information`` with
+        a manual-review condition. The project has no separate public
+        ``manual_review_required`` eligibility status, so ``evaluation_status``
+        carries that detail while preserving the established status vocabulary.
+        """
+        if self._requires_manual_review(entry):
+            return self._manual_review_result(entry)
+
+        conditions: List[EligibilityConditionResult] = [
+            self._evaluate_catalogue_rule(entry, rule, context)
+            for rule in entry.rules
+        ]
+        matched = [c for c in conditions if c.result in {PASS, NOT_APPLICABLE}]
+        failed = [c for c in conditions if c.result == FAIL]
+        missing = [c for c in conditions if c.result == UNKNOWN]
+
+        mandatory_conditions = [
+            c for c in conditions if c.mandatory and c.result != NOT_APPLICABLE
+        ]
+        mandatory_total = len(mandatory_conditions)
+        mandatory_passed = sum(1 for c in mandatory_conditions if c.result == PASS)
+        eligibility_percentage = (
+            round((mandatory_passed / mandatory_total) * 100.0, 2)
+            if mandatory_total
+            else 0.0
+        )
+
+        result = EligibilityResult(
+            scheme_name=entry.scheme_name,
+            scheme_id=entry.scheme_id,
+            status="",
+            matched_conditions=matched,
+            failed_conditions=failed,
+            missing_information=missing,
+            evidence=self._entry_evidence(entry),
+            evidence_requirements=list(entry.evidence_requirements),
+            missing_evidence=self._missing_evidence(entry, context),
+            evaluation_status="evaluated",
+            eligibility_percentage=eligibility_percentage,
+            mandatory_rules_total=mandatory_total,
+            mandatory_rules_passed=mandatory_passed,
+        )
+        result.status = determine_status(result)
+        if result.status == EligibilityStatus.ELIGIBLE and result.missing_evidence:
+            result.status = EligibilityStatus.POTENTIALLY_ELIGIBLE
+        return result
+
     # ── Criterion evaluation ──────────────────────────────────────────────
+
+    def _requires_manual_review(self, entry: SchemeEligibilityCatalogueEntry) -> bool:
+        if not entry.eligibility_available:
+            return True
+        if entry.extraction_status in _REVIEW_STATUSES:
+            return True
+        if entry.beneficiary_scope in _NON_INDIVIDUAL_SCOPES:
+            return True
+        if not entry.rules:
+            return True
+        return False
+
+    def _manual_review_result(self, entry: SchemeEligibilityCatalogueEntry) -> EligibilityResult:
+        condition = EligibilityConditionResult(
+            condition="manual_review_required",
+            passed=False,
+            actual_value=None,
+            expected_value=entry.extraction_status,
+            evidence=self._entry_evidence(entry),
+            mandatory=True,
+            rule_id=f"{entry.scheme_id}-manual-review",
+            field="eligibility_catalogue",
+            operator="manual_review",
+            rule_type="SCHEME_SPECIFIC",
+            result=UNKNOWN,
+            notes=entry.notes,
+            source_document=entry.pdf_filename,
+        )
+        return EligibilityResult(
+            scheme_name=entry.scheme_name,
+            scheme_id=entry.scheme_id,
+            status=EligibilityStatus.INSUFFICIENT_INFORMATION,
+            matched_conditions=[],
+            failed_conditions=[],
+            missing_information=[condition],
+            evidence=self._entry_evidence(entry),
+            evidence_requirements=list(entry.evidence_requirements),
+            missing_evidence=[],
+            evaluation_status="manual_review_required",
+            eligibility_percentage=0.0,
+            mandatory_rules_total=1,
+            mandatory_rules_passed=0,
+        )
+
+    def _evaluate_catalogue_rule(
+        self,
+        entry: SchemeEligibilityCatalogueEntry,
+        rule: StructuredEligibilityRule,
+        context: "CitizenContext",
+    ) -> EligibilityConditionResult:
+        if rule.rule_type == "CONDITIONAL":
+            return self._evaluate_conditional_rule(entry, rule, context)
+
+        actual, value_known = self._resolve_rule_value(rule, context)
+        result = UNKNOWN
+        if value_known:
+            result = PASS if self._compare_rule(actual, rule.operator, rule.value) else FAIL
+
+        if rule.rule_type == "EXCLUSION" and result == PASS:
+            notes = "Exclusion condition did not apply."
+        elif rule.rule_type == "EXCLUSION" and result == FAIL:
+            notes = "Exclusion condition applies."
+        else:
+            notes = rule.notes
+
+        return self._catalogue_condition(entry, rule, actual, result, notes=notes)
+
+    def _evaluate_conditional_rule(
+        self,
+        entry: SchemeEligibilityCatalogueEntry,
+        rule: StructuredEligibilityRule,
+        context: "CitizenContext",
+    ) -> EligibilityConditionResult:
+        when_result = self._evaluate_inline_expression(rule.when or {}, context)
+        if when_result == FAIL:
+            return self._catalogue_condition(
+                entry,
+                rule,
+                actual=None,
+                result=NOT_APPLICABLE,
+                mandatory=False,
+                notes="Conditional rule did not apply.",
+            )
+        if when_result == UNKNOWN:
+            return self._catalogue_condition(
+                entry,
+                rule,
+                actual=None,
+                result=UNKNOWN,
+                notes="Could not determine whether the conditional rule applies.",
+            )
+
+        requirement_result = self._evaluate_inline_expression(rule.requirement or {}, context)
+        return self._catalogue_condition(
+            entry,
+            rule,
+            actual=None,
+            result=requirement_result,
+            notes="Conditional rule applied; requirement evaluated.",
+        )
+
+    def _evaluate_inline_expression(self, expression: dict[str, Any], context: "CitizenContext") -> str:
+        field = expression.get("profile_field") or expression.get("field")
+        operator = expression.get("operator")
+        expected = expression.get("value")
+        actual, value_known = self._resolve_value(field, context)
+        if not value_known:
+            return UNKNOWN
+        return PASS if self._compare_rule(actual, operator, expected) else FAIL
+
+    def _resolve_rule_value(
+        self,
+        rule: StructuredEligibilityRule,
+        context: "CitizenContext",
+    ) -> tuple[Any, bool]:
+        field = rule.profile_field or rule.field
+        return self._resolve_value(field, context)
+
+    def _resolve_value(self, field: Any, context: "CitizenContext") -> tuple[Any, bool]:
+        if not field:
+            return None, False
+
+        field_name = str(field)
+        if field_name in {"context.age", "age"}:
+            return context.age, context.age is not None
+        if field_name == "land_ownership":
+            values = [getattr(record, "ownership_type", None) for record in context.land_records]
+            values = [value for value in values if value not in (None, "")]
+            return values, bool(values)
+        if field_name == "land_area":
+            values = [getattr(record, "land_area", None) for record in context.land_records]
+            values = [value for value in values if value is not None]
+            return values, bool(values)
+        if field_name == "land_type":
+            values = [getattr(record, "land_type", None) for record in context.land_records]
+            values = [value for value in values if value not in (None, "")]
+            return values, bool(values)
+
+        root, _, attribute = field_name.partition(".")
+        if root == "citizen":
+            return self._object_value(context.citizen, attribute)
+        if root == "profile":
+            return self._object_value(context.profile, attribute)
+        if root == "land_records":
+            values = [getattr(record, attribute, None) for record in context.land_records]
+            values = [value for value in values if value not in (None, "")]
+            return values, bool(values)
+        if hasattr(context, field_name):
+            value = getattr(context, field_name)
+            return value, value not in (None, "", [], {}, ())
+        if hasattr(context.profile, field_name):
+            return self._object_value(context.profile, field_name)
+        if hasattr(context.citizen, field_name):
+            return self._object_value(context.citizen, field_name)
+        return None, False
+
+    @staticmethod
+    def _object_value(source: Any, attribute: str) -> tuple[Any, bool]:
+        value = getattr(source, attribute, None)
+        return value, value not in (None, "", [], {}, ())
+
+    def _compare_rule(self, actual: Any, operator: Any, expected: Any) -> bool:
+        operator = str(operator or "").lower()
+        if operator in {"in", "any_of"}:
+            return self._any_actual_in_expected(actual, expected)
+        if operator == "all_of":
+            return self._all_expected_in_actual(actual, expected)
+        if operator == "not_in":
+            return not self._any_actual_in_expected(actual, expected)
+        if operator == "exists":
+            return actual not in (None, "", [], {}, ())
+        if operator == "not_exists":
+            return actual in (None, "", [], {}, False)
+        if operator in {"==", "!="}:
+            equal = self._values_equal(actual, expected)
+            return equal if operator == "==" else not equal
+        if operator in {">", ">=", "<", "<="}:
+            return self._compare_numeric(actual, operator, expected)
+        return False
+
+    def _any_actual_in_expected(self, actual: Any, expected: Any) -> bool:
+        actual_values = self._as_list(actual)
+        expected_values = self._as_list(expected)
+        for actual_item in actual_values:
+            for expected_item in expected_values:
+                if self._values_equal(actual_item, expected_item):
+                    return True
+                if isinstance(actual_item, str) and isinstance(expected_item, str):
+                    if _text_contains(actual_item, expected_item) or _text_contains(expected_item, actual_item):
+                        return True
+        return False
+
+    def _all_expected_in_actual(self, actual: Any, expected: Any) -> bool:
+        actual_values = self._as_list(actual)
+        return all(self._any_actual_in_expected(actual_values, item) for item in self._as_list(expected))
+
+    def _values_equal(self, actual: Any, expected: Any) -> bool:
+        if isinstance(expected, bool):
+            return self._to_bool(actual) is expected
+        if isinstance(actual, bool):
+            expected_bool = self._to_bool(expected)
+            return expected_bool is not None and actual is expected_bool
+        if isinstance(actual, list):
+            return any(self._values_equal(item, expected) for item in actual)
+        if isinstance(expected, list):
+            return any(self._values_equal(actual, item) for item in expected)
+        return _norm(actual) == _norm(expected)
+
+    def _compare_numeric(self, actual: Any, operator: str, expected: Any) -> bool:
+        expected_number = self._to_number(expected)
+        if expected_number is None:
+            return False
+        for value in self._as_list(actual):
+            actual_number = self._to_number(value)
+            if actual_number is None:
+                continue
+            if operator == ">" and actual_number > expected_number:
+                return True
+            if operator == ">=" and actual_number >= expected_number:
+                return True
+            if operator == "<" and actual_number < expected_number:
+                return True
+            if operator == "<=" and actual_number <= expected_number:
+                return True
+        return False
+
+    @staticmethod
+    def _as_list(value: Any) -> list[Any]:
+        if isinstance(value, list):
+            return value
+        if isinstance(value, set):
+            return list(value)
+        if isinstance(value, tuple):
+            return list(value)
+        return [value]
+
+    @staticmethod
+    def _to_number(value: Any) -> Optional[float]:
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    @staticmethod
+    def _to_bool(value: Any) -> Optional[bool]:
+        if isinstance(value, bool):
+            return value
+        normalized = _norm(value)
+        if normalized in {"true", "yes", "y", "1"}:
+            return True
+        if normalized in {"false", "no", "n", "0"}:
+            return False
+        return None
+
+    def _catalogue_condition(
+        self,
+        entry: SchemeEligibilityCatalogueEntry,
+        rule: StructuredEligibilityRule,
+        actual: Any,
+        result: str,
+        mandatory: Optional[bool] = None,
+        notes: Optional[str] = None,
+    ) -> EligibilityConditionResult:
+        if mandatory is None:
+            mandatory = rule.severity != "optional"
+        return EligibilityConditionResult(
+            condition=rule.field,
+            passed=result in {PASS, NOT_APPLICABLE},
+            actual_value=actual,
+            expected_value=rule.value,
+            evidence=[self._rule_evidence(entry, rule)],
+            mandatory=mandatory,
+            rule_id=rule.rule_id,
+            field=rule.field,
+            operator=rule.operator,
+            rule_type=rule.rule_type,
+            result=result,
+            notes=notes or rule.notes,
+            source_document=rule.source.document,
+        )
+
+    @staticmethod
+    def _rule_evidence(
+        entry: SchemeEligibilityCatalogueEntry,
+        rule: StructuredEligibilityRule,
+    ) -> EvidenceSource:
+        return EvidenceSource(
+            chunk_id=rule.rule_id,
+            scheme_id=entry.scheme_id,
+            page_number=rule.source.page_number,
+            section_name=rule.source.section_name,
+            text=rule.source.text,
+            document_id=rule.source.document,
+        )
+
+    @staticmethod
+    def _entry_evidence(entry: SchemeEligibilityCatalogueEntry) -> list[EvidenceSource]:
+        return [
+            EvidenceSource(
+                chunk_id=f"{entry.scheme_id}-catalogue",
+                scheme_id=entry.scheme_id,
+                document_id=entry.pdf_filename,
+                section_name=entry.extraction_status,
+                text=entry.notes,
+            )
+        ]
+
+    def _missing_evidence(
+        self,
+        entry: SchemeEligibilityCatalogueEntry,
+        context: "CitizenContext",
+    ) -> list[str]:
+        missing = []
+        document_values = _norm_set(context.document_types) | _norm_set(context.document_names)
+        for requirement in entry.evidence_requirements:
+            normalized = _norm(requirement)
+            if normalized not in document_values:
+                missing.append(requirement)
+        return missing
 
     def _evaluate_criteria(
         self,

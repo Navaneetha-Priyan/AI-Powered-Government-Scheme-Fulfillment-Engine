@@ -18,6 +18,8 @@ class VoiceRecommendationResult {
     this.confidence = 0.0,
     this.source,
     this.message,
+    this.responseText,
+    this.responseLanguage,
     this.profile,
   });
 
@@ -42,6 +44,10 @@ class VoiceRecommendationResult {
   /// Human-friendly message for unsupported intents / no results.
   final String? message;
 
+  final String? responseText;
+
+  final String? responseLanguage;
+
   /// Verified profile returned for `profile_query` intents.
   final VoiceProfileView? profile;
 
@@ -62,6 +68,8 @@ class VoiceRecommendationResult {
       confidence: double.tryParse(json['confidence']?.toString() ?? '') ?? 0.0,
       source: json['source']?.toString(),
       message: json['message']?.toString(),
+      responseText: json['response_text']?.toString(),
+      responseLanguage: json['response_language']?.toString(),
       profile: json['profile'] is Map<String, dynamic>
           ? VoiceProfileView.fromJson(
               Map<String, dynamic>.from(json['profile'] as Map),

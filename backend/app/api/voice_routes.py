@@ -33,6 +33,10 @@ from app.services.text_normalization_service import (
     get_text_normalization_service,
 )
 from app.services.voice_query_service import VoiceQueryService
+from app.services.response_generation_service import (
+    ResponseGenerationService,
+    get_response_generation_service,
+)
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/voice", tags=["Voice Assistant"])
@@ -172,6 +176,17 @@ def get_normalization_service(request: Request) -> TextNormalizationService:
     return service
 
 
+def get_response_generation(request: Request) -> ResponseGenerationService:
+    """Dependency for the presentation-only voice response generator."""
+    service: ResponseGenerationService | None = getattr(
+        request.app.state, "response_generation_service", None
+    )
+    if service is None:
+        service = get_response_generation_service()
+        request.app.state.response_generation_service = service
+    return service
+
+
 def _validate_normalization_text(text: str) -> None:
     """Validate the transcript length to prevent oversized requests."""
     if not text or not text.strip():
@@ -262,16 +277,32 @@ async def recommend_from_voice(
     payload: VoiceRecommendationRequest,
     current_user_id: str = Depends(get_current_user),
     normalization_service: TextNormalizationService = Depends(get_normalization_service),
+    response_generation_service: ResponseGenerationService = Depends(get_response_generation),
     db: Session = Depends(get_db),
 ) -> VoiceRecommendationResponse:
     """Recommend schemes for an authenticated citizen from a voice query."""
     try:
         normalization = await _resolve_normalization(payload, normalization_service)
         service = VoiceQueryService(db)
-        return service.recommend(
+        recommendation = service.recommend(
             citizen_id=current_user_id,
             normalization=normalization,
             limit=payload.limit,
+        )
+        try:
+            response_text, response_language = response_generation_service.generate(
+                normalization, recommendation
+            )
+        except Exception as exc:  # Presentation failure must not fail a recommendation.
+            logger.exception("Voice response generation failed: %s", exc)
+            response_text, response_language = response_generation_service.fallback(
+                normalization, recommendation
+            )
+        return recommendation.model_copy(
+            update={
+                "response_text": response_text,
+                "response_language": response_language,
+            }
         )
     except AppException as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.to_dict()) from exc

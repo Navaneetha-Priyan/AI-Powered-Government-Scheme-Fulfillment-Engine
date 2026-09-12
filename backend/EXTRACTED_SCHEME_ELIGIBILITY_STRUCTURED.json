@@ -1,0 +1,462 @@
+{
+  "schemes": {
+    "PM-Vishwakarma": {
+      "scheme_id": "PM-Vishwakarma",
+      "scheme_name": "PM Vishwakarma Yojana",
+      "scheme_description": "Artisans and Craftspeople Scheme - Recognition, Skill Upgradation, Toolkit Incentive, Credit Support",
+      "beneficiary_scope": "ARTISAN/CRAFTSPERSON",
+      "beneficiary_description": "Self-employed artisans and craftspeople engaged in traditional family-based trades in unorganized/informal sector",
+      "scheme_type": "CREDIT_LINKED",
+      "covered_trades": [
+        "Carpenter",
+        "Blacksmith",
+        "Boat Maker",
+        "Armourer",
+        "Hammer and Tool Kit Maker",
+        "Locksmith",
+        "Goldsmith",
+        "Potter",
+        "Sculptor/Stone Carver",
+        "Cobbler/Shoesmith",
+        "Mason",
+        "Basket/Mat/Broom Maker",
+        "Doll & Toy Maker",
+        "Barber",
+        "Garland Maker",
+        "Washerman",
+        "Tailor",
+        "Fishing Net Maker"
+      ],
+      "eligibility_criteria": {
+        "age": {
+          "minimum": 18,
+          "maximum": null,
+          "unit": "years",
+          "date_reference": "date_of_registration",
+          "status": "REQUIRED",
+          "source": "Section 4, Para (i)"
+        },
+        "engagement_in_trade": {
+          "required": true,
+          "description": "Must be engaged in specified trade on date of registration",
+          "sector_type": "unorganized/informal",
+          "employment_type": "self_employment",
+          "status": "REQUIRED",
+          "source": "Section 4"
+        },
+        "family_restriction": {
+          "one_per_family": true,
+          "description": "Registration and benefits restricted to one member of family",
+          "family_definition": "Husband, wife, and unmarried children",
+          "status": "REQUIRED",
+          "source": "Section 4, Para (iii)"
+        },
+        "prior_scheme_history": {
+          "no_prior_credit_schemes": true,
+          "description": "Should not have availed loans under similar credit-based central/state schemes for self-employment",
+          "excluded_schemes": ["PMEGP"],
+          "exception_schemes": ["MUDRA", "SVANidhi"],
+          "exception_condition": "Fully repaid their loan; 5-year waiting period from date of sanction",
+          "status": "REQUIRED",
+          "source": "Section 4, Para (ii)"
+        },
+        "government_employment": {
+          "excluded": true,
+          "description": "Person in government service and family members not eligible",
+          "status": "EXCLUSION_CRITERION",
+          "source": "Section 4, Para (iv)"
+        },
+        "citizenship": {
+          "required": "Indian_Citizen",
+          "status": "REQUIRED",
+          "source": "Scheme eligibility"
+        },
+        "gender": {
+          "restriction": "NONE",
+          "women_promotion": true,
+          "description": "Scheme open to both male and female; women empowerment emphasized",
+          "status": "INCLUSIVE"
+        },
+        "income_limit": {
+          "specified": false,
+          "description": "No explicit income ceiling; focus on unorganized sector workers",
+          "status": "NOT_SPECIFIED"
+        },
+        "social_category": {
+          "priority_given": true,
+          "categories": ["SC", "ST", "OBC", "Specially_Abled", "Transgenders"],
+          "special_focus": ["NER_States", "Island_Territories", "Hilly_Areas"],
+          "status": "PREFERRED"
+        },
+        "geographic_scope": {
+          "coverage": "All_India",
+          "rural_urban": "BOTH",
+          "implementation": "Phased_district_saturation",
+          "status": "ALL_INDIA"
+        }
+      },
+      "exclusion_criteria": [
+        {
+          "criterion": "Government Employee",
+          "description": "Person in government service and family members",
+          "status": "PERMANENT_EXCLUSION",
+          "source": "Section 4, Para (iv)"
+        }
+      ],
+      "required_documents": [
+        "Aadhaar_Card/Number",
+        "Mobile_Number",
+        "Bank_Account_Details",
+        "Aadhaar_Seeded_Bank_Account",
+        "Ration_Card_or_Alternative_Address_Proof",
+        "Family_Members_Details"
+      ],
+      "training_requirements": {
+        "skill_assessment": {
+          "mandatory": true,
+          "duration": "Short_Demonstrative",
+          "purpose": "Ascertain_existing_skill_levels"
+        },
+        "basic_training": {
+          "mandatory": true,
+          "duration": "5_7_days",
+          "hours": 40,
+          "content": "Formalization_of_acquired_skills_RPL_and_upgradation",
+          "certification": "NSQF",
+          "eligibility_condition": "For_first_loan_tranche",
+          "stipend": 500,
+          "stipend_unit": "per_day_in_rupees"
+        },
+        "advanced_training": {
+          "optional": true,
+          "duration": "15_days_minimum",
+          "hours": 120,
+          "prerequisite": "Successful_completion_of_basic_training"
+        }
+      },
+      "benefits": [
+        {
+          "benefit_type": "RECOGNITION",
+          "description": "PM Vishwakarma Certificate and ID Card",
+          "digital": true,
+          "physical": true
+        },
+        {
+          "benefit_type": "CREDIT_SUPPORT",
+          "first_tranche": {
+            "amount": 100000,
+            "currency": "INR",
+            "tenure_months": 30
+          },
+          "second_tranche": {
+            "amount": 200000,
+            "currency": "INR",
+            "tenure_months": 30
+          },
+          "interest_rate": 5,
+          "interest_subsidy": 8,
+          "prerequisite": "Completion_of_basic_training"
+        },
+        {
+          "benefit_type": "TOOLKIT_INCENTIVE",
+          "amount": 15000,
+          "currency": "INR",
+          "disbursement": "e_RUPI_voucher",
+          "prerequisite": "After_skill_assessment"
+        },
+        {
+          "benefit_type": "TRAINING_STIPEND",
+          "amount": 500,
+          "currency": "per_day",
+          "coverage": "Basic_and_Advanced_training",
+          "disbursement": "DBT_after_training_completion"
+        },
+        {
+          "benefit_type": "DIGITAL_INCENTIVE",
+          "amount": 1,
+          "currency": "per_transaction",
+          "max_monthly_transactions": 100,
+          "disbursement": "DBT_through_APBS"
+        }
+      ],
+      "application_process": {
+        "mode": ["CSC", "Online_Portal"],
+        "fee": "NO_FEE",
+        "enrollment_location": "Gram_Panchayat_and_Urban_Local_Body_level",
+        "registration_authority": "District_Implementation_Committee"
+      }
+    },
+    "PMAY-U": {
+      "scheme_id": "PMAY-U",
+      "scheme_name": "Pradhan Mantri Awas Yojana - Urban 2.0",
+      "scheme_description": "Urban Housing Scheme - Affordable Housing in Partnership (AHP) for EWS, LIG, MIG",
+      "beneficiary_scope": "URBAN_FAMILY",
+      "beneficiary_description": "Urban poor and middle-class families belonging to EWS, LIG, MIG categories",
+      "scheme_type": "HOUSING",
+      "launch_date": "2024-09-01",
+      "eligibility_criteria": {
+        "geographic_location": {
+          "required": "Urban",
+          "description": "Must reside in urban area under ULB/Municipality",
+          "status": "REQUIRED",
+          "source": "Scheme guidelines"
+        },
+        "income_category": {
+          "categories": ["EWS", "LIG", "MIG"],
+          "description": "Must fall within EWS, LIG, or MIG categories",
+          "defined_by": "State_UT_Government",
+          "status": "REQUIRED",
+          "source": "Section on eligibility"
+        },
+        "housing_status": {
+          "description": "Aimed at urban poor lacking adequate housing",
+          "status": "REQUIRED"
+        },
+        "beneficiary_identification": {
+          "transparent_process": true,
+          "verification_authority": "ULB_Competent_Authority",
+          "status": "REQUIRED"
+        },
+        "citizenship": {
+          "required": "Indian_Citizen",
+          "status": "REQUIRED"
+        },
+        "gender": {
+          "restriction": "NONE",
+          "women_headed_households": "PRIORITY",
+          "status": "INCLUSIVE"
+        },
+        "age": {
+          "specified": false,
+          "assumed": "Adult_family_heads",
+          "status": "NOT_SPECIFIED"
+        },
+        "social_category": {
+          "restriction": "NONE",
+          "description": "Income-based, not caste-based",
+          "status": "INCOME_BASED"
+        }
+      },
+      "exclusion_criteria": [
+        {
+          "criterion": "Prior_Benefit_Recipient",
+          "description": "Persons already availed benefits under AHP project of PMAY-U",
+          "status": "EXCLUSION"
+        },
+        {
+          "criterion": "Income_Above_Ceiling",
+          "description": "Income exceeding EWS/LIG/MIG defined limit",
+          "status": "EXCLUSION"
+        }
+      ],
+      "required_documents": [
+        "Proof_of_Urban_Residence",
+        "Income_Proof_Certificate",
+        "Identity_Proof_Aadhaar_VoterID_PAN",
+        "Family_Composition_Details",
+        "Bank_Account_Details"
+      ],
+      "application_methods": [
+        "PMAY_U_2_0_Unified_Web_Portal",
+        "Common_Service_Centre_CSC",
+        "Direct_ULB_Municipality"
+      ],
+      "house_specifications": {
+        "type": "All_weather_Pucca_House",
+        "carpet_area_sqm": {
+          "minimum": 30,
+          "maximum": 45
+        },
+        "construction_materials": "Sturdy_modern_durable_materials",
+        "basic_amenities": true,
+        "civic_services": true
+      },
+      "benefits": [
+        {
+          "benefit_type": "HOUSING",
+          "description": "Pucca house with basic amenities"
+        },
+        {
+          "benefit_type": "REDEEMABLE_HOUSING_VOUCHER",
+          "description": "RHV provided to EWS beneficiaries"
+        },
+        {
+          "benefit_type": "CENTRAL_ASSISTANCE",
+          "description": "Government provided assistance"
+        },
+        {
+          "benefit_type": "STATE_CONTRIBUTION",
+          "description": "State/UT contribution to projects"
+        }
+      ],
+      "models": [
+        {
+          "model": "PUBLIC_SECTOR",
+          "description": "Construction by public agencies and parastatals",
+          "allocation": "Eligible EWS beneficiaries through transparent process"
+        },
+        {
+          "model": "PPP_PRIVATE",
+          "description": "Private developers on own encumbrance-free land",
+          "structure": "Exclusive EWS in whitelisted projects"
+        }
+      ]
+    },
+    "PMMVY": {
+      "scheme_id": "PMMVY",
+      "scheme_name": "Pradhan Mantri Matru Vandana Yojana",
+      "scheme_description": "Maternity Benefit Scheme for pregnant women and lactating mothers",
+      "beneficiary_scope": "PREGNANT_WOMAN",
+      "beneficiary_description": "Pregnant women and lactating mothers of reproductive age",
+      "scheme_type": "MATERNITY_BENEFIT",
+      "eligibility_criteria": {
+        "gender": {
+          "required": "FEMALE",
+          "status": "REQUIRED",
+          "source": "Scheme definition"
+        },
+        "pregnancy_status": {
+          "required": true,
+          "description": "Must be pregnant during scheme enrollment",
+          "lactation_eligible": true,
+          "status": "REQUIRED"
+        },
+        "age": {
+          "minimum": 18,
+          "maximum": 50,
+          "unit": "years",
+          "description": "Reproductive age group",
+          "status": "REQUIRED",
+          "source": "Age restriction criteria"
+        },
+        "citizenship": {
+          "required": "Indian_Citizen",
+          "status": "REQUIRED"
+        },
+        "income_status": {
+          "income_limit": 50000,
+          "currency": "INR",
+          "note": "Context requires verification - may be annual income",
+          "category_emphasis": "BPL_LowerIncome",
+          "status": "LIKELY_RESTRICTED",
+          "source": "Extraction - needs manual verification"
+        },
+        "marital_status": {
+          "assumed": "Married",
+          "description": "Typical for pregnant women benefits",
+          "status": "LIKELY_REQUIRED"
+        },
+        "social_category": {
+          "all_eligible": true,
+          "emphasis": ["SC", "ST", "OBC"],
+          "status": "INCLUSIVE"
+        },
+        "geographic_scope": {
+          "coverage": "All_India",
+          "emphasis": "RURAL",
+          "status": "ALL_INDIA"
+        }
+      },
+      "exclusion_criteria": [
+        {
+          "criterion": "Income_Above_Ceiling",
+          "description": "Family income exceeding Rs. 50,000 (verify context)",
+          "status": "EXCLUSION"
+        }
+      ],
+      "required_documents": [
+        "Identity_Proof",
+        "Pregnancy_Medical_Certification",
+        "Bank_Account_Details",
+        "Aadhaar_Linked_Account",
+        "Residential_Proof",
+        "Ration_Card"
+      ],
+      "benefit_structure": {
+        "benefit_type": "CASH_TRANSFER",
+        "mode": "Direct_Benefit_Transfer",
+        "coverage": ["During_Pregnancy", "Lactation_Period"],
+        "disbursement": "Multiple_Installments",
+        "banking_requirement": "Aadhaar_Linked_Bank_Account"
+      },
+      "coverage": {
+        "children_covered": "First_Two_Live_Births",
+        "amount_variation": "Varies_by_child_number",
+        "period": "Pregnancy_and_6_months_lactation"
+      },
+      "application_process": {
+        "facilitation": ["ANGANWADI", "Health_Worker", "ASHA_Worker"],
+        "identification": "Community_based",
+        "mode": "Through_health_and_welfare_department"
+      },
+      "integration": [
+        "PM_Jeevan_Jyoti_Bima",
+        "PM_Suraksha_Bima",
+        "Atal_Pension_Yojana",
+        "PM_Shram_Yogi_MaanDhan"
+      ]
+    },
+    "PM-SVANidhi": {
+      "scheme_id": "PM-SVANidhi",
+      "scheme_name": "PM Street Vendor AtmaNirbhar Nidhi",
+      "scheme_description": "Street Vendors Scheme",
+      "beneficiary_scope": "STREET_VENDOR",
+      "scheme_type": "CREDIT_LINKED",
+      "extraction_status": "INCOMPLETE",
+      "extraction_note": "PDF content appears to contain PMAY-U disbursement data. Manual verification required.",
+      "note": "This scheme requires manual PDF review or retrieval of correct scheme guidelines document",
+      "presumed_eligibility": {
+        "beneficiary": "Street vendors and self-employed hawkers",
+        "geographic_scope": "Urban_and_Rural",
+        "employment_type": "Self_employed",
+        "age_presumed": "18_plus",
+        "citizenship": "Indian_Citizen"
+      },
+      "recommendation": "MANUAL_REVIEW_REQUIRED"
+    }
+  },
+  "extraction_metadata": {
+    "extraction_date": "2026-09-11",
+    "extraction_method": "PyMuPDF_PDF_Text_Extraction",
+    "section_identification": "Keyword_based_pattern_matching",
+    "data_sources": [
+      "backend/data/PM_Street_Vendor_AtmaNirbhar_Nidhi_PM_SVANidhi_3.pdf",
+      "backend/data/PM_Vishwakarma_Yojana.pdf",
+      "backend/data/Pradhan_Mantri_Awas_Yojana_-_Urban_PMAY-U_2.pdf",
+      "backend/data/Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf"
+    ],
+    "quality_notes": [
+      "PM-SVANidhi: Content verification needed - PDF may contain wrong content",
+      "PM-Vishwakarma: Comprehensive extraction from 64-page guidelines",
+      "PMAY-U: Complete extraction from 39-page guidelines",
+      "PMMVY: Complete extraction from 119-page guidelines"
+    ]
+  },
+  "schema_notes": {
+    "eligibility_criteria_structure": {
+      "each_criterion_has": [
+        "criterion_name",
+        "requirement_description",
+        "status: REQUIRED/EXCLUSION/CONDITIONAL/PREFERRED/NOT_SPECIFIED",
+        "source: PDF_section_reference"
+      ]
+    },
+    "beneficiary_scope_values": [
+      "INDIVIDUAL",
+      "FAMILY",
+      "ENTERPRISE",
+      "ARTISAN",
+      "STREET_VENDOR",
+      "PREGNANT_WOMAN",
+      "URBAN_FAMILY"
+    ],
+    "status_indicators": [
+      "REQUIRED: Must satisfy for eligibility",
+      "EXCLUSION_CRITERION: If satisfied, applicant is ineligible",
+      "CONDITIONAL: Eligibility depends on other factors",
+      "PREFERRED: Priority given but not required",
+      "NOT_SPECIFIED: Information not found in PDF",
+      "INCLUSIVE: No restriction on this criterion"
+    ]
+  }
+}

@@ -1,0 +1,672 @@
+{
+  "metadata": {
+    "version": 1,
+    "source": "backend/data scheme PDFs",
+    "generated_on": "2026-09-11",
+    "notes": "Foundation catalogue. Rules are conservative and source-traceable; review_required entries must not be used for final eligibility decisions."
+  },
+  "schemes": [
+    {
+      "scheme_id": "pm-kisan",
+      "scheme_name": "PM-KISAN Operational Guidelines",
+      "pdf_filename": "PM-KISAN_Operational_Guidelines.pdf",
+      "beneficiary_scope": "FARMER",
+      "eligibility_available": true,
+      "structured_rules_exist": true,
+      "extraction_status": "structured",
+      "rules": [
+        {
+          "rule_id": "pm-kisan-landholding-farmer",
+          "field": "occupation",
+          "operator": "in",
+          "value": ["farmer", "cultivator"],
+          "rule_type": "ONE_OF",
+          "severity": "mandatory",
+          "profile_field": "profile.occupation",
+          "source": {"document": "PM-KISAN_Operational_Guidelines.pdf", "section_name": "Eligibility", "text": "Landholding farmer families with cultivable land are the target beneficiaries."},
+          "beneficiary_scope": "FARMER"
+        },
+        {
+          "rule_id": "pm-kisan-cultivable-land",
+          "field": "land_type",
+          "operator": "in",
+          "value": ["cultivable", "agricultural"],
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": "land_records.land_type",
+          "source": {"document": "PM-KISAN_Operational_Guidelines.pdf", "section_name": "Eligibility", "text": "Cultivable landholding is required."},
+          "beneficiary_scope": "FARMER"
+        },
+        {
+          "rule_id": "pm-kisan-land-ownership",
+          "field": "land_ownership",
+          "operator": "in",
+          "value": ["owned", "inherited"],
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": "land_records.ownership_type",
+          "source": {"document": "PM-KISAN_Operational_Guidelines.pdf", "section_name": "Eligibility", "text": "Landholding farmer families with cultivable land are the target beneficiaries; institutional landholders are excluded."},
+          "beneficiary_scope": "FARMER"
+        },
+        {
+          "rule_id": "pm-kisan-income-tax-exclusion",
+          "field": "income_tax_payer",
+          "operator": "!=",
+          "value": true,
+          "rule_type": "EXCLUSION",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "PM-KISAN_Operational_Guidelines.pdf", "section_name": "Exclusion categories", "text": "Income tax payers are excluded."},
+          "notes": "Current profile has annual_income/income_category but no income_tax_payer flag.",
+          "beneficiary_scope": "FARMER"
+        }
+      ],
+      "evidence_requirements": ["aadhaar", "land_record", "bank_account"],
+      "missing_profile_fields": ["income_tax_payer", "government_employee_status", "professional_category", "pension_amount"],
+      "notes": "Existing Python rule is broadly aligned but exclusion criteria need dedicated profile fields."
+    },
+    {
+      "scheme_id": "pm-kusum",
+      "scheme_name": "PM-KUSUM Guidelines",
+      "pdf_filename": "PM-KUSUM_Guidelines.pdf",
+      "beneficiary_scope": "MULTI_LEVEL",
+      "eligibility_available": true,
+      "structured_rules_exist": true,
+      "extraction_status": "structured",
+      "rules": [
+        {
+          "rule_id": "pm-kusum-beneficiary-type",
+          "field": "beneficiary_type",
+          "operator": "any_of",
+          "value": ["farmer", "farmer_group", "fpo", "panchayat", "water_user_association"],
+          "rule_type": "ANY_OF",
+          "severity": "mandatory",
+          "profile_field": "profile.occupation",
+          "source": {"document": "PM-KUSUM_Guidelines.pdf", "section_name": "Eligibility", "text": "Farmers, groups of farmers, cooperatives, panchayats, FPOs, and Water User Associations are eligible."},
+          "beneficiary_scope": "MULTI_LEVEL"
+        },
+        {
+          "rule_id": "pm-kusum-land-access",
+          "field": "land_ownership",
+          "operator": "in",
+          "value": ["owned", "leased"],
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": "land_records.ownership_type",
+          "source": {"document": "PM-KUSUM_Guidelines.pdf", "section_name": "Eligibility", "text": "Owned or leased land may be used depending on component."},
+          "beneficiary_scope": "FARMER"
+        }
+      ],
+      "evidence_requirements": ["aadhaar", "land_record", "lease_agreement", "bank_account"],
+      "missing_profile_fields": ["scheme_component", "substation_distance", "solar_pump_requirement"],
+      "notes": "Component-level conditional rules require additional structured fields."
+    },
+    {
+      "scheme_id": "pmfby",
+      "scheme_name": "PMFBY Scheme Document",
+      "pdf_filename": "PMFBY_Scheme_Document.pdf",
+      "beneficiary_scope": "FARMER",
+      "eligibility_available": true,
+      "structured_rules_exist": true,
+      "extraction_status": "structured",
+      "rules": [
+        {
+          "rule_id": "pmfby-farmer-category",
+          "field": "farmer_status",
+          "operator": "==",
+          "value": true,
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": "profile.is_farmer",
+          "source": {"document": "PMFBY_Scheme_Document.pdf", "section_name": "Eligibility", "text": "Loanee, non-loanee, tenant farmers, and sharecroppers growing notified crops are covered."},
+          "notes": "Specific farmer categories and loan status are not fully represented in the current profile.",
+          "beneficiary_scope": "FARMER"
+        },
+        {
+          "rule_id": "pmfby-notified-crop",
+          "field": "crop_type",
+          "operator": "in",
+          "value": ["notified_crop"],
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "PMFBY_Scheme_Document.pdf", "section_name": "Eligibility", "text": "Coverage applies to notified crops for the area and season."},
+          "beneficiary_scope": "FARMER"
+        }
+      ],
+      "evidence_requirements": ["aadhaar", "land_record", "bank_account", "sowing_certificate"],
+      "missing_profile_fields": ["crop_type", "season", "notified_area", "loan_status", "insurable_interest"],
+      "notes": "Existing rule handles farmer and land, but notified crop/season remains missing."
+    },
+    {
+      "scheme_id": "pm-rkvy-pkvy",
+      "scheme_name": "PM-RKVY and PKVY Guidelines",
+      "pdf_filename": "PM-RKVY_and_PKVY_Guidelines.pdf",
+      "beneficiary_scope": "MULTI_LEVEL",
+      "eligibility_available": true,
+      "structured_rules_exist": true,
+      "extraction_status": "structured",
+      "rules": [
+        {
+          "rule_id": "pm-rkvy-pkvy-beneficiary-groups",
+          "field": "farmer_status",
+          "operator": "==",
+          "value": true,
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": "profile.is_farmer",
+          "source": {"document": "PM-RKVY_and_PKVY_Guidelines.pdf", "section_name": "Eligibility", "text": "Small and marginal farmers, FPOs, SHGs, and cooperatives are beneficiary groups for relevant components."},
+          "notes": "Small/marginal/FPO/SHG/cooperative category is not fully represented in the current profile.",
+          "beneficiary_scope": "MULTI_LEVEL"
+        },
+        {
+          "rule_id": "pm-rkvy-pkvy-organic-component",
+          "field": "activity_type",
+          "operator": "conditional",
+          "value": "organic_farming",
+          "rule_type": "CONDITIONAL",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "PM-RKVY_and_PKVY_Guidelines.pdf", "section_name": "Organic farming components", "text": "Cluster-based organic farming and certification conditions apply for organic components."},
+          "when": {"field": "scheme_component", "operator": "==", "value": "organic_farming"},
+          "requirement": {"field": "pgs_certification_or_cluster_membership", "operator": "exists"},
+          "beneficiary_scope": "FARMER"
+        }
+      ],
+      "evidence_requirements": ["aadhaar", "land_record", "bank_account", "pgs_certificate"],
+      "missing_profile_fields": ["farmer_category", "scheme_component", "cluster_membership", "pgs_certification"],
+      "notes": "Component-specific programme; do not evaluate as a universal individual subsidy."
+    },
+    {
+      "scheme_id": "pmfme",
+      "scheme_name": "PMFME Scheme Guidelines",
+      "pdf_filename": "PMFME_Scheme_Guidelines.pdf",
+      "beneficiary_scope": "MICRO_ENTERPRISE",
+      "eligibility_available": true,
+      "structured_rules_exist": true,
+      "extraction_status": "structured",
+      "rules": [
+        {
+          "rule_id": "pmfme-existing-micro-unit",
+          "field": "enterprise_type",
+          "operator": "==",
+          "value": "existing_micro_food_processing_unit",
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "PMFME_Scheme_Guidelines.pdf", "section_name": "Eligibility", "text": "Existing unincorporated micro food processing units are eligible."},
+          "beneficiary_scope": "MICRO_ENTERPRISE"
+        },
+        {
+          "rule_id": "pmfme-age-minimum",
+          "field": "age",
+          "operator": ">=",
+          "value": 18,
+          "rule_type": "THRESHOLD",
+          "severity": "mandatory",
+          "profile_field": "context.age",
+          "source": {"document": "PMFME_Scheme_Guidelines.pdf", "section_name": "Eligibility", "text": "Applicant should be above 18 years."},
+          "beneficiary_scope": "MICRO_ENTERPRISE"
+        },
+        {
+          "rule_id": "pmfme-worker-limit",
+          "field": "worker_count",
+          "operator": "<",
+          "value": 10,
+          "rule_type": "THRESHOLD",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "PMFME_Scheme_Guidelines.pdf", "section_name": "Eligibility", "text": "The micro food processing unit should have fewer than 10 workers."},
+          "beneficiary_scope": "MICRO_ENTERPRISE"
+        }
+      ],
+      "evidence_requirements": ["aadhaar", "bank_account", "education_certificate", "unit_registration"],
+      "missing_profile_fields": ["enterprise_type", "worker_count", "unit_registration", "family_benefit_history"],
+      "notes": "Existing Python rule approximates this through occupation; enterprise fields are still missing."
+    },
+    {
+      "scheme_id": "smam",
+      "scheme_name": "SMAM Operational Guidelines 2025",
+      "pdf_filename": "SMAM_Operational_Guidelines_2025.pdf",
+      "beneficiary_scope": "FARMER",
+      "eligibility_available": true,
+      "structured_rules_exist": true,
+      "extraction_status": "structured",
+      "rules": [
+        {
+          "rule_id": "smam-farmer-beneficiary",
+          "field": "farmer_status",
+          "operator": "==",
+          "value": true,
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": "profile.is_farmer",
+          "source": {"document": "SMAM_Operational_Guidelines_2025.pdf", "section_name": "Eligibility", "text": "Farmers are beneficiaries for mechanization assistance."},
+          "beneficiary_scope": "FARMER"
+        },
+        {
+          "rule_id": "smam-priority-category",
+          "field": "social_category",
+          "operator": "any_of",
+          "value": ["sc", "st", "women", "ne_region", "fra_patta_holder"],
+          "rule_type": "ANY_OF",
+          "severity": "optional",
+          "profile_field": "profile.caste",
+          "source": {"document": "SMAM_Operational_Guidelines_2025.pdf", "section_name": "Beneficiary categories", "text": "SC/ST, women, NE region farmers, and FRA patta holders receive differentiated assistance."},
+          "beneficiary_scope": "FARMER"
+        }
+      ],
+      "evidence_requirements": ["aadhaar", "land_record", "bank_account", "caste_certificate"],
+      "missing_profile_fields": ["equipment_type", "fra_patta_status", "ne_region_status"],
+      "notes": "Priority categories should not be treated as hard exclusions."
+    },
+    {
+      "scheme_id": "midh",
+      "scheme_name": "MIDH Operational Guidelines 2025",
+      "pdf_filename": "MIDH_Operational_Guidelines_2025.pdf",
+      "beneficiary_scope": "MULTI_LEVEL",
+      "eligibility_available": true,
+      "structured_rules_exist": true,
+      "extraction_status": "structured",
+      "rules": [
+        {
+          "rule_id": "midh-horticulture-activity",
+          "field": "activity_type",
+          "operator": "in",
+          "value": ["horticulture_cultivation", "nursery", "post_harvest_management", "cold_chain"],
+          "rule_type": "ONE_OF",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "MIDH_Operational_Guidelines_2025.pdf", "section_name": "Eligibility", "text": "Assistance is for horticulture cultivation, nursery, post-harvest management, and related activities."},
+          "beneficiary_scope": "MULTI_LEVEL"
+        }
+      ],
+      "evidence_requirements": ["aadhaar", "land_record", "bank_account"],
+      "missing_profile_fields": ["horticulture_activity", "crop_type", "project_component"],
+      "notes": "Programme covers individual and collective activities."
+    },
+    {
+      "scheme_id": "pm-vishwakarma",
+      "scheme_name": "PM Vishwakarma Yojana",
+      "pdf_filename": "PM_Vishwakarma_Yojana.pdf",
+      "beneficiary_scope": "ARTISAN",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "structured",
+      "rules": [
+        {
+          "rule_id": "pm-vishwakarma-age-minimum",
+          "field": "age",
+          "operator": ">=",
+          "value": 18,
+          "rule_type": "THRESHOLD",
+          "severity": "mandatory",
+          "profile_field": "context.age",
+          "source": {"document": "PM_Vishwakarma_Yojana.pdf", "section_name": "Eligibility", "text": "Minimum age is 18 years on the date of registration."},
+          "beneficiary_scope": "ARTISAN"
+        },
+        {
+          "rule_id": "pm-vishwakarma-traditional-trade",
+          "field": "occupation",
+          "operator": "in",
+          "value": ["carpenter", "blacksmith", "boat maker", "goldsmith", "potter", "mason", "barber", "tailor", "washerman", "fishing net maker"],
+          "rule_type": "ONE_OF",
+          "severity": "mandatory",
+          "profile_field": "profile.occupation",
+          "source": {"document": "PM_Vishwakarma_Yojana.pdf", "section_name": "Eligibility", "text": "Self-employed artisans and craftspeople in traditional family-based trades are eligible."},
+          "beneficiary_scope": "ARTISAN"
+        },
+        {
+          "rule_id": "pm-vishwakarma-government-service-exclusion",
+          "field": "government_employee_status",
+          "operator": "!=",
+          "value": true,
+          "rule_type": "EXCLUSION",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "PM_Vishwakarma_Yojana.pdf", "section_name": "Eligibility", "text": "Persons in government service and their family members are not eligible."},
+          "beneficiary_scope": "ARTISAN"
+        }
+      ],
+      "evidence_requirements": ["aadhaar", "mobile_number", "bank_account", "ration_card"],
+      "missing_profile_fields": ["traditional_trade", "government_employee_status", "prior_credit_scheme_history", "family_benefit_history"],
+      "notes": "Requires new artisan/trade fields before automated evaluation."
+    },
+    {
+      "scheme_id": "pmay-u",
+      "scheme_name": "Pradhan Mantri Awas Yojana - Urban 2.0",
+      "pdf_filename": "Pradhan_Mantri_Awas_Yojana_-_Urban_PMAY-U_2.pdf",
+      "beneficiary_scope": "FAMILY",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "partial",
+      "rules": [
+        {
+          "rule_id": "pmay-u-urban-residence",
+          "field": "residence_area",
+          "operator": "==",
+          "value": "urban",
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "Pradhan_Mantri_Awas_Yojana_-_Urban_PMAY-U_2.pdf", "section_name": "Eligibility", "text": "Urban families under ULB or municipality areas are the intended beneficiaries."},
+          "beneficiary_scope": "FAMILY"
+        },
+        {
+          "rule_id": "pmay-u-income-category",
+          "field": "income_category",
+          "operator": "in",
+          "value": ["ews", "lig", "mig"],
+          "rule_type": "ONE_OF",
+          "severity": "mandatory",
+          "profile_field": "profile.income_category",
+          "source": {"document": "Pradhan_Mantri_Awas_Yojana_-_Urban_PMAY-U_2.pdf", "section_name": "Eligibility", "text": "EWS, LIG, and MIG families are covered as defined by competent authorities."},
+          "beneficiary_scope": "FAMILY"
+        }
+      ],
+      "evidence_requirements": ["urban_residence_proof", "income_certificate", "identity_proof", "family_details", "bank_account"],
+      "missing_profile_fields": ["urban_rural_residence", "house_ownership_status", "previous_housing_benefit"],
+      "notes": "Family-level housing eligibility; do not evaluate as only an individual profile rule."
+    },
+    {
+      "scheme_id": "pmmvy",
+      "scheme_name": "Pradhan Mantri Matru Vandana Yojana",
+      "pdf_filename": "Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf",
+      "beneficiary_scope": "INDIVIDUAL",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "partial",
+      "rules": [
+        {
+          "rule_id": "pmmvy-gender",
+          "field": "gender",
+          "operator": "==",
+          "value": "female",
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": "citizen.gender",
+          "source": {"document": "Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf", "section_name": "Eligibility", "text": "Pregnant women and lactating mothers are the beneficiaries."},
+          "beneficiary_scope": "INDIVIDUAL"
+        },
+        {
+          "rule_id": "pmmvy-pregnancy-status",
+          "field": "pregnancy_status",
+          "operator": "==",
+          "value": true,
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf", "section_name": "Eligibility", "text": "Pregnant women and lactating mothers are the beneficiaries."},
+          "beneficiary_scope": "INDIVIDUAL"
+        }
+      ],
+      "evidence_requirements": ["identity_proof", "pregnancy_medical_certificate", "bank_account", "aadhaar_linked_account"],
+      "missing_profile_fields": ["pregnancy_status", "lactation_status", "child_birth_order", "maternity_benefit_history"],
+      "notes": "Pregnancy/lactation fields are absent from current profile."
+    },
+    {
+      "scheme_id": "pm-svanidhi",
+      "scheme_name": "PM Street Vendor AtmaNirbhar Nidhi",
+      "pdf_filename": "PM_Street_Vendor_AtmaNirbhar_Nidhi_PM_SVANidhi_3.pdf",
+      "beneficiary_scope": "INDIVIDUAL",
+      "eligibility_available": false,
+      "structured_rules_exist": false,
+      "extraction_status": "manual_review_required",
+      "rules": [],
+      "evidence_requirements": [],
+      "missing_profile_fields": ["street_vendor_status", "vendor_certificate", "urban_local_body_registration"],
+      "notes": "Previous extraction flagged possible wrong PDF content; no machine rule added."
+    },
+    {
+      "scheme_id": "pmjdy",
+      "scheme_name": "Pradhan Mantri Jan Dhan Yojana",
+      "pdf_filename": "Pradhan_Mantri_Jan_Dhan_Yojana_PMJDY_3.pdf",
+      "beneficiary_scope": "INDIVIDUAL",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "partial",
+      "rules": [
+        {
+          "rule_id": "pmjdy-basic-bank-account",
+          "field": "bank_account_status",
+          "operator": "not_exists",
+          "value": "basic_savings_bank_account",
+          "rule_type": "EXCLUSION",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "Pradhan_Mantri_Jan_Dhan_Yojana_PMJDY_3.pdf", "section_name": "Eligibility", "text": "The scheme supports access to a basic savings bank account."},
+          "beneficiary_scope": "INDIVIDUAL"
+        }
+      ],
+      "evidence_requirements": ["identity_proof", "address_proof", "aadhaar"],
+      "missing_profile_fields": ["existing_bank_account", "bank_account_type"],
+      "notes": "One-page source needs manual confirmation before age or other constraints are encoded."
+    },
+    {
+      "scheme_id": "pmksy",
+      "scheme_name": "Pradhan Mantri Krishi Sinchayee Yojana",
+      "pdf_filename": "Pradhan_Mantri_Krishi_Sinchayee_Yojana_PMKSY_2.pdf",
+      "beneficiary_scope": "MULTI_LEVEL",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "partial",
+      "rules": [
+        {
+          "rule_id": "pmksy-agriculture-land",
+          "field": "land_type",
+          "operator": "in",
+          "value": ["agricultural"],
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": "land_records.land_type",
+          "source": {"document": "Pradhan_Mantri_Krishi_Sinchayee_Yojana_PMKSY_2.pdf", "section_name": "Programme coverage", "text": "Irrigation assistance is linked to agricultural land and water-use activities."},
+          "beneficiary_scope": "FARMER"
+        }
+      ],
+      "evidence_requirements": ["land_record", "survey_number", "farmer_registration", "aadhaar"],
+      "missing_profile_fields": ["irrigation_status", "irrigation_command_area", "soil_type"],
+      "notes": "Programme-level and component-specific; avoid blanket individual eligibility."
+    },
+    {
+      "scheme_id": "pmuy",
+      "scheme_name": "Pradhan Mantri Ujjwala Yojana",
+      "pdf_filename": "Pradhan_Mantri_Ujjwala_Yojana_PMUY.pdf",
+      "beneficiary_scope": "FAMILY",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "partial",
+      "rules": [
+        {
+          "rule_id": "pmuy-income-category",
+          "field": "income_category",
+          "operator": "in",
+          "value": ["bpl"],
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": "profile.income_category",
+          "source": {"document": "Pradhan_Mantri_Ujjwala_Yojana_PMUY.pdf", "section_name": "Eligibility", "text": "The scheme targets BPL households and priority poor households."},
+          "beneficiary_scope": "FAMILY"
+        },
+        {
+          "rule_id": "pmuy-existing-lpg-exclusion",
+          "field": "existing_lpg_connection",
+          "operator": "!=",
+          "value": true,
+          "rule_type": "EXCLUSION",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "Pradhan_Mantri_Ujjwala_Yojana_PMUY.pdf", "section_name": "Eligibility", "text": "Households with an existing LPG connection are excluded."},
+          "beneficiary_scope": "FAMILY"
+        }
+      ],
+      "evidence_requirements": ["identity_proof", "address_proof", "ration_card", "aadhaar", "bank_account"],
+      "missing_profile_fields": ["existing_lpg_connection", "secc_status", "household_connection_history"],
+      "notes": "Household-level rule, not simply applicant income."
+    },
+    {
+      "scheme_id": "enam",
+      "scheme_name": "e-NAM National Agriculture Market",
+      "pdf_filename": "e-NAM_National_Agriculture_Market_3.pdf",
+      "beneficiary_scope": "MULTI_LEVEL",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "partial",
+      "rules": [
+        {
+          "rule_id": "enam-beneficiary-type",
+          "field": "beneficiary_type",
+          "operator": "any_of",
+          "value": ["farmer", "trader", "apmc", "farmer_collective"],
+          "rule_type": "ANY_OF",
+          "severity": "mandatory",
+          "profile_field": "profile.occupation",
+          "source": {"document": "e-NAM_National_Agriculture_Market_3.pdf", "section_name": "Beneficiaries", "text": "Farmers, traders, market functionaries, and market institutions participate in the platform."},
+          "beneficiary_scope": "MULTI_LEVEL"
+        }
+      ],
+      "evidence_requirements": ["identity_proof", "address_proof", "farmer_registration", "trader_license"],
+      "missing_profile_fields": ["trader_license_number", "mandi_registration", "authorized_commodity_types", "enam_portal_user_id"],
+      "notes": "Platform/programme eligibility depends on market and state participation."
+    },
+    {
+      "scheme_id": "jjm",
+      "scheme_name": "Jal Jeevan Mission",
+      "pdf_filename": "Jal_Jeevan_Mission.pdf",
+      "beneficiary_scope": "COMMUNITY",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "program_level",
+      "rules": [
+        {
+          "rule_id": "jjm-rural-programme-scope",
+          "field": "programme_area",
+          "operator": "==",
+          "value": "rural",
+          "rule_type": "PROGRAM_LEVEL",
+          "severity": "mandatory",
+          "profile_field": null,
+          "source": {"document": "Jal_Jeevan_Mission.pdf", "section_name": "Mission objective", "text": "The mission focuses on household tap connections in rural areas."},
+          "beneficiary_scope": "COMMUNITY"
+        }
+      ],
+      "evidence_requirements": ["village_baseline_survey", "gram_panchayat_resolution", "household_identification"],
+      "missing_profile_fields": ["rural_urban_residence", "water_access_status", "gram_panchayat_approval"],
+      "notes": "Community/rural infrastructure programme; not a simple individual entitlement rule."
+    },
+    {
+      "scheme_id": "pmay-g",
+      "scheme_name": "PMAY-G Guidelines",
+      "pdf_filename": "PMAY-G_Guidelines.pdf",
+      "beneficiary_scope": "FAMILY",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "review_required",
+      "rules": [],
+      "evidence_requirements": ["housing_status_proof", "identity_proof", "bank_account"],
+      "missing_profile_fields": ["rural_urban_residence", "house_ownership_status", "kutcha_house_status", "previous_housing_benefit"],
+      "notes": "Eligibility details must be reviewed from PDF before adding rules."
+    },
+    {
+      "scheme_id": "nfsa-pds",
+      "scheme_name": "National Food Security Act - Public Distribution System",
+      "pdf_filename": "National_Food_Security_Act_-_Public_Distribution_System_2.pdf",
+      "beneficiary_scope": "FAMILY",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "review_required",
+      "rules": [],
+      "evidence_requirements": ["ration_card", "identity_proof", "residence_proof"],
+      "missing_profile_fields": ["ration_card_category", "household_food_security_status", "priority_household_status"],
+      "notes": "Family/household eligibility needs manual PDF review."
+    },
+    {
+      "scheme_id": "post-matric-scholarship",
+      "scheme_name": "National Scholarship Portal - Post Matric Scholarship SC/ST/OBC",
+      "pdf_filename": "National_Scholarship_Portal_-_Post_Matric_Scholarship_SCSTOBC_2.pdf",
+      "beneficiary_scope": "INDIVIDUAL",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "review_required",
+      "rules": [],
+      "evidence_requirements": ["caste_certificate", "income_certificate", "education_certificate", "bank_account"],
+      "missing_profile_fields": ["student_status", "course_level", "institution_type", "previous_scholarship_history"],
+      "notes": "Student/course conditions must be reviewed before machine evaluation."
+    },
+    {
+      "scheme_id": "saksham-anganwadi-poshan",
+      "scheme_name": "Saksham Anganwadi Poshan 2.0 Guidelines",
+      "pdf_filename": "Saksham_Anganwadi_Poshan_2.0_Guidelines.pdf",
+      "beneficiary_scope": "MULTI_LEVEL",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "review_required",
+      "rules": [],
+      "evidence_requirements": ["anganwadi_registration", "health_record", "identity_proof"],
+      "missing_profile_fields": ["pregnancy_status", "child_age", "anganwadi_registration", "nutrition_status"],
+      "notes": "Includes women/children service delivery; rules need review."
+    },
+    {
+      "scheme_id": "swachh-bharat-gramin",
+      "scheme_name": "Swachh Bharat Mission - Gramin",
+      "pdf_filename": "Swachh_Bharat_Mission_-_Gramin.pdf",
+      "beneficiary_scope": "COMMUNITY",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "review_required",
+      "rules": [],
+      "evidence_requirements": ["household_identification", "gram_panchayat_record"],
+      "missing_profile_fields": ["rural_urban_residence", "toilet_access_status", "sanitation_status"],
+      "notes": "Rural sanitation programme; avoid individual eligibility until PDF rules are reviewed."
+    },
+    {
+      "scheme_id": "free-bus-travel-women-tn",
+      "scheme_name": "Free Bus Travel Scheme for Women TN Government Buses",
+      "pdf_filename": "Free_Bus_Travel_Scheme_for_Women_TN_Government_Buses.pdf",
+      "alternate_pdf_filenames": ["Free_Bus_Travel_Scheme_for_Women_TN_Government_Buses_2.pdf"],
+      "beneficiary_scope": "INDIVIDUAL",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "partial",
+      "rules": [
+        {
+          "rule_id": "free-bus-tn-gender",
+          "field": "gender",
+          "operator": "==",
+          "value": "female",
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": "citizen.gender",
+          "source": {"document": "Free_Bus_Travel_Scheme_for_Women_TN_Government_Buses.pdf", "section_name": "Scheme title", "text": "Free bus travel scheme for women in Tamil Nadu government buses."},
+          "beneficiary_scope": "INDIVIDUAL"
+        },
+        {
+          "rule_id": "free-bus-tn-state",
+          "field": "state",
+          "operator": "==",
+          "value": "Tamil Nadu",
+          "rule_type": "REQUIRED",
+          "severity": "mandatory",
+          "profile_field": "citizen.state",
+          "source": {"document": "Free_Bus_Travel_Scheme_for_Women_TN_Government_Buses.pdf", "section_name": "Scheme title", "text": "Tamil Nadu government bus scheme."},
+          "beneficiary_scope": "INDIVIDUAL"
+        }
+      ],
+      "evidence_requirements": ["identity_proof"],
+      "missing_profile_fields": ["bus_route_type"],
+      "notes": "Duplicate _2 PDF is represented by this canonical entry."
+    },
+    {
+      "scheme_id": "unified-package-insurance",
+      "scheme_name": "Unified Package Insurance Scheme Guidelines",
+      "pdf_filename": "Unified_Package_Insurance_Scheme_Guidelines.pdf",
+      "beneficiary_scope": "FARMER",
+      "eligibility_available": true,
+      "structured_rules_exist": false,
+      "extraction_status": "review_required",
+      "rules": [],
+      "evidence_requirements": ["identity_proof", "bank_account", "insurance_application"],
+      "missing_profile_fields": ["insurance_component", "premium_payment_status", "existing_policy_status"],
+      "notes": "Insurance-specific eligibility needs manual PDF review."
+    }
+  ]
+}

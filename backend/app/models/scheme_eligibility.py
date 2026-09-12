@@ -20,6 +20,57 @@ class EligibilityStatus(str):
     INSUFFICIENT_INFORMATION = "insufficient_information"
 
 
+VALID_BENEFICIARY_SCOPES = {
+    "INDIVIDUAL",
+    "FAMILY",
+    "FARMER",
+    "ARTISAN",
+    "ENTERPRISE",
+    "MICRO_ENTERPRISE",
+    "SHG",
+    "FPO",
+    "COMMUNITY",
+    "STATE_UT",
+    "LOCAL_BODY",
+    "INSTITUTION",
+    "MULTI_LEVEL",
+    "OTHER",
+}
+
+
+VALID_RULE_TYPES = {
+    "REQUIRED",
+    "EXCLUSION",
+    "CONDITIONAL",
+    "ONE_OF",
+    "ANY_OF",
+    "ALL_OF",
+    "THRESHOLD",
+    "DOCUMENT_REQUIRED",
+    "EVIDENCE_REQUIRED",
+    "PROGRAM_LEVEL",
+    "SCHEME_SPECIFIC",
+}
+
+
+VALID_OPERATORS = {
+    "==",
+    "!=",
+    ">",
+    ">=",
+    "<",
+    "<=",
+    "in",
+    "not_in",
+    "exists",
+    "not_exists",
+    "any_of",
+    "all_of",
+    "conditional",
+    "manual_review",
+}
+
+
 class EvidenceSource(BaseModel):
     """Reference to source document evidence for an eligibility criterion."""
 
@@ -33,6 +84,60 @@ class EvidenceSource(BaseModel):
     text: Optional[str] = None
 
 
+class EligibilityRuleSource(BaseModel):
+    """Traceability metadata for one catalogue rule."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    document: str
+    page_number: Optional[int] = None
+    section_name: Optional[str] = None
+    text: Optional[str] = None
+
+
+class StructuredEligibilityRule(BaseModel):
+    """Machine-readable catalogue rule derived from a scheme document.
+
+    ``profile_field`` is optional because some valid scheme requirements are
+    not currently represented by the citizen profile schema. Those are still
+    retained so the catalogue can report missing profile coverage explicitly.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    rule_id: str
+    field: str
+    operator: str
+    value: Optional[Any] = None
+    rule_type: str
+    severity: str = "mandatory"
+    profile_field: Optional[str] = None
+    source: EligibilityRuleSource
+    notes: Optional[str] = None
+    beneficiary_scope: Optional[str] = None
+    when: Optional[dict[str, Any]] = None
+    requirement: Optional[dict[str, Any]] = None
+
+
+class SchemeEligibilityCatalogueEntry(BaseModel):
+    """Canonical catalogue entry for one scheme PDF."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    scheme_id: str
+    scheme_name: str
+    pdf_filename: str
+    alternate_pdf_filenames: List[str] = Field(default_factory=list)
+    beneficiary_scope: str
+    eligibility_available: bool
+    structured_rules_exist: bool = False
+    extraction_status: str = "review_required"
+    rules: List[StructuredEligibilityRule] = Field(default_factory=list)
+    evidence_requirements: List[str] = Field(default_factory=list)
+    missing_profile_fields: List[str] = Field(default_factory=list)
+    notes: Optional[str] = None
+
+
 class SchemeEligibility(BaseModel):
     """Structured eligibility criteria for a single government scheme.
 
@@ -44,6 +149,7 @@ class SchemeEligibility(BaseModel):
 
     scheme_name: str
     scheme_id: str
+    beneficiary_scope: str = "INDIVIDUAL"
 
     # Target beneficiary groups explicitly mentioned
     target_groups: List[str] = Field(default_factory=list)
@@ -91,6 +197,13 @@ class EligibilityConditionResult(BaseModel):
     expected_value: Optional[Any] = None
     evidence: List[EvidenceSource] = Field(default_factory=list)
     mandatory: bool = True
+    rule_id: Optional[str] = None
+    field: Optional[str] = None
+    operator: Optional[str] = None
+    rule_type: Optional[str] = None
+    result: Optional[str] = None
+    notes: Optional[str] = None
+    source_document: Optional[str] = None
 
 
 class EligibilityResult(BaseModel):
@@ -103,6 +216,9 @@ class EligibilityResult(BaseModel):
     failed_conditions: List[EligibilityConditionResult] = Field(default_factory=list)
     missing_information: List[EligibilityConditionResult] = Field(default_factory=list)
     evidence: List[EvidenceSource] = Field(default_factory=list)
+    evidence_requirements: List[str] = Field(default_factory=list)
+    missing_evidence: List[str] = Field(default_factory=list)
+    evaluation_status: str = "evaluated"
     eligibility_percentage: float = 0.0
     mandatory_rules_total: int = 0
     mandatory_rules_passed: int = 0

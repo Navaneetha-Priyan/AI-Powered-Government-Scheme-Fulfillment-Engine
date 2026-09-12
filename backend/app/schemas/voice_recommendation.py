@@ -107,6 +107,14 @@ class VoiceRecommendationResponse(BaseModel):
         default=None,
         description="Human-friendly message for unsupported intents / no results.",
     )
+    response_text: Optional[str] = Field(
+        default=None,
+        description="Generated user-facing response text.",
+    )
+    response_language: Optional[str] = Field(
+        default=None,
+        description="Language of response_text (ta or en).",
+    )
     profile: Optional[VoiceRecommendationProfileView] = Field(
         default=None,
         description="Verified profile returned for profile_query intents.",

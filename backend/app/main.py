@@ -55,6 +55,27 @@ async def lifespan(app: FastAPI):
         logger.error(f"Failed to load speech-to-text model: {str(e)}")
         raise
 
+    # Pre-load the recommendation embedding model (BAAI/bge-m3) once at
+    # startup. Without this, the FIRST POST /api/recommendations/generate
+    # pays a ~33s cold-start (model download + load) while the Flutter
+    # client waits with a 20s receive timeout. The client times out, shows
+    # an error/empty state, and the SECOND tap succeeds only because the
+    # model is already cached by then. Warming up here makes the first
+    # user action behave like the second.
+    try:
+        from app.services.scheme_embedding_service import (
+            get_scheme_embedding_service,
+        )
+
+        embedding_service = get_scheme_embedding_service()
+        app.state.embedding_service = embedding_service
+        await asyncio.to_thread(embedding_service.warm_up)
+        logger.info("Recommendation embedding model warmed up at startup")
+    except Exception as e:
+        # Non-fatal: the service falls back to deterministic embeddings
+        # per request if the model cannot be loaded.
+        logger.warning(f"Embedding warm-up failed (using lazy load): {e}")
+
     yield
 
     # Shutdown

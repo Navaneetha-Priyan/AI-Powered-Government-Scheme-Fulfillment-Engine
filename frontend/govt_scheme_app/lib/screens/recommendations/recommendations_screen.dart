@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/localization/app_strings.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_states.dart';
 import '../../models/recommendation.dart';
@@ -45,6 +46,16 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     await p.generateRecommendations();
   }
 
+  /// Shows the precise timeout message for slow first-time generation
+  /// instead of the generic connectivity text, so users know a retry is
+  /// meaningful (the server keeps working / warms up in the meantime).
+  String _displayError(String raw) {
+    if (raw.toLowerCase().contains('timed out while generating')) {
+      return raw;
+    }
+    return AppStrings.friendlyError(raw);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<RecommendationProvider>(
@@ -68,10 +79,15 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
               ),
             ],
           ),
-          body: p.isLoading && summary == null
+          body: (p.isLoading || p.isRefreshing) && summary == null
               ? const AppLoadingView(message: 'Finding the best schemes for you...')
               : summary == null && p.errorMessage != null
-                  ? AppErrorView(message: p.errorMessage!, onRetry: _generate)
+                  ? AppErrorView(
+                      message: _displayError(p.errorMessage!),
+                      // Retry the load instead of forcing a generate, so the
+                      // button behaves identically on first and second taps.
+                      onRetry: _load,
+                    )
                   : summary == null
                       ? EmptyStateView(
                           message: 'No recommendations yet',
@@ -230,7 +246,15 @@ class _SchemeCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(match.schemeName, style: Theme.of(context).textTheme.titleMedium),
+                        Text(match.schemeName,
+                            softWrap: true,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 4),
+                        _StatusPill(
+                            status: match.eligibilityStatus, color: eligColor),
                         if (isEligible)
                           const Text('Highly Recommended',
                               style: TextStyle(color: Color(0xFF16803C), fontWeight: FontWeight.w700, fontSize: 12)),
@@ -245,23 +269,36 @@ class _SchemeCard extends StatelessWidget {
                 children: [
                   _ScoreChip(label: 'Eligibility', value: '${match.eligibilityPercentage.toStringAsFixed(0)}%', color: eligColor),
                   _ScoreChip(label: 'Match', value: '${match.confidenceScore.toStringAsFixed(0)}%', color: cs.primary),
-                  if (match.estimatedBenefit != null && match.estimatedBenefit!.isNotEmpty)
-                    _BenefitChip(benefit: match.estimatedBenefit!),
                 ],
               ),
-              if (match.recommendationReason != null && match.recommendationReason!.isNotEmpty) ...[
+              // ── Citizen-facing sections (sanitized, wrapped, bounded) ──
+              // Raw retrieval metadata (semantic_query chunks, file refs,
+              // page markers) is intentionally never rendered on the card.
+              if (match.cardReason != null) ...[
                 const SizedBox(height: 12),
-                Text(match.recommendationReason!, maxLines: 2, overflow: TextOverflow.ellipsis,
+                Text('Why you match:',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text(match.cardReason!,
                     style: Theme.of(context).textTheme.bodyMedium),
               ],
-              if (match.matchedRules.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12, runSpacing: 4,
-                  children: match.matchedRules.take(3)
-                      .map((r) => _RuleChip(label: r.displayTitle, passed: r.passed))
-                      .toList(),
-                ),
+              for (final bullet in match.cardMatchBullets)
+                _Bullet(icon: Icons.check_circle_outline, text: bullet),
+              if (match.cardBenefit != null) ...[
+                const SizedBox(height: 10),
+                Text('Benefit:',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text(match.cardBenefit!,
+                    style: Theme.of(context).textTheme.bodyMedium),
+              ],
+              if (match.cardMissingBullets.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text('More information needed:',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 2),
+                for (final bullet in match.cardMissingBullets)
+                  _Bullet(icon: Icons.info_outline_rounded, text: bullet),
               ],
               const SizedBox(height: 12),
               Align(
@@ -284,6 +321,62 @@ class _SchemeCard extends StatelessWidget {
   }
 }
 
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({required this.status, required this.color});
+  final String status;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      // Constrain long statuses so they wrap instead of overflowing.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 220),
+        child: Text(
+          AppFormatters.titleCase(status),
+          softWrap: true,
+          style: TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w700, color: color),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bullet row safe inside narrow cards: icon + expanded wrapped text.
+class _Bullet extends StatelessWidget {
+  const _Bullet({required this.icon, required this.text});
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(icon,
+                size: 15, color: Theme.of(context).colorScheme.primary),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ScoreChip extends StatelessWidget {
   const _ScoreChip({required this.label, required this.value, required this.color});
   final String label, value;
@@ -298,53 +391,36 @@ class _ScoreChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
-      child: Text('$label  $value',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
-    );
-  }
-}
-
-class _BenefitChip extends StatelessWidget {
-  const _BenefitChip({required this.benefit});
-  final String benefit;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1B8A5A).withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF1B8A5A).withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.savings_outlined, size: 13, color: Color(0xFF1B8A5A)),
-          const SizedBox(width: 4),
-          Text(benefit,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF1B8A5A))),
-        ],
+      // Short bounded label only; wraps on narrow screens.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 160),
+        child: Text('$label  $value',
+            softWrap: true,
+            style:
+                TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
       ),
     );
   }
 }
 
-class _RuleChip extends StatelessWidget {
-  const _RuleChip({required this.label, required this.passed});
-  final String label;
-  final bool passed;
+/// Public, testable vertical list of recommendation cards.
+///
+/// Used by widget tests to pump a single card at a fixed narrow width
+/// (e.g. 360px) and assert no overflow + no raw RAG dump.
+class RecommendationsListView extends StatelessWidget {
+  const RecommendationsListView({super.key, required this.matches});
+  final List<RecommendationMatch> matches;
 
   @override
   Widget build(BuildContext context) {
-    final color = passed ? const Color(0xFF16803C) : const Color(0xFF9A6B00);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(passed ? Icons.check_circle_outline : Icons.radio_button_unchecked, size: 14, color: color),
-        const SizedBox(width: 3),
-        Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600)),
-      ],
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: matches.length,
+      itemBuilder: (context, i) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: _SchemeCard(match: matches[i]),
+      ),
     );
   }
 }

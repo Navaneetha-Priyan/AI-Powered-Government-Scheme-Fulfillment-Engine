@@ -54,14 +54,19 @@ class RecommendationProvider extends ChangeNotifier {
     }
 
     final generation = _generation;
-    _isLoading = true;
+    final bool useRefreshPath = refresh && _summary != null;
+    if (useRefreshPath) {
+      _isRefreshing = true;
+    } else {
+      _isLoading = true;
+    }
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final summary = _summary == null
-          ? await _repository.generate()
-          : await _repository.refresh();
+      final summary = useRefreshPath
+          ? await _repository.refresh()
+          : await _repository.generate();
       if (generation != _generation) {
         return null;
       }

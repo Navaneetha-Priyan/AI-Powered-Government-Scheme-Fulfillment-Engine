@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../core/utils/evidence_mapping.dart';
+
 @immutable
 class RecommendationRule {
   const RecommendationRule({
@@ -46,6 +48,15 @@ class RecommendationRule {
       return condition;
     }
     return ruleCode.isEmpty ? 'Rule' : ruleCode;
+  }
+
+  /// Normalized evidence key for mapping (e.g. "identity_proof").
+  String get evidenceKey {
+    for (final candidate in [condition, ruleCode, description ?? '', source ?? '']) {
+      final key = candidate.trim().toLowerCase().replaceAll(' ', '_');
+      if (key.isNotEmpty && RegExp(r'^[a-z0-9_]+$').hasMatch(key)) return key;
+    }
+    return displayTitle.trim().toLowerCase().replaceAll(' ', '_');
   }
 
   bool get looksDocumentRelated {
@@ -104,6 +115,7 @@ class RecommendationMatch {
     this.profileMatchPercentage = 0,
     this.semanticQuery,
     this.createdAt,
+    this.evidenceChecklist = const [],
   });
 
   final String id;
@@ -128,7 +140,198 @@ class RecommendationMatch {
   final String? semanticQuery;
   final DateTime? createdAt;
 
+  /// Backend-computed evidence checklist (source of truth when present).
+  /// Falls back to the local adapter when the payload predates the field.
+  final List<EvidenceChecklistEntry> evidenceChecklist;
+
   bool get isEligible => eligibilityStatus.toLowerCase() == 'eligible';
+
+  /// ── Citizen-facing card fields ──────────────────────────────────────
+  /// The backend keeps returning internal retrieval metadata (raw RAG chunks
+  /// in [semanticQuery], file refs, page markers). The card must never show
+  /// those; these getters expose only concise, sanitized citizen text.
+  /// Full detail remains available via the detail screen / scheme screen.
+
+  /// Short "why you match" summary, or null when nothing citizen-safe exists.
+  String? get cardReason {
+    final clean = _sanitize(reason: recommendationReason);
+    if (clean == null) return null;
+    if (_isNoise(recommendationReason) && clean.length > 120) return null;
+    return clean;
+  }
+
+  /// Short benefit summary for the card, or null.
+  String? get cardBenefit {
+    final est = _sanitize(reason: estimatedBenefit, max: 140);
+    if (est != null && est.isNotEmpty) return est;
+    if (_isNoise(benefits)) return null;
+    return _sanitize(reason: benefits, max: 140);
+  }
+
+  /// Up to 3 short "why you match" bullets (sanitized rule labels).
+  List<String> get cardMatchBullets {
+    final seen = <String>{};
+    final out = <String>[];
+    for (final rule in matchedRules) {
+      final label = _ruleLabel(rule.displayTitle);
+      if (label.isEmpty || seen.contains(label)) continue;
+      seen.add(label);
+      out.add(label);
+      if (out.length >= 3) break;
+    }
+    return out;
+  }
+
+  /// Structured evidence checklist: 1) backend `evidence_checklist` when
+  /// present (source of truth); 2) local adapter over required_documents
+  /// + missing_requirements otherwise. Never exposes raw snake_case keys.
+  List<EvidenceChecklistEntry> get evidenceItems {
+    if (evidenceChecklist.isNotEmpty) return evidenceChecklist;
+    final missingKeys = <String>{};
+    for (final rule in missingRequirements) {
+      final key = rule.evidenceKey;
+      if (key.isNotEmpty) missingKeys.add(key);
+    }
+    for (final doc in requiredDocuments) {
+      if (ruleKeyInMissing(doc)) {
+        missingKeys.add(doc.trim().toLowerCase());
+      }
+    }
+    return resolveEvidenceChecklist(
+      requiredDocuments.map((e) => e.toString()),
+      uploadedDocumentTypes,
+      missingOnly: missingKeys,
+    );
+  }
+
+  /// Document types the citizen already holds (matched uploads only).
+  Set<String> get uploadedDocumentTypes {
+    final out = <String>{};
+    for (final entry in evidenceChecklist) {
+      final matched = entry.matchedDocumentType;
+      if (entry.status == EvidenceStatus.available && matched != null) {
+        out.add(matched.toLowerCase());
+      }
+    }
+    return out;
+  }
+
+  bool ruleKeyInMissing(String doc) => missingRequirements.any(
+        (rule) =>
+            rule.evidenceKey == doc.trim().toLowerCase() ||
+            rule.looksDocumentRelated &&
+                rule.displayTitle.toLowerCase().contains(
+                      doc.trim().toLowerCase().replaceAll('_', ' '),
+                    ),
+      );
+
+  /// Up to 3 short "more information needed" bullets.
+  /// Document-like rules collapse into one entry; internal noise is dropped.
+  List<String> get cardMissingBullets {
+    final seen = <String>{};
+    final out = <String>[];
+    var docEntryAdded = false;
+    for (final rule in missingRequirements) {
+      if (rule.looksDocumentRelated) {
+        if (!docEntryAdded) {
+          docEntryAdded = true;
+          out.add('Supporting document, if applicable');
+        }
+        continue;
+      }
+      final label = _ruleLabel(rule.displayTitle);
+      if (label.isEmpty ||
+          _isNoise(rule.displayTitle) ||
+          seen.contains(label)) {
+        continue;
+      }
+      seen.add(label);
+      out.add(label);
+      if (out.length >= 3) break;
+    }
+    for (final doc in requiredDocuments) {
+      if (out.length >= 3) break;
+      final label = _ruleLabel(doc);
+      if (label.isEmpty || _isNoise(doc) || seen.contains(label)) continue;
+      if (!docEntryAdded) {
+        docEntryAdded = true;
+        seen.add(label);
+        out.add('Supporting document, if applicable');
+      }
+    }
+    return out;
+  }
+
+  static String _ruleLabel(String raw) {
+    var label = raw.replaceAll('_', ' ').replaceAll('\n', ' ').trim();
+    label = label.replaceAll(RegExp(r'\s+'), ' ').trim();
+    label = label.replaceAll(RegExp(r'^[.,;:—\-]+|[.,;:—\-]+$'), '').trim();
+    if (label.isEmpty) return '';
+    const max = 90;
+    if (label.length > max) {
+      var cut = label.substring(0, max);
+      final space = cut.lastIndexOf(' ');
+      if (space > max * 0.6) cut = cut.substring(0, space);
+      label = '$cut…';
+    }
+    return label[0].toUpperCase() + label.substring(1);
+  }
+
+  static String? _sanitize({String? reason, int max = 160}) {
+    var text = (reason ?? '').replaceAll('\n', ' ').trim();
+    if (text.isEmpty) return null;
+    text = text.replaceAll(
+        RegExp(r'[\w\-.]+\.(pdf|docx?|xlsx?|png|jpe?g)\b',
+            caseSensitive: false),
+        '');
+    text = text.replaceAll(
+        RegExp(
+            r'\bpages?\s*\d+(\s*[-–]\s*\d+)?\b|\bpage\s*\d+\b|⋯?\s*Page\s*\d+.*',
+            caseSensitive: false),
+        '');
+    text = text.replaceAll(
+        RegExp(r'\bF\.?\s*No\.?[^,;\n]*|File\s*No\.?[^,;\n]*',
+            caseSensitive: false),
+        '');
+    if (text.length > 120) {
+      text = text.replaceAll(
+          RegExp(
+              r'\b(government (of india|department|ministry)|ministry of|department of|ongoing scheme|guidelines?|operational guidelines?|chunk|section|retrieved|embedding|similarity)\b[^,.;\n]*[.,;]?',
+              caseSensitive: false),
+          '');
+    }
+    text = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    text = text.replaceAll(RegExp(r'^[.,;:—\-]+|[.,;:—\-]+$'), '').trim();
+    if (text.isEmpty) return null;
+    if (text.length <= max) return text;
+    var cut = text.substring(0, max);
+    final space = cut.lastIndexOf(' ');
+    if (space > max * 0.6) cut = cut.substring(0, space);
+    return '$cut…';
+  }
+
+  static bool _isNoise(String? text) {
+    if (text == null || text.trim().isEmpty) return true;
+    if (text.length > 500) return true;
+    if (RegExp(r'[\w\-.]+\.(pdf|docx?|xlsx?|png|jpe?g)\b',
+            caseSensitive: false)
+        .hasMatch(text)) {
+      return true;
+    }
+    final lower = text.toLowerCase();
+    var hits = 0;
+    if (RegExp(r'\bpages?\s*\d+',
+            caseSensitive: false)
+        .hasMatch(text)) {
+      hits++;
+    }
+    if (lower.contains('f.no') || lower.contains('file no')) hits++;
+    if (lower.contains('department of') || lower.contains('ministry of')) {
+      hits++;
+    }
+    if (lower.contains('operational guidelines') && text.length > 120) hits++;
+    return hits >= 1 && text.length > 120;
+  }
 
   factory RecommendationMatch.fromJson(Map<String, dynamic> json) {
     return RecommendationMatch(
@@ -158,6 +361,11 @@ class RecommendationMatch {
       profileMatchPercentage: _toDouble(json['profile_match_percentage']),
       semanticQuery: json['semantic_query']?.toString(),
       createdAt: _parseDate(json['created_at']),
+      evidenceChecklist: (json['evidence_checklist'] as List? ?? const [])
+          .whereType<Map>()
+          .map((item) => EvidenceChecklistEntry.fromJson(
+              Map<String, dynamic>.from(item)))
+          .toList(),
     );
   }
 

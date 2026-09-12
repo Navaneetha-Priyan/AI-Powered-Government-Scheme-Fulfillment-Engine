@@ -27,6 +27,13 @@ class RecommendationRepository {
         if (category != null && category.isNotEmpty) 'category': category,
         if (state != null && state.isNotEmpty) 'state': state,
       },
+      // Recommendation generation runs the full eligibility + ranking
+      // pipeline (and, on a cold server, the one-time embedding-model load).
+      // This is a single long-lived request -- NOT a retry -- so it needs a
+      // generous receive timeout; otherwise the client times out at 20s while
+      // the server is still working, producing the first-tap error/empty
+      // state even though the backend eventually succeeds.
+      receiveTimeout: const Duration(seconds: 90),
     );
     final data = _dataMap(response);
     return RecommendationSummary.fromJson(data);
@@ -45,6 +52,8 @@ class RecommendationRepository {
         if (category != null && category.isNotEmpty) 'category': category,
         if (state != null && state.isNotEmpty) 'state': state,
       },
+      // Same long-running pipeline as generate (see above).
+      receiveTimeout: const Duration(seconds: 90),
     );
     final data = _dataMap(response);
     return RecommendationSummary.fromJson(data);

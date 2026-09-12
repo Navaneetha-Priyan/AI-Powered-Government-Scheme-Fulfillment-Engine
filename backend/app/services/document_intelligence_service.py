@@ -44,7 +44,7 @@ class DocumentIntelligenceService:
     }
     PROFILE_FIELDS = {
         "annual_income", "income_category", "caste", "community", "sub_caste",
-        "farmer_id", "is_farmer", "is_disabled", "disability_type", "disability_percentage",
+        "farmer_id", "is_farmer", "occupation", "is_disabled", "disability_type", "disability_percentage",
         "education_level", "education_institution", "family_member_count",
     }
 
@@ -263,9 +263,12 @@ class DocumentIntelligenceService:
         if record is None:
             record = LandRecord(citizen_id=citizen_id, survey_number=data.get("survey_number"))
             self.db.add(record)
-        for name in ("survey_number", "ownership_type", "patta_number", "village", "taluk", "district", "state"):
+        for name in ("survey_number", "ownership_type", "patta_number", "land_type", "village", "taluk", "district", "state"):
             if data.get(name):
                 setattr(record, name, data[name])
+        unit = data.get("land_area_unit") or data.get("unit")
+        if unit:
+            record.land_area_unit = unit
         if data.get("land_area"):
             record.land_area = float(data["land_area"])
 

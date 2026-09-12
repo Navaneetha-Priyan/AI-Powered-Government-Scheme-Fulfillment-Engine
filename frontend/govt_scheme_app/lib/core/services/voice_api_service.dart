@@ -108,15 +108,34 @@ class VoiceApiService {
   /// schema.
   ///
   /// Throws an [ApiException] (from [ApiService]) when the request fails.
-  Future<VoiceRecommendationResult> recommend(String text) async {
+  Future<VoiceRecommendationResult> recommend(
+    String text, {
+    NormalizationResult? normalization,
+  }) async {
+    final requestData = normalization == null
+        ? <String, dynamic>{'text': text}
+        : <String, dynamic>{
+            'normalization': {
+              'language': normalization.language,
+              'intent': normalization.intent,
+              'normalized_text': normalization.normalizedText,
+              'entities': normalization.entities,
+              'confidence': normalization.confidence,
+              'source': normalization.source,
+            },
+          };
     final response = await apiService.post(
       ApiConstants.voiceRecommend,
-      data: {'text': text},
+      data: requestData,
+      // Recommendation may load embeddings and perform one local Qwen call;
+      // the default 20-second client timeout is too short for a cold start.
+      receiveTimeout: const Duration(seconds: 120),
     );
 
     final payload = response is Map<String, dynamic>
         ? response
         : const <String, dynamic>{};
+    debugPrint('[VOICE] Recommendation response received');
     return VoiceRecommendationResult.fromJson(payload);
   }
 }

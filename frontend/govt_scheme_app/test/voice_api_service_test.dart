@@ -13,6 +13,7 @@ class _FakeApiService extends ApiService {
   final Future<dynamic> Function(String path, Object? data)? postHandler;
   final List<String> postedPaths = [];
   final List<Object?> postedData = [];
+  final List<Duration?> postedTimeouts = [];
 
   @override
   Future<dynamic> post(
@@ -22,6 +23,7 @@ class _FakeApiService extends ApiService {
   }) async {
     postedPaths.add(path);
     postedData.add(data);
+    postedTimeouts.add(receiveTimeout);
     final handler = postHandler;
     if (handler == null) {
       return <String, dynamic>{};
@@ -106,6 +108,27 @@ void main() {
     expect(postedPayload, containsPair('language', 'en'));
     expect(result.answer, contains('PMKSY'));
     expect(result.sources.single.schemeName, 'PMKSY');
+  });
+
+  test('parses the generated voice response and language', () async {
+    final api = _FakeApiService(
+      await _storage(),
+      postHandler: (_, _) async => {
+        'schemes': [],
+        'intent': 'scheme_search',
+        'language': 'ta-en',
+        'response_text': 'விவசாயிகளுக்கான அரசு திட்டங்கள் உள்ளன.',
+        'response_language': 'ta',
+      },
+    );
+    final service = VoiceApiService(apiService: api);
+
+    final result = await service.recommend('enakku farmer scheme irukka?');
+
+    expect(api.postedPaths, contains('/voice/recommend'));
+    expect(api.postedTimeouts.single, const Duration(seconds: 120));
+    expect(result.responseText, 'விவசாயிகளுக்கான அரசு திட்டங்கள் உள்ளன.');
+    expect(result.responseLanguage, 'ta');
   });
 
   test('surfaces normalization failure for the UI state machine', () async {

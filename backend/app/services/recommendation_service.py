@@ -5,6 +5,7 @@ import math
 import re
 import time
 from collections import defaultdict
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Callable, Iterable, Optional
@@ -46,6 +47,7 @@ from app.schemas.recommendation import (
     RecommendationMatchResponse,
     RecommendationSummaryResponse,
 )
+from app.services.eligibility_catalog_service import get_catalogue_entry_for_scheme
 from app.services.eligibility_evaluator import EligibilityEvaluator, get_eligibility_evaluator
 from app.services.government_scheme_service import GovernmentSchemeService
 
@@ -556,6 +558,25 @@ class ExplanationService:
         return " | ".join(fragments)
 
 
+def _missing_key(entry: Any) -> str:
+    """Best-effort raw evidence key for one missing_requirements entry."""
+    if entry is None:
+        return ""
+    if isinstance(entry, str):
+        return _normalize_text(entry).replace(" ", "_")
+    if isinstance(entry, Mapping):
+        for field in ("field", "condition", "rule_code", "code", "description"):
+            value = entry.get(field)
+            if value:
+                return _normalize_text(value).replace(" ", "_")
+        return ""
+    for attr in ("field", "condition", "rule_code", "code", "description"):
+        value = getattr(entry, attr, None)
+        if value:
+            return _normalize_text(value).replace(" ", "_")
+    return ""
+
+
 class RankingService:
     def score(
         self,
@@ -747,7 +768,14 @@ class EligibilityEngineService:
         return 60.0 if len(value) > 20 else 50.0
 
     def _evaluate_candidate(self, context: CitizenContext, candidate: SchemeCandidate, category: str | None = None, state: str | None = None) -> tuple[SchemeRecommendation, list[dict[str, Any]]]:
-        # Try structured eligibility evaluation first
+        # The PDF-derived catalogue is the canonical structured rule source.
+        # scheme_rules.py remains only as a compatibility layer for schemes not
+        # yet mapped into the catalogue.
+        catalogue_entry = get_catalogue_entry_for_scheme(candidate.scheme)
+        if catalogue_entry is not None:
+            return self._evaluate_candidate_structured(context, candidate, catalogue_entry)
+
+        # Try legacy structured eligibility rules next.
         structured_eligibility = get_scheme_eligibility_for_scheme(candidate.scheme)
         
         if structured_eligibility is not None:
@@ -765,13 +793,22 @@ class EligibilityEngineService:
         """Evaluate using structured eligibility rules from scheme PDFs."""
         from app.models.scheme_eligibility import EligibilityStatus
         
-        eligibility_result = self.eligibility_evaluator.evaluate(structured_eligibility, context)
+        if hasattr(structured_eligibility, "rules") and hasattr(structured_eligibility, "pdf_filename"):
+            eligibility_result = self.eligibility_evaluator.evaluate_catalogue_entry(
+                structured_eligibility,
+                context,
+            )
+        else:
+            eligibility_result = self.eligibility_evaluator.evaluate(structured_eligibility, context)
         
         # Map structured result to recommendation fields
         eligibility_status = eligibility_result.status
         eligibility_percentage = eligibility_result.eligibility_percentage
         
-        required_documents = self._extract_required_documents(candidate)
+        required_documents = (
+            list(getattr(eligibility_result, "evidence_requirements", []) or [])
+            or self._extract_required_documents(candidate)
+        )
         estimated_benefit = self._extract_estimated_benefit(candidate)
         profile_match_percentage = self._profile_match_percentage(context)
         document_score = self._document_score(required_documents, context)
@@ -914,14 +951,22 @@ class EligibilityEngineService:
         """Serialize an EligibilityConditionResult for API response."""
         return {
             "condition": condition.condition,
+            "rule_id": condition.rule_id,
+            "field": condition.field,
+            "operator": condition.operator,
+            "rule_type": condition.rule_type,
+            "result": condition.result,
             "passed": condition.passed,
             "actual_value": condition.actual_value,
             "expected_value": condition.expected_value,
             "mandatory": condition.mandatory,
+            "notes": condition.notes,
+            "source_document": condition.source_document,
             "evidence": [
                 {
                     "chunk_id": e.chunk_id,
                     "scheme_id": e.scheme_id,
+                    "document_id": e.document_id,
                     "page_number": e.page_number,
                     "section_name": e.section_name,
                     "text": e.text,
@@ -972,9 +1017,9 @@ class EligibilityEngineService:
             log_rows.append({
                 "scheme_id": scheme_id,
                 "rule_id": None,
-                "rule_code": f"structured-{condition.condition}",
+                "rule_code": condition.rule_id or f"structured-{condition.condition}",
                 "condition": condition.condition,
-                "operator": "structured",
+                "operator": condition.operator or "structured",
                 "expected_value": condition.expected_value,
                 "actual_value": condition.actual_value,
                 "passed": condition.passed,
@@ -982,6 +1027,9 @@ class EligibilityEngineService:
                 "details": {
                     "mandatory": condition.mandatory,
                     "missing": condition in eligibility_result.missing_information,
+                    "result": condition.result,
+                    "rule_type": condition.rule_type,
+                    "source_document": condition.source_document,
                     "evidence_count": len(condition.evidence),
                 },
             })
@@ -1297,11 +1345,43 @@ class EligibilityEngineService:
         return SchemeCandidate(scheme=scheme, semantic_score=float(search_result.get("similarity_score", 0.0) or 0.0), chunks=[search_result], aggregated_text=search_result.get("matched_content") or search_result.get("relevant_content") or "")
 
     def _match_to_response(self, match: CitizenSchemeMatch) -> RecommendationMatchResponse:
-        return RecommendationMatchResponse.model_validate(match)
+        response = RecommendationMatchResponse.model_validate(match)
+        response.evidence_checklist = self._evidence_checklist_for_match(match)
+        return response
 
     def _match_to_response_match(self, match: CitizenSchemeMatch, history_id: str) -> RecommendationMatchResponse:
         if match.history_id != history_id:
             raise RecommendationNotFound(match.id)
+        return self._match_to_response(match)
+
+    def _evidence_checklist_for_match(
+        self, match: CitizenSchemeMatch
+    ) -> list[dict[str, Any]]:
+        """Serialize the centralized evidence checklist for one match.
+
+        Uses the match's own required_documents/missing_requirements plus the
+        citizen's CURRENT uploaded document types (not a stale snapshot), so
+        "Still needed" flips to "available" as soon as the user uploads.
+        Engine requirements are never hidden or weakened here.
+        """
+        from app.services.evidence_mapping_service import (
+            resolve_evidence_checklist,
+        )
+
+        required = [str(d or "") for d in (match.required_documents or [])]
+        missing_entries = match.missing_requirements or []
+        missing_keys = {_missing_key(entry) for entry in missing_entries}
+        missing_keys.discard("")
+        try:
+            uploaded = set(self.context_service.build(match.citizen_id).document_types)
+        except Exception:
+            uploaded = set()
+        checklist = resolve_evidence_checklist(
+            required,
+            uploaded,
+            missing_only=sorted(missing_keys),
+        )
+        return [item.to_dict() for item in checklist]
         return self._match_to_response(match)
 
     def _history_to_response(self, history: RecommendationHistory, matches: list[CitizenSchemeMatch]) -> RecommendationHistoryResponse:

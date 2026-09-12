@@ -92,6 +92,11 @@ class RecommendationMatchResponse(BaseModel):
     semantic_query: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
+    # Centralized evidence checklist (one entry per engine requirement:
+    # document -> upload option(s), profile_info -> profile prompt,
+    # manual -> unsupported/manual evidence). Optional so older cached
+    # payloads still parse; backend always populates it on fresh reads.
+    evidence_checklist: Optional[list[dict[str, Any]]] = None
 
 
 class RecommendationHistoryResponse(BaseModel):

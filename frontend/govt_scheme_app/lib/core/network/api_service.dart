@@ -93,10 +93,16 @@ class ApiService {
   }
 
   bool _isConnectivityIssue(DioException error) {
+    // Only connection-level failures mean "this host is unreachable, try the
+    // next candidate". A receive/send timeout means the server IS reachable
+    // and is still processing (e.g. first recommendation request pays the
+    // embedding-model cold start). Treating those as connectivity issues
+    // makes us silently re-fire non-idempotent POSTs (duplicate
+    // /recommendations/generate) against the next base URL while the first
+    // request is still running server-side -- the exact duplicate-POST
+    // pattern seen in backend logs. Never fall back on those.
     return error.type == DioExceptionType.connectionError ||
-        error.type == DioExceptionType.connectionTimeout ||
-        error.type == DioExceptionType.receiveTimeout ||
-        error.type == DioExceptionType.sendTimeout;
+        error.type == DioExceptionType.connectionTimeout;
   }
 
   Future<dynamic> _executeWithFallback(
@@ -116,6 +122,18 @@ class ApiService {
         return response.data;
       } on DioException catch (error) {
         if (!_isConnectivityIssue(error)) {
+          if (error.type == DioExceptionType.receiveTimeout ||
+              error.type == DioExceptionType.sendTimeout) {
+            // Preserve the timeout cause so the UI can show a meaningful,
+            // retryable message instead of a generic "Request failed".
+            // This is surfaced as a failure -- NOT silently retried -- so
+            // the first tap shows loading, then an error with retry.
+            throw ApiException(
+              message:
+                  'Request timed out while generating recommendations. Please try again.',
+              statusCode: error.response?.statusCode,
+            );
+          }
           throw ApiException.fromResponse(
             statusCode: error.response?.statusCode,
             responseData: error.response?.data,

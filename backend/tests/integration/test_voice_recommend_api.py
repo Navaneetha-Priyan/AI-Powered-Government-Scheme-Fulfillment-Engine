@@ -14,6 +14,8 @@ from fastapi.testclient import TestClient
 
 from app.models.citizen_profile import LandRecord, LandType
 from app.schemas.normalization import NormalizationResult
+from app.schemas.voice_recommendation import VoiceRecommendationResponse
+from app.api import voice_routes
 from app.services import government_scheme_service as scheme_service_module
 
 
@@ -56,8 +58,15 @@ def mock_normalization_service(client: TestClient):
     fake = MagicMock()
     fake.normalize.return_value = _fake_result()
     client.app.state.normalization_service = fake
+    class FakeResponseGenerationService:
+        def generate(self, normalization, recommendation):
+            language = "ta" if normalization.language in {"ta", "ta-en"} else "en"
+            return ("தமிழ் பதில்" if language == "ta" else "English response", language)
+
+    client.app.state.response_generation_service = FakeResponseGenerationService()
     yield
     client.app.state.normalization_service = None
+    client.app.state.response_generation_service = None
 
 
 class FakeSearchService:
@@ -140,6 +149,57 @@ def test_voice_recommend_rejects_no_text(client, auth_headers):
     assert response.status_code == 422
 
 
+def test_response_generation_failure_keeps_recommendation_successful(
+    client, auth_headers, monkeypatch
+):
+    class FakeVoiceQueryService:
+        def __init__(self, db):
+            del db
+
+        def recommend(self, citizen_id, normalization, limit):
+            del citizen_id, normalization, limit
+            return VoiceRecommendationResponse(
+                schemes=[],
+                intent="scheme_search",
+                language="ta",
+                normalized_text="farmer schemes",
+                confidence=0.9,
+                source="llm",
+                message="No eligible schemes matched your current profile.",
+            )
+
+    class BrokenResponseGenerationService:
+        def generate(self, normalization, recommendation):
+            del normalization, recommendation
+            raise RuntimeError("ollama timeout")
+
+        def fallback(self, normalization, recommendation):
+            del normalization, recommendation
+            return "தற்போதுள்ள தகவல்களின் அடிப்படையில் பொருத்தமான அரசு திட்டம் கிடைக்கவில்லை.", "ta"
+
+    monkeypatch.setattr(voice_routes, "VoiceQueryService", FakeVoiceQueryService)
+    client.app.state.response_generation_service = BrokenResponseGenerationService()
+
+    response = client.post(
+        "/voice/recommend",
+        json={
+            "normalization": {
+                "language": "ta",
+                "intent": "scheme_search",
+                "normalized_text": "farmer schemes",
+                "entities": {"occupation": "farmer"},
+                "confidence": 0.9,
+                "source": "llm",
+            }
+        },
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200, response.json()
+    assert response.json()["response_language"] == "ta"
+    assert "பொருத்தமான அரசு திட்டம்" in response.json()["response_text"]
+
+
 def test_voice_recommend_scheme_search(client, test_db, monkeypatch):
     from app.core.jwt import create_access_token
     from app.models.citizen import Citizen
@@ -188,6 +248,8 @@ def test_voice_recommend_scheme_search(client, test_db, monkeypatch):
     assert response.status_code == 200, response.json()
     data = response.json()
     assert data["intent"] == "scheme_search"
+    assert data["response_text"] == "தமிழ் பதில்"
+    assert data["response_language"] == "ta"
     assert len(data["schemes"]) >= 1
     assert data["schemes"][0]["scheme_name"] == "PM Kisan Support"
     assert data["schemes"][0]["eligibility_status"] == "eligible"

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/network/api_exception.dart';
 import '../../core/services/voice_api_service.dart';
 import '../../core/services/voice_recorder_service.dart';
-import '../../models/rag_query.dart';
 
 enum VoicePipelineStage {
   idle,
@@ -162,18 +161,22 @@ class _ChatScreenState extends State<ChatScreen> {
       );
 
       _setStage(VoicePipelineStage.retrieving);
-      final ragResult = await voiceApiService.queryRag(normalizedText);
-      if (ragResult.answer.trim().isEmpty) {
-        _setError("I couldn't find relevant government scheme information.");
-        return;
-      }
+      final recommendation = await voiceApiService.recommend(
+        transcript,
+        normalization: normalization,
+      );
+      final responseText = recommendation.responseText?.trim();
+      final displayText = responseText == null || responseText.isEmpty
+          ? recommendation.message?.trim().isNotEmpty == true
+                ? recommendation.message!.trim()
+                : 'I could not generate a response for this request.'
+          : responseText;
 
       _appendMessage(
         _ChatMessage(
           role: _ChatRole.assistant,
           title: 'Government scheme answer',
-          text: ragResult.answer.trim(),
-          sources: ragResult.sources,
+          text: displayText,
         ),
       );
       _setStage(VoicePipelineStage.completed);
@@ -415,32 +418,6 @@ class _MessageBubble extends StatelessWidget {
               message.text,
               style: theme.textTheme.bodyMedium?.copyWith(color: foreground),
             ),
-            if (message.sources.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(
-                'Sources',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: foreground,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 4),
-              ...message.sources
-                  .take(3)
-                  .map(
-                    (source) => Padding(
-                      padding: const EdgeInsets.only(top: 3),
-                      child: Text(
-                        source.pageNumber == null
-                            ? source.schemeName
-                            : '${source.schemeName} · page ${source.pageNumber}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: foreground,
-                        ),
-                      ),
-                    ),
-                  ),
-            ],
           ],
         ),
       ),
@@ -488,11 +465,9 @@ class _ChatMessage {
     required this.role,
     required this.title,
     required this.text,
-    this.sources = const [],
   });
 
   final _ChatRole role;
   final String title;
   final String text;
-  final List<RagSource> sources;
 }

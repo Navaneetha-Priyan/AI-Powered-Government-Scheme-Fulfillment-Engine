@@ -1,0 +1,754 @@
+{
+  "schemes": {
+    "PMJDY": {
+      "scheme_id": "PMJDY",
+      "scheme_name": "Pradhan Mantri Jan Dhan Yojana",
+      "scheme_type": "BANKING_FINANCIAL_INCLUSION",
+      "description": "Universal Banking & Financial Inclusion Scheme",
+      "beneficiary_scope": "All Adults",
+      "target_population": "UNIVERSAL",
+      "pdf_source": "Pradhan_Mantri_Jan_Dhan_Yojana_PMJDY_3.pdf",
+      "total_pages": 1,
+      "eligibility_rules": {
+        "demographics": {
+          "age": {
+            "type": "REQUIRED",
+            "min": 18,
+            "max": 65,
+            "citizen_profile_field": "age",
+            "validation_function": "18 <= age <= 65"
+          },
+          "citizenship": {
+            "type": "REQUIRED",
+            "value": "INDIAN",
+            "citizen_profile_field": "nationality",
+            "validation_function": "nationality == 'INDIAN'"
+          },
+          "gender": {
+            "type": "PREFERENCE",
+            "values": ["MALE", "FEMALE"],
+            "citizen_profile_field": "gender",
+            "notes": "53% women account holders - preference but not requirement"
+          }
+        },
+        "geographic": {
+          "scope": {
+            "type": "CONDITIONAL_PREFERENCE",
+            "values": ["RURAL", "SEMI_URBAN", "URBAN"],
+            "citizen_profile_field": "location_type",
+            "preference": "RURAL_SEMI_URBAN",
+            "notes": "59% accounts are in rural and semi-urban areas"
+          }
+        },
+        "financial": {
+          "income_limit": {
+            "type": "NOT_REQUIRED",
+            "value": null,
+            "notes": "No income ceiling specified"
+          },
+          "existing_account": {
+            "type": "EXCLUSION",
+            "value": false,
+            "citizen_profile_field": "existing_bank_account",
+            "validation_function": "existing_bank_account == false"
+          }
+        },
+        "digital": {
+          "aadhar_seeding": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "aadhar_number",
+            "validation_function": "aadhar_number IS NOT NULL",
+            "notes": "83% of operative accounts are Aadhaar seeded"
+          },
+          "mobile_linking": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "mobile_number",
+            "validation_function": "mobile_number IS NOT NULL",
+            "notes": "JAM linkage mandatory for digital transactions"
+          }
+        }
+      },
+      "required_documents": [
+        "aadhar_card",
+        "identity_proof",
+        "address_proof",
+        "mobile_number_verification",
+        "photograph"
+      ],
+      "benefits": {
+        "account": "Jan Dhan Account with no minimum balance",
+        "debit_card": "RuPay Debit Card",
+        "overdraft": {
+          "tier_1": "₹2,000 (no conditions)",
+          "tier_2": "₹10,000 (age 18-60 years, revised to 65)"
+        },
+        "insurance": [
+          "Pradhan Mantri Suraksha Bima Yojana (PMSBY): ₹2 lakh accidental",
+          "Pradhan Mantri Jeevan Jyoti Bima Yojana (PMJJBY): Life insurance",
+          "Atal Pension Yojana (APY): Pension scheme"
+        ],
+        "digital_access": "AePS transactions, mobile banking, DBT eligibility"
+      },
+      "exclusion_criteria": [],
+      "page_references": {
+        "age_criteria": 1,
+        "gender_statistics": 1,
+        "geographic_coverage": 1,
+        "benefits": 1
+      }
+    },
+    "PMKSY": {
+      "scheme_id": "PMKSY",
+      "scheme_name": "Pradhan Mantri Krishi Sinchayee Yojana",
+      "scheme_type": "AGRICULTURE_IRRIGATION_INSURANCE",
+      "description": "Crop Insurance & Irrigation Scheme",
+      "beneficiary_scope": "Farmers with Agricultural Land",
+      "target_population": "FARMERS",
+      "pdf_source": "Pradhan_Mantri_Krishi_Sinchayee_Yojana_PMKSY_2.pdf",
+      "total_pages": 19,
+      "eligibility_rules": {
+        "occupational": {
+          "farmer_status": {
+            "type": "REQUIRED",
+            "value": true,
+            "citizen_profile_field": "is_farmer",
+            "validation_function": "is_farmer == true"
+          },
+          "occupation": {
+            "type": "REQUIRED",
+            "value": "FARMER",
+            "citizen_profile_field": "occupation",
+            "validation_function": "occupation == 'FARMER'"
+          },
+          "farmer_registration": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "farmer_id",
+            "validation_function": "farmer_id IS NOT NULL",
+            "notes": "Must be registered with agriculture department"
+          }
+        },
+        "land": {
+          "ownership": {
+            "type": "REQUIRED",
+            "values": ["OWNED", "LEASED"],
+            "citizen_profile_field": "land_records.ownership_type",
+            "validation_function": "land_records.ownership_type IN ('OWNED', 'LEASED')"
+          },
+          "land_area": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "land_records.land_area",
+            "validation_function": "land_records.land_area > 0"
+          },
+          "land_type": {
+            "type": "REQUIRED",
+            "values": ["AGRICULTURAL"],
+            "citizen_profile_field": "land_records.land_type",
+            "validation_function": "land_records.land_type IN ('AGRICULTURAL')",
+            "exclusions": ["WASTELAND", "FOREST", "RESIDENTIAL"]
+          },
+          "survey_number": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "land_records.survey_number",
+            "validation_function": "land_records.survey_number IS NOT NULL"
+          }
+        },
+        "geographic": {
+          "scope": {
+            "type": "REQUIRED",
+            "value": "RURAL",
+            "citizen_profile_field": "location_type",
+            "validation_function": "location_type == 'RURAL'"
+          },
+          "state": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "land_records.state",
+            "validation_function": "land_records.state IS NOT NULL",
+            "notes": "State-specific eligibility and variations"
+          },
+          "district": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "land_records.district",
+            "validation_function": "land_records.district IS NOT NULL",
+            "notes": "District irrigation plan coverage required"
+          },
+          "village": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "land_records.village",
+            "validation_function": "land_records.village IS NOT NULL"
+          },
+          "irrigation_command_area": {
+            "type": "CONDITIONAL",
+            "citizen_profile_field": "land_records.irrigation_status",
+            "validation_function": "land_records.irrigation_status IN ('CANAL', 'IRRIGATED')",
+            "notes": "State-specific - may vary by district"
+          }
+        },
+        "soil_assessment": {
+          "soil_class": {
+            "type": "ASSESSMENT",
+            "citizen_profile_field": "land_records.soil_type",
+            "notes": "SLUSI/NBSS soil class used for yield targeting"
+          },
+          "evapo_transpiration": {
+            "type": "ASSESSMENT",
+            "notes": "PET (Potential Evapo-transpiration) elevation data"
+          }
+        },
+        "demographics": {
+          "age": {
+            "type": "NOT_REQUIRED",
+            "notes": "No specific age limit mentioned"
+          },
+          "gender": {
+            "type": "NOT_REQUIRED",
+            "values": ["MALE", "FEMALE"],
+            "notes": "Both genders eligible"
+          }
+        }
+      },
+      "required_documents": [
+        "land_ownership_proof",
+        "survey_number_certificate",
+        "farmer_registration",
+        "aadhar_card",
+        "soil_survey_report",
+        "agricultural_statistics",
+        "irrigation_command_area_proof",
+        "state_agriculture_certificate"
+      ],
+      "benefits": {
+        "insurance": "Crop failure insurance based on soil productivity",
+        "irrigation_subsidy": "Infrastructure development assistance",
+        "land_productivity": "Soil-based yield improvement programs",
+        "water_management": "Irrigation efficiency support"
+      },
+      "exclusion_criteria": [
+        "No land ownership or lease",
+        "Non-agricultural land usage",
+        "Wasteland or forest land",
+        "Outside irrigation command area (state-specific)"
+      ],
+      "state_specific_variations": {
+        "income_ceiling": "Variable by state",
+        "land_size_requirement": "Variable by state",
+        "irrigation_eligibility": "State agricultural plan dependent"
+      },
+      "page_references": {
+        "farmer_criteria": 2,
+        "land_requirements": 2,
+        "irrigation_eligibility": 3,
+        "geographic_scope": 1
+      }
+    },
+    "PMUY": {
+      "scheme_id": "PMUY",
+      "scheme_name": "Pradhan Mantri Ujjwala Yojana",
+      "scheme_type": "HOUSEHOLD_ENERGY_ACCESS",
+      "description": "LPG Connection Scheme for BPL Households",
+      "beneficiary_scope": "BPL Households, Priority Poor",
+      "target_population": "BPL_HOUSEHOLDS",
+      "pdf_source": "Pradhan_Mantri_Ujjwala_Yojana_PMUY.pdf",
+      "total_pages": 13,
+      "eligibility_rules": {
+        "financial": {
+          "income_category": {
+            "type": "REQUIRED",
+            "value": "BPL",
+            "citizen_profile_field": "income_category",
+            "validation_function": "income_category == 'BPL'",
+            "notes": "SECC (Socio Economic Caste Census) defined BPL status"
+          },
+          "income_ceiling": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "annual_income",
+            "validation_function": "annual_income <= bpl_threshold",
+            "notes": "State-defined BPL threshold"
+          }
+        },
+        "household": {
+          "existing_lpg": {
+            "type": "EXCLUSION",
+            "value": false,
+            "citizen_profile_field": "existing_lpg_connection",
+            "validation_function": "existing_lpg_connection == false",
+            "notes": "No existing LPG connection in same household"
+          },
+          "household_member": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "household_member_count",
+            "validation_function": "household_member_count > 0"
+          }
+        },
+        "verification": {
+          "identity_verification": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "identity_document_type",
+            "validation_function": "identity_document IS NOT NULL"
+          },
+          "ftl_customer": {
+            "type": "CONDITIONAL",
+            "description": "Free Trade LPG customers need only identity proof",
+            "citizen_profile_field": "lpg_customer_type",
+            "validation_function": "identity_proof_only FOR ftl_customers"
+          },
+          "registered_premises": {
+            "type": "CONDITIONAL",
+            "citizen_profile_field": "address_proof",
+            "validation_function": "address_proof IS NOT NULL (except FTL)",
+            "notes": "Not required for FTL customers"
+          }
+        },
+        "geographic": {
+          "scope": {
+            "type": "CONDITIONAL",
+            "values": ["RURAL", "URBAN", "BOTH"],
+            "citizen_profile_field": "location_type",
+            "notes": "National coverage with both rural and urban eligibility"
+          },
+          "state": {
+            "type": "CONDITIONAL",
+            "citizen_profile_field": "state",
+            "notes": "May have state-specific variations"
+          }
+        },
+        "demographics": {
+          "gender": {
+            "type": "PREFERENCE",
+            "values": ["FEMALE"],
+            "citizen_profile_field": "gender",
+            "notes": "Women prioritized but not exclusive"
+          }
+        }
+      },
+      "required_documents": [
+        "identity_proof",
+        "address_proof",
+        "income_certificate_bpl",
+        "aadhar_card",
+        "ration_card",
+        "voter_id",
+        "household_proof",
+        "photograph",
+        "cash_memo_from_distributor"
+      ],
+      "document_count": 47,
+      "benefits": {
+        "free_connection": "First LPG connection free",
+        "deposit_waived": "Reduced/waived deposit for BPL",
+        "first_cylinder": "Free or subsidized first cylinder",
+        "insurance": "Safety and coverage insurance",
+        "transfer_facility": "Easy connection transfer between locations"
+      },
+      "exclusion_criteria": [
+        "APL (Above Poverty Line) households",
+        "Existing LPG connection in household",
+        "Income exceeds BPL limit",
+        "Already received scheme subsidy",
+        "Non-Indian citizens"
+      ],
+      "page_references": {
+        "identity_requirements": "2-3",
+        "address_proof": "2-3",
+        "ftl_customer_conditions": "2-3",
+        "exclusion_criteria": "2-8"
+      }
+    },
+    "ENAM": {
+      "scheme_id": "ENAM",
+      "scheme_name": "e-NAM (National Agriculture Market)",
+      "scheme_type": "AGRICULTURAL_MARKET_PLATFORM",
+      "description": "Agricultural Market Platform for Digital Trading",
+      "beneficiary_scope": "Farmers, Traders, Market Functionaries",
+      "target_population": "FARMERS_TRADERS",
+      "pdf_source": "e-NAM_National_Agriculture_Market_3.pdf",
+      "total_pages": 188,
+      "eligibility_rules": {
+        "occupational": {
+          "beneficiary_type": {
+            "type": "REQUIRED",
+            "values": ["FARMER", "TRADER", "APMC_OFFICIAL", "FARMER_COLLECTIVE"],
+            "citizen_profile_field": "occupation",
+            "validation_function": "occupation IN ('FARMER', 'TRADER')"
+          },
+          "farmer_status": {
+            "type": "REQUIRED_FOR_FARMER_CATEGORY",
+            "value": true,
+            "citizen_profile_field": "is_farmer",
+            "validation_function": "is_farmer == true"
+          },
+          "farmer_registration": {
+            "type": "REQUIRED_FOR_FARMER_CATEGORY",
+            "citizen_profile_field": "farmer_id",
+            "validation_function": "farmer_id IS NOT NULL"
+          },
+          "trader_license": {
+            "type": "REQUIRED_FOR_TRADER_CATEGORY",
+            "citizen_profile_field": "trader_license_number",
+            "validation_function": "trader_license_number IS NOT NULL"
+          }
+        },
+        "market_access": {
+          "mandi_registration": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "enam_mandi_registration",
+            "validation_function": "enam_mandi_registration == true",
+            "notes": "Must be registered with notified e-NAM mandi"
+          },
+          "mandi_type": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "mandi_id",
+            "validation_function": "mandi IS NOTIFIED and mandi.enam_enabled == true"
+          }
+        },
+        "commodity": {
+          "commodity_authorization": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "authorized_commodity_types",
+            "validation_function": "commodity IN enam_authorized_commodities",
+            "notes": "Must trade authorized commodities (28+ types)"
+          }
+        },
+        "state_level": {
+          "state_participation": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "state",
+            "validation_function": "state.enam_enabled == true AND state.marketing_reforms_compliant == true"
+          },
+          "marketing_reforms": {
+            "type": "MANDATORY_PREREQUISITE",
+            "requirements": [
+              "Removal of trade restrictions and middlemen restrictions",
+              "Single point tax collection system",
+              "Level playing field for traders (removal of internal levies)"
+            ],
+            "notes": "All 3 reforms required for state e-NAM eligibility"
+          }
+        },
+        "geographic": {
+          "scope": {
+            "type": "REQUIRED",
+            "value": "RURAL",
+            "citizen_profile_field": "location_type",
+            "validation_function": "location_type == 'RURAL'",
+            "notes": "Agricultural market platform - rural focus"
+          },
+          "state": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "state",
+            "validation_function": "state.marketing_reforms_compliant == true"
+          }
+        },
+        "digital": {
+          "digital_access": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "digital_access_capability",
+            "validation_function": "has_internet OR has_mobile_app_access",
+            "notes": "E-trading platform requires digital access"
+          },
+          "portal_registration": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "enam_portal_user_id",
+            "validation_function": "enam_portal_user_id IS NOT NULL"
+          }
+        }
+      },
+      "required_documents": [
+        "address_proof",
+        "identity_document",
+        "farmer_registration_certificate",
+        "trader_license",
+        "mandi_membership_certificate",
+        "commodity_authorization_certificate",
+        "digital_identity_proof",
+        "portal_registration_confirmation"
+      ],
+      "document_count": 84,
+      "eligible_commodities": [
+        "Raw Cashew nuts",
+        "Agricultural products (28+ commodity types)",
+        "See pages 14-27 for complete authorized commodity list"
+      ],
+      "benefits": {
+        "market_access": "Direct access to national agricultural market",
+        "price_discovery": "Real-time pricing information",
+        "buyer_reach": "Access to multiple buyers across India",
+        "transparency": "Transparent bidding system",
+        "reduced_costs": "Lower transaction costs (no middlemen)",
+        "quality_assurance": "Quality standardization framework",
+        "apmc_support": "Government infrastructure assistance for APMCs",
+        "it_infrastructure": "Computerization and IT support"
+      },
+      "exclusion_criteria": [
+        "States without 3 mandatory marketing reforms",
+        "Non-registered farmers or traders",
+        "Unauthorized commodity types",
+        "Non-notified or non-e-NAM mandis",
+        "Fraud or default history",
+        "No digital access capability"
+      ],
+      "state_specific": "Only operational in e-NAM enabled states with marketing reforms",
+      "page_references": {
+        "beneficiary_scope": "1, 5, 7",
+        "mandi_requirements": "4, 10",
+        "marketing_reforms": 10,
+        "eligible_commodities": "14-27",
+        "digital_platform": 15
+      }
+    },
+    "JJM": {
+      "scheme_id": "JJM",
+      "scheme_name": "Jal Jeevan Mission",
+      "scheme_type": "WATER_SUPPLY_INFRASTRUCTURE",
+      "description": "Household Water Supply Mission for Rural Areas",
+      "beneficiary_scope": "Rural Households Without Safe Water",
+      "target_population": "RURAL_HOUSEHOLDS",
+      "pdf_source": "Jal_Jeevan_Mission.pdf",
+      "total_pages": 96,
+      "eligibility_rules": {
+        "geographic": {
+          "scope": {
+            "type": "REQUIRED",
+            "value": "RURAL",
+            "citizen_profile_field": "location_type",
+            "validation_function": "location_type == 'RURAL'",
+            "notes": "Exclusively rural scheme"
+          },
+          "state": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "state",
+            "validation_function": "state IS DESIGNATED_JJM_STATE"
+          },
+          "district": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "district",
+            "validation_function": "district IS JJM_ACTIVE_DISTRICT",
+            "notes": "Specific districts have JJM coverage"
+          },
+          "village": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "village",
+            "validation_function": "village IN jjm_target_villages"
+          }
+        },
+        "water_access": {
+          "current_water_status": {
+            "type": "REQUIRED",
+            "value": "WITHOUT_SAFE_WATER",
+            "citizen_profile_field": "water_access_status",
+            "validation_function": "water_access_status != 'SAFE_DRINKING_WATER'",
+            "notes": "Village baseline survey required"
+          },
+          "water_infrastructure": {
+            "type": "ASSESSMENT",
+            "citizen_profile_field": "household_infrastructure.water_supply",
+            "notes": "Baseline assessment of existing water infrastructure"
+          }
+        },
+        "household": {
+          "household_member": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "family_member_count",
+            "validation_function": "family_member_count > 0"
+          },
+          "household_type": {
+            "type": "REQUIRED",
+            "values": ["RESIDENTIAL"],
+            "citizen_profile_field": "household_type",
+            "notes": "Individual households as well as public institutions covered"
+          }
+        },
+        "community": {
+          "community_participation": {
+            "type": "CONDITIONAL",
+            "description": "Community must participate in planning and management",
+            "citizen_profile_field": "gram_panchayat_participation",
+            "validation_function": "community_willing_to_participate == true",
+            "notes": "Village Water Committee formation required"
+          },
+          "gram_panchayat_approval": {
+            "type": "REQUIRED",
+            "citizen_profile_field": "gp_approval_status",
+            "validation_function": "gp_approval == true"
+          }
+        },
+        "demographics": {
+          "age": {
+            "type": "NOT_REQUIRED",
+            "values": "ALL",
+            "notes": "All ages covered"
+          },
+          "gender": {
+            "type": "NOT_REQUIRED",
+            "values": ["MALE", "FEMALE"],
+            "notes": "Gender-neutral coverage"
+          }
+        },
+        "occupational": {
+          "occupation_diversity": {
+            "type": "NOT_RESTRICTED",
+            "notes": "All occupations eligible"
+          },
+          "agriculture": {
+            "type": "SECONDARY_BENEFIT",
+            "notes": "Efficient water use in agriculture emphasized"
+          }
+        }
+      },
+      "required_documents": [
+        "household_identification",
+        "district_collector_approval",
+        "gram_panchayat_resolution",
+        "village_baseline_survey",
+        "community_participation_letter",
+        "water_infrastructure_assessment",
+        "address_proof",
+        "household_census_data"
+      ],
+      "document_count": 245,
+      "implementation_framework": {
+        "water_committee": "Village Water Committee for management",
+        "nal_jal_mitra": "Trained water operator (Nal Jal Mitra)",
+        "maintenance": "Community-led operation and maintenance",
+        "tariff": "Tariff collection and sustainability",
+        "monitoring": "Regular water quality testing"
+      },
+      "benefits": {
+        "water_connection": "Individual household water connection",
+        "safe_water": "Access to clean drinking water at home",
+        "time_savings": "Reduced time for water collection (especially women)",
+        "health_improvement": "Reduced water-borne diseases",
+        "sanitation": "Linked with sanitation improvements",
+        "funding": "15th Finance Commission grants",
+        "infrastructure": "Complete water supply infrastructure (pipes, treatment)",
+        "training": "Community water management training",
+        "operation_support": "Operation and maintenance support"
+      },
+      "financial_support": [
+        "15th Finance Commission grants",
+        "VB-G (Village Development Grants)",
+        "State/Central government contributions"
+      ],
+      "exclusion_criteria": [
+        "Urban areas (rural-only scheme)",
+        "Villages with existing safe water supply",
+        "Non-participatory communities",
+        "Communities unwilling to manage systems"
+      ],
+      "community_management": {
+        "village_water_committee": "Elected committee for governance",
+        "female_representation": "At least 50% women representation",
+        "nal_jal_mitras": "Trained water operators for operation",
+        "tariff_collection": "User fee collection for sustainability",
+        "maintenance_fund": "Dedicated operation and maintenance fund"
+      },
+      "page_references": {
+        "geographic_scope": 1,
+        "community_framework": "7, 44",
+        "water_management": "5, 14",
+        "agriculture_efficiency": 51,
+        "implementation_approach": "26-27"
+      }
+    }
+  },
+  "database_schema_mapping": {
+    "citizen_profile_fields_used": [
+      "age",
+      "gender",
+      "nationality",
+      "income_category",
+      "annual_income",
+      "occupation",
+      "is_farmer",
+      "farmer_id",
+      "state",
+      "district",
+      "location_type",
+      "family_member_count",
+      "mobile_number",
+      "aadhar_number",
+      "identity_document_type",
+      "address_proof",
+      "household_member_count"
+    ],
+    "land_records_fields_used": [
+      "land_area",
+      "land_type",
+      "ownership_type",
+      "village",
+      "survey_number",
+      "taluk",
+      "patta_number",
+      "irrigation_status"
+    ],
+    "household_infrastructure_fields": [
+      "water_access_status",
+      "sanitation_status",
+      "existing_lpg_connection"
+    ],
+    "scheme_specific_fields": {
+      "PMJDY": ["existing_bank_account", "aadhar_seeding_status"],
+      "PMKSY": ["farmer_registration", "irrigation_command_area", "soil_type"],
+      "PMUY": ["income_category", "lpg_customer_type"],
+      "ENAM": ["trader_license_number", "enam_mandi_registration", "authorized_commodity_types"],
+      "JJM": ["water_access_status", "gram_panchayat_participation", "gp_approval_status"]
+    }
+  },
+  "validation_rules": {
+    "PMJDY": {
+      "age_check": "18 <= age <= 65",
+      "citizenship_check": "nationality == 'INDIAN'",
+      "aadhar_check": "aadhar_number IS NOT NULL",
+      "mobile_check": "mobile_number IS NOT NULL"
+    },
+    "PMKSY": {
+      "farmer_check": "is_farmer == true",
+      "land_check": "land_area > 0 AND ownership_type IN ('OWNED', 'LEASED')",
+      "location_check": "location_type == 'RURAL'",
+      "state_check": "state.pmksy_enabled == true"
+    },
+    "PMUY": {
+      "income_check": "income_category == 'BPL'",
+      "lpg_check": "existing_lpg_connection == false",
+      "identity_check": "identity_document IS NOT NULL"
+    },
+    "ENAM": {
+      "occupation_check": "occupation IN ('FARMER', 'TRADER')",
+      "registration_check": "enam_portal_registration == true",
+      "state_check": "state.marketing_reforms_compliant == true",
+      "digital_check": "digital_access_capability == true"
+    },
+    "JJM": {
+      "location_check": "location_type == 'RURAL'",
+      "water_check": "water_access_status != 'SAFE_DRINKING_WATER'",
+      "state_check": "state.jjm_enabled == true",
+      "community_check": "community_participation == true"
+    }
+  },
+  "implementation_status": {
+    "extraction_complete": true,
+    "json_schema_ready": true,
+    "database_mapping_ready": true,
+    "validation_rules_defined": true,
+    "backend_integration_ready": "READY"
+  },
+  "metadata": {
+    "extraction_date": "2026-09-11",
+    "extraction_method": "PDF text extraction with pattern matching",
+    "total_schemes_extracted": 5,
+    "total_pages_processed": 317,
+    "extraction_confidence": {
+      "PMJDY": "HIGH",
+      "PMKSY": "MEDIUM",
+      "PMUY": "HIGH",
+      "ENAM": "MEDIUM",
+      "JJM": "MEDIUM-HIGH"
+    },
+    "next_steps": [
+      "Cross-reference with official government portals",
+      "Verify state-wise implementation variations",
+      "Implement dynamic rule engine for scheme eligibility",
+      "Create automated eligibility status tracker",
+      "Build integration with citizen profile update workflow"
+    ]
+  }
+}
