@@ -23,6 +23,32 @@ class AppStrings {
   static const loginAgain = 'Your session has expired. Please sign in again.';
   static const somethingWrong = 'Something went wrong. Please try again.';
 
+  static const completeProfile = 'Complete your profile';
+  static const uploadDocuments = 'Upload documents';
+  static const viewScheme = 'View Scheme';
+
+  static const eligibilityYouMayBeEligible = 'You may be eligible';
+  static const eligibilityMoreInformationNeeded = 'More information needed';
+  static const eligibilityNotCurrentlyEligible = 'You are not currently eligible';
+  static const eligibilityManualVerificationRequired = 'Manual verification required';
+  static const eligibilityInformationNotAvailable = 'Information not available';
+
+  static const eligibilityRequirementSatisfied = 'Requirement satisfied';
+  static const eligibilityRequirementNotSatisfied = 'Requirement not satisfied';
+  static const eligibilityRequirementNotVerified = 'We could not verify this requirement yet';
+
+  static String citizenFieldRelatedLabel(String? description, String ruleCode) {
+    final label = (description ?? ruleCode).trim();
+    if (label.isEmpty) return 'information';
+    return label.replaceAll('_', ' ');
+  }
+
+  static String citizenRequirementLabel(String? description, String ruleCode) {
+    final label = (description ?? ruleCode).trim();
+    if (label.isEmpty) return 'this requirement';
+    return label.replaceAll('_', ' ');
+  }
+
   static String friendlyError(Object error) {
     final text = error.toString().replaceFirst('Exception: ', '').trim();
     final lower = text.toLowerCase();

@@ -1,0 +1,90 @@
+Analyzing govt_scheme_app...                                    
+
+  error - 'summary' isn't a field in the enclosing class - lib\core\presentation\eligibility_presenter.dart:10:5 - initializing_formal_for_non_existent_field
+  error - 'whyYouMatch' isn't a field in the enclosing class - lib\core\presentation\eligibility_presenter.dart:11:5 - initializing_formal_for_non_existent_field
+  error - 'missingInformation' isn't a field in the enclosing class - lib\core\presentation\eligibility_presenter.dart:12:5 - initializing_formal_for_non_existent_field
+  error - Can't have modifier 'static' here - lib\core\presentation\eligibility_presenter.dart:13:3 - extraneous_modifier
+   info - Use the generic function type syntax to declare the parameter 'labelForStatus' - lib\core\presentation\eligibility_presenter.dart:13:10 - use_function_type_syntax_for_parameters
+  error - The parameter 'labelForStatus' can't have a value of 'null' because of its type, but the implicit default value is 'null' - lib\core\presentation\eligibility_presenter.dart:13:17 - missing_default_value_for_parameter
+  error - Expected to find '}' - lib\core\presentation\eligibility_presenter.dart:13:47 - expected_token
+warning - The declaration '_documentLines' isn't referenced - lib\core\presentation\eligibility_presenter.dart:84:14 - unused_element
+warning - The declaration '_buildSummary' isn't referenced - lib\core\presentation\eligibility_presenter.dart:90:8 - unused_element
+warning - The declaration '_ruleSentence' isn't referenced - lib\core\presentation\eligibility_presenter.dart:120:8 - unused_element
+warning - The declaration '_missingProfileSentence' isn't referenced - lib\core\presentation\eligibility_presenter.dart:135:8 - unused_element
+warning - Unnecessary cast - lib\core\presentation\eligibility_presenter.dart:174:10 - unnecessary_cast
+warning - Unnecessary cast - lib\core\presentation\eligibility_presenter.dart:177:10 - unnecessary_cast
+warning - The declaration '_benefitHint' isn't referenced - lib\core\presentation\eligibility_presenter.dart:182:8 - unused_element
+warning - The declaration '_technicalLines' isn't referenced - lib\core\presentation\eligibility_presenter.dart:215:14 - unused_element
+  error - The final variable 'summary' must be initialized - lib\core\presentation\eligibility_presenter.dart:233:16 - final_not_initialized
+  error - The final variable 'whyYouMatch' must be initialized - lib\core\presentation\eligibility_presenter.dart:234:22 - final_not_initialized
+  error - The final variable 'missingInformation' must be initialized - lib\core\presentation\eligibility_presenter.dart:235:22 - final_not_initialized
+  error - The final variable 'missingDocuments' must be initialized - lib\core\presentation\eligibility_presenter.dart:236:22 - final_not_initialized
+  error - The final variable 'benefitHint' must be initialized - lib\core\presentation\eligibility_presenter.dart:237:16 - final_not_initialized
+  error - The final variable 'nextAction' must be initialized - lib\core\presentation\eligibility_presenter.dart:238:16 - final_not_initialized
+  error - The final variable 'technicalDetails' must be initialized - lib\core\presentation\eligibility_presenter.dart:239:22 - final_not_initialized
+  error - The final variable 'isManual' must be initialized - lib\core\presentation\eligibility_presenter.dart:240:14 - final_not_initialized
+  error - The property 'isNotEmpty' can't be unconditionally accessed because the receiver can be 'null' - lib\core\presentation\eligibility_presenter.dart:311:12 - unchecked_use_of_nullable_value
+  error - The method 'contains' can't be unconditionally invoked because the receiver can be 'null' - lib\core\presentation\eligibility_presenter.dart:311:32 - unchecked_use_of_nullable_value
+  error - The method 'contains' can't be unconditionally invoked because the receiver can be 'null' - lib\core\presentation\eligibility_presenter.dart:311:62 - unchecked_use_of_nullable_value
+  error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\core\presentation\eligibility_presenter.dart:312:38 - argument_type_not_assignable
+   info - Use interpolation to compose strings and values - lib\core\presentation\eligibility_presenter.dart:404:12 - prefer_interpolation_to_compose_strings
+warning - The declaration '_nextAction' isn't referenced - lib\core\presentation\eligibility_presenter.dart:409:8 - unused_element
+  error - The name '_nextAction' is already defined - lib\core\presentation\eligibility_presenter.dart:409:8 - duplicate_definition
+warning - The declaration '_forbiddenTokens' isn't referenced - lib\core\presentation\eligibility_presenter.dart:432:7 - unused_element
+  error - The name '_forbiddenTokens' is already defined - lib\core\presentation\eligibility_presenter.dart:432:7 - duplicate_definition
+warning - The declaration '_isClean' isn't referenced - lib\core\presentation\eligibility_presenter.dart:455:6 - unused_element
+  error - The name '_isClean' is already defined - lib\core\presentation\eligibility_presenter.dart:455:6 - duplicate_definition
+warning - The declaration '_emptyClean' isn't referenced - lib\core\presentation\eligibility_presenter.dart:465:8 - unused_element
+  error - The name '_emptyClean' is already defined - lib\core\presentation\eligibility_presenter.dart:465:8 - duplicate_definition
+warning - The declaration '_explainPassed' isn't referenced - lib\core\presentation\eligibility_presenter.dart:506:8 - unused_element
+  error - The name '_explainPassed' is already defined - lib\core\presentation\eligibility_presenter.dart:506:8 - duplicate_definition
+warning - The declaration '_explainMissingProfile' isn't referenced - lib\core\presentation\eligibility_presenter.dart:514:8 - unused_element
+  error - The name '_explainMissingProfile' is already defined - lib\core\presentation\eligibility_presenter.dart:514:8 - duplicate_definition
+warning - The declaration '_explainMissingDocument' isn't referenced - lib\core\presentation\eligibility_presenter.dart:522:8 - unused_element
+  error - The name '_explainMissingDocument' is already defined - lib\core\presentation\eligibility_presenter.dart:522:8 - duplicate_definition
+  error - The library directive must appear before all other directives - lib\core\presentation\eligibility_presenter.dart:537:1 - library_directive_not_first
+   info - Library names are not necessary - lib\core\presentation\eligibility_presenter.dart:537:9 - unnecessary_library_name
+  error - Directives must appear before any declarations - lib\core\presentation\eligibility_presenter.dart:539:1 - directive_after_declaration
+  error - Directives must appear before any declarations - lib\core\presentation\eligibility_presenter.dart:541:1 - directive_after_declaration
+  error - The name 'EligibilityPresentation' is already defined - lib\core\presentation\eligibility_presenter.dart:544:7 - duplicate_definition
+warning - The declaration '_forbiddenTokens' isn't referenced - lib\core\presentation\eligibility_presenter.dart:569:7 - unused_element
+  error - The name '_forbiddenTokens' is already defined - lib\core\presentation\eligibility_presenter.dart:569:7 - duplicate_definition
+warning - The declaration '_isClean' isn't referenced - lib\core\presentation\eligibility_presenter.dart:592:6 - unused_element
+  error - The name '_isClean' is already defined - lib\core\presentation\eligibility_presenter.dart:592:6 - duplicate_definition
+warning - The declaration '_emptyClean' isn't referenced - lib\core\presentation\eligibility_presenter.dart:602:8 - unused_element
+  error - The name '_emptyClean' is already defined - lib\core\presentation\eligibility_presenter.dart:602:8 - duplicate_definition
+  error - The argument type 'String' can't be assigned to the parameter type 'EligibilityCheck'.  - lib\core\presentation\eligibility_presenter.dart:636:34 - argument_type_not_assignable
+  error - The argument type 'bool' can't be assigned to the parameter type 'List<String>'.  - lib\core\presentation\eligibility_presenter.dart:636:42 - argument_type_not_assignable
+  error - The argument type 'bool' can't be assigned to the parameter type 'List<String>'.  - lib\core\presentation\eligibility_presenter.dart:637:7 - argument_type_not_assignable
+  error - The named parameter 'summary' is required, but there's no corresponding argument - lib\core\presentation\eligibility_presenter.dart:646:10 - missing_required_argument
+  error - The named parameter 'missingDocuments' isn't defined - lib\core\presentation\eligibility_presenter.dart:651:5 - undefined_named_parameter
+  error - The named parameter 'benefitSummary' isn't defined - lib\core\presentation\eligibility_presenter.dart:652:5 - undefined_named_parameter
+  error - The named parameter 'nextAction' isn't defined - lib\core\presentation\eligibility_presenter.dart:653:5 - undefined_named_parameter
+  error - The named parameter 'rawEligibility' isn't defined - lib\core\presentation\eligibility_presenter.dart:654:5 - undefined_named_parameter
+  error - The library directive must appear before all other directives - lib\core\presentation\eligibility_presenter.dart:674:1 - library_directive_not_first
+  error - Directives must appear before any declarations - lib\core\presentation\eligibility_presenter.dart:675:1 - directive_after_declaration
+  error - The name 'EligibilityPresentation' is already defined - lib\core\presentation\eligibility_presenter.dart:707:7 - duplicate_definition
+  error - The getter 'fieldName' isn't defined for the type 'EligibilityRuleResult' - lib\core\presentation\eligibility_presenter.dart:799:30 - undefined_getter
+  error - The named parameter 'summary' is required, but there's no corresponding argument - lib\core\presentation\eligibility_presenter.dart:810:10 - missing_required_argument
+  error - The named parameter 'statusTone' isn't defined - lib\core\presentation\eligibility_presenter.dart:813:5 - undefined_named_parameter
+  error - The named parameter 'missingDocuments' isn't defined - lib\core\presentation\eligibility_presenter.dart:816:5 - undefined_named_parameter
+  error - The named parameter 'benefitSummary' isn't defined - lib\core\presentation\eligibility_presenter.dart:817:5 - undefined_named_parameter
+  error - The named parameter 'detailedInformation' isn't defined - lib\core\presentation\eligibility_presenter.dart:818:5 - undefined_named_parameter
+warning - The declaration '_StatusEntry' isn't referenced - lib\core\presentation\eligibility_presenter.dart:823:7 - unused_element
+  error - A value of type 'String' can't be returned from the function '_labelForField' because it has a return type of 'Map<String, String>' - lib\core\presentation\eligibility_presenter.dart:832:10 - return_of_invalid_type
+warning - The value of the local variable 'raw' isn't used - lib\core\presentation\eligibility_presenter.dart:855:9 - unused_local_variable
+  error - The getter 'displayText' isn't defined for the type 'EligibilityRuleResult' - lib\core\presentation\eligibility_presenter.dart:855:20 - undefined_getter
+  error - The getter 'fieldName' isn't defined for the type 'EligibilityRuleResult' - lib\core\presentation\eligibility_presenter.dart:856:25 - undefined_getter
+  error - The getter 'result' isn't defined for the type 'EligibilityRuleResult' - lib\core\presentation\eligibility_presenter.dart:859:12 - undefined_getter
+  error - The getter 'result' isn't defined for the type 'EligibilityRuleResult' - lib\core\presentation\eligibility_presenter.dart:872:12 - undefined_getter
+  error - The getter 'result' isn't defined for the type 'EligibilityRuleResult' - lib\core\presentation\eligibility_presenter.dart:885:12 - undefined_getter
+  error - The getter 'result' isn't defined for the type 'EligibilityRuleResult' - lib\core\presentation\eligibility_presenter.dart:892:12 - undefined_getter
+  error - The getter 'result' isn't defined for the type 'EligibilityRuleResult' - lib\core\presentation\eligibility_presenter.dart:899:12 - undefined_getter
+  error - The getter 'fieldName' isn't defined for the type 'EligibilityRuleResult' - lib\core\presentation\eligibility_presenter.dart:914:17 - undefined_getter
+  error - The argument type 'Object' can't be assigned to the parameter type 'String'.  - lib\core\presentation\eligibility_presenter.dart:916:15 - argument_type_not_assignable
+  error - The argument type 'Object' can't be assigned to the parameter type 'String'.  - lib\core\presentation\eligibility_presenter.dart:917:13 - argument_type_not_assignable
+  error - The function 'conditionResultLabel' isn't defined - lib\core\presentation\eligibility_presenter.dart:918:18 - undefined_function
+  error - The getter 'result' isn't defined for the type 'EligibilityRuleResult' - lib\core\presentation\eligibility_presenter.dart:918:44 - undefined_getter
+  error - The getter 'sourceDocument' isn't defined for the type 'EligibilityRuleResult' - lib\core\presentation\eligibility_presenter.dart:919:26 - undefined_getter
+
+86 issues found. (ran in 2.5s)

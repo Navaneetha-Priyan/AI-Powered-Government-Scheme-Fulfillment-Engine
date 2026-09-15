@@ -264,12 +264,15 @@ class _SchemeCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 14),
-              Wrap(
-                spacing: 8, runSpacing: 8,
-                children: [
-                  _ScoreChip(label: 'Eligibility', value: '${match.eligibilityPercentage.toStringAsFixed(0)}%', color: eligColor),
-                  _ScoreChip(label: 'Match', value: '${match.confidenceScore.toStringAsFixed(0)}%', color: cs.primary),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  '${cardStatusLine(match.eligibilityStatus)}',
+                  softWrap: true,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                ),
               ),
               // ── Citizen-facing sections (sanitized, wrapped, bounded) ──
               // Raw retrieval metadata (semantic_query chunks, file refs,
@@ -375,6 +378,13 @@ class _Bullet extends StatelessWidget {
       ),
     );
   }
+}
+
+String cardStatusLine(String statusLabel) {
+  if (statusLabel.isEmpty || statusLabel.toLowerCase() == 'unknown') {
+    return 'View scheme details';
+  }
+  return statusLabel;
 }
 
 class _ScoreChip extends StatelessWidget {

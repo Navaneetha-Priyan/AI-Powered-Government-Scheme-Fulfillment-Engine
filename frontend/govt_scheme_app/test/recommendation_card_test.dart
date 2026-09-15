@@ -11,15 +11,18 @@ RecommendationMatch _cardMatch({
   List<RecommendationRule> matched = const [],
   List<RecommendationRule> missing = const [],
   List<String> docs = const [],
+  String eligibilityStatus = 'potentially_eligible',
+  double eligibilityPercentage = 72,
+  double confidenceScore = 68,
   String? semanticQuery,
 }) {
   return RecommendationMatch(
     id: 'rec-1',
     schemeId: 'scheme-1',
     schemeName: schemeName,
-    eligibilityStatus: 'potentially_eligible',
-    eligibilityPercentage: 72,
-    confidenceScore: 68,
+    eligibilityStatus: eligibilityStatus,
+    eligibilityPercentage: eligibilityPercentage,
+    confidenceScore: confidenceScore,
     rankingPosition: 1,
     recommendationReason: reason,
     estimatedBenefit: estimatedBenefit,
@@ -89,8 +92,28 @@ void main() {
     );
   });
 
-  testWidgets('recommendation list does not overflow on narrow screen',
-      (tester) async {
+  test('recommendation card never shows raw retrieval/match percentages', () {
+    final m = _cardMatch(
+      eligibilityStatus: 'more_information_needed',
+      eligibilityPercentage: 55,
+      confidenceScore: 58,
+    );
+    // Backend still carries raw numeric metrics, but the card helper must not
+    // leak them as citizen-facing percentages or technical labels.
+    final line = cardStatusLine(m.eligibilityStatus);
+    expect(line, 'More information needed');
+    expect(line, isNot(contains('%')));
+    expect(line.toLowerCase(), isNot(contains('match')));
+    expect(line.toLowerCase(), isNot(contains('eligibility')));
+  });
+
+  test('narrow screen summary line falls back for empty/unknown status', () {
+    expect(cardStatusLine(''), 'View scheme details');
+    expect(cardStatusLine('unknown'), 'View scheme details');
+    expect(cardStatusLine('Potentially Eligible'), 'Potentially Eligible');
+  });
+
+  testWidgets('recommendation list does not overflow on narrow screen', (tester) async {
     final matches = [
       _cardMatch(
         schemeName:
@@ -100,6 +123,7 @@ void main() {
             'Support related to agricultural machinery and equipment for eligible farmers.',
         matched: [_rule('You are registered as a farmer')],
         missing: [_rule('Priority category')],
+        eligibilityStatus: 'potentially_eligible',
         semanticQuery: 'RAW CHUNK smam-guidelines.pdf Page 37 F.No. 13 ... ' * 20,
       ),
     ];
@@ -122,5 +146,9 @@ void main() {
     // …but raw retrieval dump never rendered on the card.
     expect(find.textContaining('RAW CHUNK'), findsNothing);
     expect(find.textContaining('.pdf'), findsNothing);
+    // Technical percentage chips must not appear.
+    expect(find.textContaining('Eligibility'), findsNothing);
+    expect(find.textContaining('Match 68'), findsNothing);
+    expect(find.textContaining('55%'), findsNothing);
   });
 }
