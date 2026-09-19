@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../core/utils/evidence_mapping.dart';
+import '../core/utils/presentation_text.dart';
 
 @immutable
 class RecommendationRule {
@@ -14,6 +15,9 @@ class RecommendationRule {
     this.priority,
     this.description,
     this.source,
+    this.result = '',
+    this.notes,
+    this.mandatory = true,
   });
 
   final String ruleCode;
@@ -26,9 +30,20 @@ class RecommendationRule {
   final String? description;
   final String? source;
 
+  /// Structured evaluator result: PASS / FAIL / UNKNOWN / NOT_APPLICABLE.
+  /// Empty for legacy payloads, which only carry [passed].
+  final String result;
+
+  /// Curated citizen-facing explanation emitted by the catalogue evaluator.
+  final String? notes;
+
+  /// Whether failing this condition blocks eligibility. Legacy payloads
+  /// without a `mandatory` key default to true (conservative).
+  final bool mandatory;
+
   factory RecommendationRule.fromJson(Map<String, dynamic> json) {
     return RecommendationRule(
-      ruleCode: (json['rule_code'] ?? '').toString(),
+      ruleCode: (json['rule_code'] ?? json['rule_id'] ?? '').toString(),
       condition: (json['condition'] ?? '').toString(),
       operator: (json['operator'] ?? '').toString(),
       expectedValue: json['expected_value'],
@@ -37,8 +52,35 @@ class RecommendationRule {
       priority: int.tryParse(json['priority']?.toString() ?? ''),
       description: json['description']?.toString(),
       source: json['source']?.toString(),
+      result: (json['result'] ?? '').toString(),
+      notes: json['notes']?.toString(),
+      mandatory: json['mandatory'] != false &&
+          (json['severity']?.toString() ?? '') != 'optional',
     );
   }
+
+  /// Normalized condition result used by the presentation layer.
+  ///
+  /// Legacy payloads (no `result`) fall back to the `passed` flag plus the
+  /// missing-value heuristic: an unfilled condition cannot fail, it is
+  /// simply unknown.
+  String get effectiveResult {
+    final r = result.trim().toUpperCase();
+    if (r.isNotEmpty) return r;
+    if (passed) return 'PASS';
+    return hasMissingProfileValue ? 'UNKNOWN' : 'FAIL';
+  }
+
+  bool get isConditionPass => effectiveResult == 'PASS';
+
+  bool get isConditionUnknown => effectiveResult == 'UNKNOWN';
+
+  bool get isConditionFail => effectiveResult == 'FAIL';
+
+  /// Whether this condition participates in the "N of M conditions met"
+  /// citizen summary (mandatory and actually evaluated).
+  bool get isConditionCountable =>
+      mandatory && effectiveResult != 'NOT_APPLICABLE';
 
   String get displayTitle {
     if ((description ?? '').isNotEmpty) {
@@ -60,7 +102,9 @@ class RecommendationRule {
   }
 
   bool get looksDocumentRelated {
-    final text = '$ruleCode $condition $description $source'.toLowerCase();
+    final text = '$ruleCode $condition $description $source'
+        .toLowerCase()
+        .replaceAll('_', ' ');
     return text.contains('document') ||
         text.contains('aadhaar') ||
         text.contains('certificate') ||
@@ -116,6 +160,11 @@ class RecommendationMatch {
     this.semanticQuery,
     this.createdAt,
     this.evidenceChecklist = const [],
+    this.mandatoryRulesTotal = 0,
+    this.mandatoryRulesPassed = 0,
+    this.displayName,
+    this.shortDescription,
+    this.benefitsList = const [],
   });
 
   final String id;
@@ -144,6 +193,47 @@ class RecommendationMatch {
   /// Falls back to the local adapter when the payload predates the field.
   final List<EvidenceChecklistEntry> evidenceChecklist;
 
+  /// Backend-computed citizen-presentable condition counts ("N of M
+  /// conditions met"). 0 means the backend predates the field; the local
+  /// rule lists are used instead.
+  final int mandatoryRulesTotal;
+  final int mandatoryRulesPassed;
+
+  /// ── Structured citizen presentation (from curated presentation metadata) ──
+  /// `displayName` is a clean human-readable scheme name; `shortDescription`
+  /// is a short citizen-friendly summary; `benefitsList` holds short benefit
+  /// bullets. All are grounded in the scheme source PDFs (curated on the
+  /// backend) — raw PDF extraction is never delivered in these fields.
+  final String? displayName;
+  final String? shortDescription;
+  final List<String> benefitsList;
+
+  /// Safe fallback when no clean presentation summary exists.
+  static const String aboutFallback =
+      'Information about this scheme is being prepared.';
+
+  /// Clean name for headings/cards. Falls back to the raw backend scheme
+  /// name (which is a short catalog title, not PDF extraction).
+  String get displayTitle {
+    final clean = _sanitize(reason: displayName, max: 120);
+    if (clean != null && clean.isNotEmpty) return clean;
+    return schemeName;
+  }
+
+  /// Citizen-safe short description for "About this scheme", or null when
+  /// nothing clean exists (callers then show [aboutFallback]). Corrupted /
+  /// PDF-extraction content is rejected outright — raw `description` and RAG
+  /// `matched_content`/`relevant_content` are never used as a fallback.
+  String? get cleanShortDescription =>
+      cleanPresentationText(shortDescription, max: 400);
+
+  /// Sanitized benefit bullets from the curated presentation metadata.
+  /// Invalid/noisy bullets are dropped; when none remain the list is empty and
+  /// callers omit the benefits section. Raw `benefits` / RAG content is never
+  /// used as a fallback.
+  List<String> get benefitBullets =>
+      cleanPresentationList(benefitsList, max: 300);
+
   bool get isEligible => eligibilityStatus.toLowerCase() == 'eligible';
 
   /// ── Citizen-facing card fields ──────────────────────────────────────
@@ -161,6 +251,11 @@ class RecommendationMatch {
   }
 
   /// Short benefit summary for the card, or null.
+  ///
+  /// NOTE: this is derived from the legacy backend `estimated_benefit` /
+  /// `benefits` columns, which can contain raw extraction text. It must NOT be
+  /// rendered in a citizen-facing benefits section — use [benefitBullets]
+  /// (curated presentation metadata) instead.
   String? get cardBenefit {
     final est = _sanitize(reason: estimatedBenefit, max: 140);
     if (est != null && est.isNotEmpty) return est;
@@ -168,13 +263,14 @@ class RecommendationMatch {
     return _sanitize(reason: benefits, max: 140);
   }
 
-  /// Up to 3 short "why you match" bullets (sanitized rule labels).
+  /// Up to 3 short "why you match" bullets using citizen-safe labels
+  /// (curated notes → evidence-mapping labels → sanitized titles).
   List<String> get cardMatchBullets {
     final seen = <String>{};
     final out = <String>[];
     for (final rule in matchedRules) {
-      final label = _ruleLabel(rule.displayTitle);
-      if (label.isEmpty || seen.contains(label)) continue;
+      final label = _citizenBulletLabel(rule);
+      if (label == null || label.isEmpty || seen.contains(label)) continue;
       seen.add(label);
       out.add(label);
       if (out.length >= 3) break;
@@ -209,7 +305,7 @@ class RecommendationMatch {
     final out = <String>{};
     for (final entry in evidenceChecklist) {
       final matched = entry.matchedDocumentType;
-      if (entry.status == EvidenceStatus.available && matched != null) {
+      if (entry.status.isHeld && matched != null) {
         out.add(matched.toLowerCase());
       }
     }
@@ -225,22 +321,72 @@ class RecommendationMatch {
                     ),
       );
 
+  /// Citizen-presentable mandatory condition counts. Prefers the backend
+  /// counts when present; otherwise derives them from the structured rule
+  /// lists (PASS/FAIL/UNKNOWN aware, skipping optional and non-applicable
+  /// conditions). Returns null when nothing was evaluated.
+  ({int passed, int total})? get mandatoryConditionCounts {
+    var total = mandatoryRulesTotal;
+    var passed = mandatoryRulesPassed;
+    if (total <= 0) {
+      final countable = [
+        ...matchedRules,
+        ...missingRequirements,
+      ].where((rule) => rule.isConditionCountable).toList();
+      total = countable.length;
+      passed = countable.where((rule) => rule.isConditionPass).length;
+    }
+    if (total <= 0) return null;
+    return (passed: passed, total: total);
+  }
+
+  /// "3 of 4 conditions met" — a factual count, never a percentage.
+  String? get conditionSummary {
+    final counts = mandatoryConditionCounts;
+    if (counts == null) return null;
+    return '${counts.passed} of ${counts.total} conditions met';
+  }
+
+  /// Sanitized, length-capped scheme description for the detail screen.
+  /// Raw government-document dumps are reduced or dropped entirely.
+  String? get cardDescription => _sanitize(reason: description, max: 400);
+
   /// Up to 3 short "more information needed" bullets.
   /// Document-like rules collapse into one entry; internal noise is dropped.
   List<String> get cardMissingBullets {
     final seen = <String>{};
     final out = <String>[];
+    final heldEvidence = evidenceItems
+        .where((entry) => entry.status.isHeld)
+        .map((entry) => entry.requirement.trim().toLowerCase())
+        .toSet();
     var docEntryAdded = false;
     for (final rule in missingRequirements) {
+      final key = rule.evidenceKey.trim().toLowerCase();
+      if (heldEvidence.contains(key) || ruleEvidenceAlreadyHeld(rule)) {
+        continue;
+      }
       if (rule.looksDocumentRelated) {
+        if (evidenceChecklist.isEmpty) {
+          final mapping = evidenceMappingFor(key);
+          final label = mapping?.label;
+          if (label != null && label.isNotEmpty && !seen.contains(label)) {
+            seen.add(label);
+            out.add(label);
+          } else if (!docEntryAdded) {
+            docEntryAdded = true;
+            out.add('Supporting document, if applicable');
+          }
+          continue;
+        }
         if (!docEntryAdded) {
           docEntryAdded = true;
           out.add('Supporting document, if applicable');
         }
         continue;
       }
-      final label = _ruleLabel(rule.displayTitle);
-      if (label.isEmpty ||
+      final label = _citizenBulletLabel(rule);
+      if (label == null ||
           _isNoise(rule.displayTitle) ||
           seen.contains(label)) {
         continue;
@@ -249,17 +395,80 @@ class RecommendationMatch {
       out.add(label);
       if (out.length >= 3) break;
     }
-    for (final doc in requiredDocuments) {
-      if (out.length >= 3) break;
-      final label = _ruleLabel(doc);
-      if (label.isEmpty || _isNoise(doc) || seen.contains(label)) continue;
-      if (!docEntryAdded) {
-        docEntryAdded = true;
+    if (evidenceChecklist.isNotEmpty) {
+      for (final entry in evidenceItems) {
+        if (out.length >= 3) break;
+        if (entry.status.isHeld) continue;
+        if (entry.status == EvidenceStatus.manual) continue;
+        final label = entry.profilePrompt ?? entry.label;
+        if (label.isEmpty || _isNoise(label) || seen.contains(label)) continue;
         seen.add(label);
-        out.add('Supporting document, if applicable');
+        out.add(label);
+      }
+    } else {
+      for (final doc in requiredDocuments) {
+        if (out.length >= 3) break;
+        final mapping = evidenceMappingFor(doc.trim().toLowerCase());
+        final label = mapping?.label ?? _ruleLabel(doc);
+        if (label.isEmpty || _isNoise(doc) || seen.contains(label)) continue;
+        seen.add(label);
+        out.add(label);
       }
     }
     return out;
+  }
+
+  /// Whether a canonical evidence item for a document-like rule is held.
+  ///
+  /// The authoritative checklist decides what the citizen already holds.
+  /// Without this, a verified document (``land_record``) could still surface as
+  /// missing because a rule references an equivalent requirement alias
+  /// (``land_ownership_proof``). Only positively held evidence is matched —
+  /// nothing is assumed.
+  bool ruleEvidenceAlreadyHeld(RecommendationRule rule) {
+    final key = rule.evidenceKey.trim().toLowerCase();
+    if (key.isEmpty) return false;
+    final held = evidenceItems.where((entry) => entry.status.isHeld).toList();
+    if (held.isEmpty) return false;
+    if (held.any((entry) => entry.requirement.trim().toLowerCase() == key)) {
+      return true;
+    }
+    final mapping = evidenceMappingFor(key);
+    if (mapping == null) return false;
+    if (held.any((entry) =>
+        entry.requirement.trim().toLowerCase() == mapping.requirement)) {
+      return true;
+    }
+    final heldTypes = held
+        .map((entry) => (entry.matchedDocumentType ?? '').toLowerCase())
+        .where((type) => type.isNotEmpty)
+        .toSet();
+    if (mapping.documentTypes
+        .any((type) => heldTypes.contains(type.toLowerCase()))) {
+      return true;
+    }
+    return held
+        .any((entry) => entry.label.toLowerCase() == mapping.label.toLowerCase());
+  }
+
+  /// Citizen-safe label for one rule: prefers the curated note, then the
+  /// evidence-mapping label for document/profile requirements, then the
+  /// sanitized display title. Returns null when nothing citizen-safe exists.
+  static String? _citizenBulletLabel(RecommendationRule rule) {
+    final note = (rule.notes ?? '').trim();
+    if (note.isNotEmpty &&
+        note.length <= 120 &&
+        !_isNoise(note) &&
+        !note.toLowerCase().contains('manual_review')) {
+      return _ruleLabel(note);
+    }
+    final mapped = humanizeEvidenceRequirement(rule.evidenceKey);
+    if (!mapped.toLowerCase().contains('requirement')) {
+      return _ruleLabel(mapped);
+    }
+    final title = _ruleLabel(rule.displayTitle);
+    if (title.isEmpty || _isNoise(title)) return null;
+    return title;
   }
 
   static String _ruleLabel(String raw) {
@@ -293,6 +502,16 @@ class RecommendationMatch {
         RegExp(r'\bF\.?\s*No\.?[^,;\n]*|File\s*No\.?[^,;\n]*',
             caseSensitive: false),
         '');
+    // Letterhead addresses / pincodes are OCR artifacts, never scheme prose.
+    text = text.replaceAll(
+        RegExp(
+            r'\bnew\s*delhi\b\s*[-\u2013]?\s*(?:pin\s*(?:code)?\s*[-:]?\s*)?\d{0,6}',
+            caseSensitive: false),
+        '');
+    text = text.replaceAll(
+        RegExp(r'\b(?:pin\s*(?:code)?|pincode)\s*[-:]?\s*\d{6}\b',
+            caseSensitive: false),
+        '');
     if (text.length > 120) {
       text = text.replaceAll(
           RegExp(
@@ -303,6 +522,27 @@ class RecommendationMatch {
     text = text.replaceAll(RegExp(r'\s+'), ' ').trim();
     text = text.replaceAll(RegExp(r'^[.,;:—\-]+|[.,;:—\-]+$'), '').trim();
     if (text.isEmpty) return null;
+    // A leftover bare address/pincode is not a description.
+    if (RegExp(r'^(?:new\s*delhi\s*[-\u2013]?\s*)?\d{6}$',
+            caseSensitive: false)
+        .hasMatch(text)) {
+      return null;
+    }
+    // Letterhead fragments (short text dominated by an address) are not prose.
+    if (text.length <= 120 &&
+        RegExp(
+                r'(newdelhi|new\s*delhi|krishi bhawan|kisan bhawan|udyog bhawan|shastri bhawan|niti ayog|pin\s*code|pincode|e-mail|telefax|@gov\.in|@nic\.in|www\.)',
+                caseSensitive: false)
+            .hasMatch(text)) {
+      return null;
+    }
+    // Backend text-extraction artifacts ("N", ", N", "None") are not benefits.
+    final compact = text.replaceAll(RegExp(r'[\s,.]'), '');
+    if (compact.length <= 4 &&
+        const {'n', 'none', 'na', 'n/a', 'nil', 'tbd'}
+            .contains(compact.toLowerCase())) {
+      return null;
+    }
     if (text.length <= max) return text;
     var cut = text.substring(0, max);
     final space = cut.lastIndexOf(' ');
@@ -318,7 +558,16 @@ class RecommendationMatch {
         .hasMatch(text)) {
       return true;
     }
+    // "Page No. N" markers are always extraction artifacts, never prose.
+    if (RegExp(r'\bpage\s*no\.?\s*\d+', caseSensitive: false)
+        .hasMatch(text)) {
+      return true;
+    }
+    // Letterhead / OCR fragments are never benefit text.
     final lower = text.toLowerCase();
+    if (lower.contains('government of india') || lower.contains('&to&p')) {
+      return true;
+    }
     var hits = 0;
     if (RegExp(r'\bpages?\s*\d+',
             caseSensitive: false)
@@ -361,11 +610,21 @@ class RecommendationMatch {
       profileMatchPercentage: _toDouble(json['profile_match_percentage']),
       semanticQuery: json['semantic_query']?.toString(),
       createdAt: _parseDate(json['created_at']),
+      displayName: json['display_name']?.toString(),
+      shortDescription: json['short_description']?.toString(),
+      benefitsList: (json['benefits_list'] as List? ?? const [])
+          .map((item) => item.toString())
+          .where((item) => item.trim().isNotEmpty)
+          .toList(),
       evidenceChecklist: (json['evidence_checklist'] as List? ?? const [])
           .whereType<Map>()
           .map((item) => EvidenceChecklistEntry.fromJson(
               Map<String, dynamic>.from(item)))
           .toList(),
+      mandatoryRulesTotal:
+          int.tryParse(json['mandatory_rules_total']?.toString() ?? '') ?? 0,
+      mandatoryRulesPassed:
+          int.tryParse(json['mandatory_rules_passed']?.toString() ?? '') ?? 0,
     );
   }
 

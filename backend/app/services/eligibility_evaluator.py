@@ -1,3 +1,4 @@
+
 """Structured eligibility evaluator for government schemes.
 
 This service evaluates a :class:`SchemeEligibility` (structured rules extracted
@@ -35,9 +36,19 @@ from app.models.scheme_eligibility import (
     SchemeEligibility,
     SchemeEligibilityCatalogueEntry,
     StructuredEligibilityRule,
+    CriterionState,
     determine_status,
+    normalize_eligibility_status,
 )
 from app.models.scheme_rules import get_scheme_eligibility_for_scheme
+from app.services.citizen_evidence_service import (
+    CitizenEvidence,
+    EvidenceState,
+    canonical_evidence_type,
+    evidence_from_raw_types,
+    citizen_evidence_for,
+    requirement_evidence_types,
+)
 
 if TYPE_CHECKING:
     from app.services.recommendation_service import CitizenContext
@@ -48,10 +59,14 @@ __all__ = [
 ]
 
 
-PASS = "PASS"
-FAIL = "FAIL"
-UNKNOWN = "UNKNOWN"
-NOT_APPLICABLE = "NOT_APPLICABLE"
+PASS = CriterionState.PASS
+FAIL = CriterionState.FAIL
+UNKNOWN = CriterionState.UNKNOWN
+NOT_APPLICABLE = CriterionState.NOT_APPLICABLE
+
+# The criterion vocabulary itself is owned by
+# ``app.models.scheme_eligibility.CriterionState``. The aliases above exist
+# only so existing importers keep working; new code should use CriterionState.
 
 _NON_INDIVIDUAL_SCOPES = {"COMMUNITY", "STATE_UT", "LOCAL_BODY", "INSTITUTION"}
 _REVIEW_STATUSES = {"review_required", "manual_review_required"}
@@ -94,6 +109,7 @@ class EligibilityEvaluator:
         """Return the eligibility result for one scheme against one citizen."""
         conditions: List[EligibilityConditionResult] = []
         missing: List[EligibilityConditionResult] = []
+        evidence_view = citizen_evidence_for(context)
 
         for condition, is_missing in self._evaluate_criteria(scheme, context):
             conditions.append(condition)
@@ -121,6 +137,8 @@ class EligibilityEvaluator:
             failed_conditions=failed,
             missing_information=missing,
             evidence=list(scheme.evidence_sources or []),
+            evidence_states=evidence_view.states,
+            unmapped_document_types=list(evidence_view.unmapped_types),
             eligibility_percentage=eligibility_percentage,
             mandatory_rules_total=mandatory_total,
             mandatory_rules_passed=mandatory_passed,
@@ -156,6 +174,7 @@ class EligibilityEvaluator:
             self._evaluate_catalogue_rule(entry, rule, context)
             for rule in entry.rules
         ]
+        evidence_view = citizen_evidence_for(context)
         matched = [c for c in conditions if c.result in {PASS, NOT_APPLICABLE}]
         failed = [c for c in conditions if c.result == FAIL]
         missing = [c for c in conditions if c.result == UNKNOWN]
@@ -179,6 +198,8 @@ class EligibilityEvaluator:
             failed_conditions=failed,
             missing_information=missing,
             evidence=self._entry_evidence(entry),
+            evidence_states=evidence_view.states,
+            unmapped_document_types=list(evidence_view.unmapped_types),
             evidence_requirements=list(entry.evidence_requirements),
             missing_evidence=self._missing_evidence(entry, context),
             evaluation_status="evaluated",
@@ -504,13 +525,8 @@ class EligibilityEvaluator:
         entry: SchemeEligibilityCatalogueEntry,
         context: "CitizenContext",
     ) -> list[str]:
-        missing = []
-        document_values = _norm_set(context.document_types) | _norm_set(context.document_names)
-        for requirement in entry.evidence_requirements:
-            normalized = _norm(requirement)
-            if normalized not in document_values:
-                missing.append(requirement)
-        return missing
+        evidence = citizen_evidence_for(context)
+        return evidence.missing_requirements(entry.evidence_requirements)
 
     def _evaluate_criteria(
         self,

@@ -116,8 +116,20 @@ class CitizenProfileService:
 
         update_dict = update_data.model_dump(exclude_unset=True)
 
-        # Recalculate completion after update
+        # Persist the edited fields first, then recompute completion from the
+        # citizen + freshly persisted profile so the stored score always
+        # reflects the new values. ``calculate_profile_completion`` is the
+        # single source of truth for this score; the eligibility engine reads
+        # the stored value via ``CitizenContext.profile_completion_percentage``
+        # (used by ``_profile_match_percentage`` and the application-readiness
+        # gate), so a stale score would silently degrade recommendation
+        # quality. The value is always derived here — never taken from input.
         profile = self.profile_repo.upsert(citizen_id, update_dict)
+
+        completion = calculate_profile_completion(citizen, profile)
+        profile = self.profile_repo.upsert(
+            citizen_id, {"profile_completion_percentage": completion}
+        )
 
         logger.info(f"Profile updated for citizen: {citizen_id}")
         return profile

@@ -166,6 +166,16 @@ void main() {
     expect(provider.recommendationFor('rec-1'), isNotNull);
   });
 
+  test('forceRefresh reloads a cached recommendation detail', () async {
+    final repository = _FakeRecommendationRepository();
+    final provider = RecommendationProvider(repository);
+
+    await provider.loadRecommendationDetail('rec-1');
+    await provider.loadRecommendationDetail('rec-1', forceRefresh: true);
+
+    expect(repository.detailCalls, 2);
+  });
+
   test('invalidateAll clears summary, details and history', () async {
     final repository = _FakeRecommendationRepository();
     final provider = RecommendationProvider(repository);

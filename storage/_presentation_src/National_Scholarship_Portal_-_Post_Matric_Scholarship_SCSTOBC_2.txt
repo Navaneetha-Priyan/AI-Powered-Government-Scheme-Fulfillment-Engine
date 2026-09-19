@@ -1,0 +1,768 @@
+--- p1 ---
+Ministry/Department/State Grievance Redressal Officers 
+ 
+Version1.1 
+ 
+Sl. 
+No. 
+Scheme 
+Owning 
+Ministry/Depart 
+ment/State 
+Scheme 
+Name 
+State 
+Officer 
+Name 
+Designa 
+tion 
+Lev 
+el 
+Telephon 
+e no. 
+Email 
+1 
+Ministry of 
+Pre Matric 
+All India 
+Sh. 
+Under 
+NA 
+011- 
+Prematric- 
+Minority Affairs 
+Scholarship 
+s Scheme 
+for 
+Minorities 
+Naveen 
+Kumar 
+Rajan 
+Secret 
+ory 
+24364311 
+mma@nic.in 
+, 
+usscholarshi 
+p- 
+mma@nic.in 
+2 
+Ministry of 
+Post Matric 
+All India 
+Sh. 
+Under 
+NA 
+011- 
+Prematric- 
+Minority Affairs 
+Scholarship 
+Naven 
+Secret 
+24364311 
+mma@nic.in 
+s Scheme 
+Kumar 
+ory 
+, 
+for 
+Rajan 
+usscholarshi 
+Minorities 
+p- 
+mma@nic.in 
+3 
+Ministry of 
+Merit Cum 
+All India 
+Sh. 
+Under 
+NA 
+011- 
+Prematric- 
+Minority Affairs 
+Means 
+Scholarship 
+For 
+Professiona 
+Naveen 
+Kumar 
+Rajan 
+Secret 
+ory 
+24364311 
+mma@nic.in 
+, 
+usscholarshi 
+p- 
+l and 
+Technical 
+mma@nic.in 
+Courses CS 
+4 
+AICTE 
+PRAGATI 
+All India 
+Mrs Sanju 
+Assistant 
+NA 
+011- 
+ad1stdc@aicte 
+SCHOLAR 
+Chaudhar 
+Director 
+29581112 
+-india.org 
+SHIP 
+y 
+SCHEME 
+FOR GIRL 
+STUDENTS 
+(TECHNICA 
+L DEGREE) 
+5 
+AICTE 
+PRAGATI 
+All India 
+Mrs Sanju 
+Assistant 
+NA 
+011- 
+ad1stdc@aicte 
+SCHOLAR 
+Chaudhar 
+Director 
+29581112 
+-india.org 
+SHIP 
+y 
+SCHEME 
+FOR GIRL 
+STUDENTS 
+(TECHNICA 
+L 
+DIPLOMA) 
+6 
+AICTE 
+SAKSHAM 
+All India 
+Mrs Sanju 
+Assistant 
+NA 
+011- 
+ad1stdc@aicte 
+SCHOLAR 
+Chaudhar 
+Director 
+29581112 
+-india.org 
+SHIP 
+y 
+SCHEME 
+FOR 
+SPECIALLY 
+ABLED 
+
+--- p2 ---
+STUDENT 
+(TECHNICA 
+L DEGREE) 
+7 
+AICTE 
+SAKSHAM 
+SCHOLAR 
+SHIP 
+SCHEME 
+FOR 
+SPECIALLY 
+ABLED 
+STUDENT 
+(TECHNICA 
+L 
+DIPLOMA) 
+All India 
+Mrs Sanju 
+Chaudhar 
+y 
+Assistant 
+Director 
+NA 
+011- 
+29581112 
+ad1stdc@aicte 
+-india.org 
+8 
+Department of 
+School 
+Education and 
+Literacy 
+NATIONAL 
+MERIT- 
+CUM- 
+MEANS 
+SCHOLAR 
+SHIP 
+SCHEME 
+All India 
+Shri. Gaj 
+Mohan 
+Meena 
+Under 
+Secretar 
+y 
+NA 
+011- 
+23384897 
+gmmeena.edu 
+@nic.in 
+9 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+All India 
+Shri 
+Sangeet 
+Kumar 
+Under 
+Secretar 
+y 
+(Scholar 
+ship) 
+L2 
+011- 
+2062360 
+10 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+ANDHR 
+A 
+PRADES 
+H 
+M Rama 
+Subbanna 
+Professo 
+r ERTW 
+L1 
+bieap.mhrdsch 
+olarship@gmai 
+l.com 
+11 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+ASSAM 
+Dr Laba 
+Thakuria 
+Deputy 
+Controlle 
+r 
+L1 
+thakurialaba@ 
+gmail.com 
+
+--- p3 ---
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+12 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+BIHAR 
+Balmukun 
+d Singh 
+System 
+Analyst 
+L1 
+sa.balmukund 
+@gmail.com 
+13 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+CHHATT 
+ISGARH 
+JUGAL 
+KISHOR 
+AGRAWA 
+L 
+Deputy 
+Secretar 
+y 
+L1 
+ds.cgbse@gm 
+ail.com 
+14 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+GOA 
+Bharat 
+Chopade 
+dy sec 
+L1 
+bharatc.gbshs 
+e@gov.in 
+15 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+GUJARA 
+T 
+Mittalben 
+P Acharya 
+Administ 
+rative 
+Officer 
+L1 
+scholarshipche 
+10@gmail.com 
+16 
+Department of 
+HigherEducatio 
+CENTRAL 
+SECTOR 
+HARYAN 
+A 
+Sh 
+Jagdish 
+Assistant 
+Secretar 
+L1 
+scholarship12 
+@bseh.org.in 
+
+--- p4 ---
+N 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+Parsad 
+Saini 
+y 
+17 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+HIMACH 
+AL 
+PRADES 
+H 
+Asha 
+Lusai 
+Deputy 
+Secretar 
+y 
+L1 
+hpbosesop1.2 
+6@gmail.com 
+18 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+JAMMU 
+AND 
+KASHMI 
+R 
+Dr. Farooq 
+Ahmed 
+Peer 
+Director 
+Academi 
+cs 
+Jammu 
+and 
+Kashmir 
+Board of 
+School 
+Educatio 
+n 
+L1 
+directoracad@j 
+kbose.co.in 
+19 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+JHARKH 
+AND 
+Sanjeev 
+Kumar 
+Assistant 
+Secretar 
+y 
+L1 
+secretary.jac2 
+003@gmail.co 
+m 
+20 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+KARNAT 
+AKA 
+MR 
+SUBHASH 
+CHANDR 
+A 
+Assistant 
+Director 
+Nodal 
+Officier 
+L1 
+puemhrd@gm 
+ail.com 
+
+--- p5 ---
+UNIVERSIT 
+Y 
+STUDENTS 
+21 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+KERALA 
+Jayachadr 
+an 
+Special 
+Officer 
+for 
+Scholars 
+hip 
+L1 
+centralsectorsc 
+holarship@gm 
+ail.com 
+22 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+MADHY 
+A 
+PRADES 
+H 
+Jyoti 
+meghawal 
+e 
+Ragistrar L1 
+mpboardschol 
+arship4@gmail 
+.com 
+23 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+MAHAR 
+ASHTRA 
+Dhanraj 
+Raghuram 
+Mane 
+Director 
+L1 
+schol.dhepune 
+@gov.in 
+24 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+MANIPU 
+R 
+N. Shaheb 
+Singh 
+Deputy 
+Secretar 
+y 
+L1 
+shaheb.n@nic. 
+in 
+25 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+MEGHA 
+LAYA 
+STATE 
+NODAL 
+OFFICER 
+Joint 
+Director 
+L1 
+dydhtetechnica 
+l@gmail.com 
+
+--- p6 ---
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+26 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+MIZORA 
+M 
+Lalmuanki 
+ma Sailo 
+Officer 
+on 
+special 
+duty 
+L1 
+msb.mizoram 
+@gmail.com 
+27 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+NAGALA 
+ND 
+Kekhrelho 
+utuo 
+Nakhro 
+Coordina 
+tor IT 
+L1 
+knakhro@hot 
+mail.com 
+28 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+Y 
+STUDENTS 
+ODISHA 
+Yashobant 
+a Sama 
+Deputy 
+Secretar 
+y 
+L1 
+chseodisha@g 
+mail.com 
+29 
+Department of 
+Higher 
+Education 
+CENTRAL 
+SECTOR 
+SCHEME 
+OF 
+SCHOLAR 
+SHIPS FOR 
+COLLEGE 
+AND 
+UNIVERSIT 
+PUDUC 
+HERRY 
+Rajina 
+Junior 
+account 
+officer 
+L1 
+dhtepdy@gmai 
+l.com 
+

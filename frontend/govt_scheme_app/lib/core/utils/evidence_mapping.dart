@@ -2,7 +2,13 @@
 library;
 import '../constants/document_types.dart';
 enum EvidenceKind { document, profileInfo, manual }
-enum EvidenceStatus { available, needed, manual }
+enum EvidenceStatus { available, verified, pending, needed, manual }
+extension EvidenceStatusX on EvidenceStatus {
+  bool get isHeld =>
+      this == EvidenceStatus.available ||
+      this == EvidenceStatus.verified ||
+      this == EvidenceStatus.pending;
+}
 class EvidenceMapping {
   const EvidenceMapping({required this.requirement, required this.label,
     required this.kind, this.documentTypes = const [], this.profileField,
@@ -139,6 +145,8 @@ class EvidenceChecklistEntry {
     EvidenceStatus status;
     switch (json['status']?.toString()) {
       case 'available': status = EvidenceStatus.available; break;
+      case 'verified': status = EvidenceStatus.verified; break;
+      case 'pending': status = EvidenceStatus.pending; break;
       case 'manual': status = EvidenceStatus.manual; break;
       default: status = EvidenceStatus.needed;
     }

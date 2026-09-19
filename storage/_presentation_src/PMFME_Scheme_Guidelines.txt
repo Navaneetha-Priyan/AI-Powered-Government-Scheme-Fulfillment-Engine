@@ -1,0 +1,305 @@
+--- p1 ---
+
+--- p2 ---
+2 
+ 
+Table of Contents 
+1.0 Background 
+4 
+2.0 One District One Product 
+5 
+3.0 Programme Contents 
+6 
+ 
+4.0 Individual Category 
+7 
+5.0 Group Category 
+8 
+6.0 Support for common infrastructure 
+10 
+7.0 Branding and Marketing Support 
+11 
+8.0 Capacity Building & Research 
+13 
+9.0 Institutional Architecture 
+16 
+10.0 Studies & Reports 
+26 
+11.0 Project Implementation Plan (PIP) 
+26 
+12.0 Disbursement of Funds 
+27 
+13.0 Procedure with Banks for Grant 
+29 
+14.0 MIS 
+30 
+15.0 Empanelment of Expert Institutions 
+31 
+16.0 Convergence Framework 
+31 
+
+--- p3 ---
+3 
+ 
+Abbreviations and Acronyms 
+ 
+DPR 
+Detailed Project Report 
+DLC 
+District Level Committee 
+FPI 
+Food Processing Industry 
+FPO 
+Farmer Producer Organisation 
+FUP 
+Firm level Upgradation Plan 
+GOI 
+Government of India 
+FME 
+Formalization of Micro Enterprises 
+IA 
+Implementing Agency 
+IMEC 
+Inter Ministerial Empowered Committee 
+IIFPT 
+Indian Institute of Food Processing Technology 
+MIS 
+Management Information System 
+MOFPI 
+Ministry of Food Processing Industries 
+MoU 
+Memorandum of Understanding 
+MSDE 
+Ministry of Skill Development and Entrepreneurship 
+MSME 
+Micro, Small and Medium Enterprise 
+NABARD National Bank for Agriculture and Rural Development 
+NCDC 
+National Co-operative Development Corporation 
+NIFTEM 
+National Institute for Food Technology Entrepreneurship and Management 
+NGO 
+Non-governmental Organizations 
+NRLM 
+National Rural Livelihood Mission 
+ODOP 
+One District One Product 
+PEC 
+Project Executive Committee 
+PIP 
+Project Implementation Plan 
+PMU 
+Project Management Unit 
+PMKSY 
+Pradhan Mantri Kishan Sampada Yojana 
+PMU 
+Project Management Unit 
+R&D 
+Research and Development 
+RP 
+Resource Person 
+SC 
+Schedule Caste 
+ST 
+Schedule Tribe 
+SHG 
+Self Help Group 
+SIDBI 
+Small Industries Development Bank of India 
+SLAC 
+State Level Approval Committee 
+SNA 
+State Nodal Agency 
+SRLM 
+State Rural Livelihood Mission 
+TOR 
+Terms of Reference 
+UT 
+Union Territory 
+
+--- p4 ---
+4 
+ 
+1.0 
+Background 
+1.1 
+Overview 
+1.1.1 The unorganized food processing sector in the country comprises nearly 25 lakh 
+food processing enterprises which are unregistered and informal. With only 7% of 
+investment in plant & machinery and 3% of outstanding credit, the unorganized 
+enterprises contribute to 74% of employment (a third of which are women), 12% of 
+output and 27% of the value addition in the food processing sector. Nearly 66% of 
+these units are located in rural areas and about 80% of them are family-based 
+enterprises1. Most of these units falls under category of micro manufacturing units 
+in terms of their investment in plant & machinery and turnover. 
+1.1.2 The unorganized food processing industry in India faces challenges that limit its 
+development and weakens performance. These challenges include: (a) lack of 
+productivity and innovation due to limited skills and access to modern technology 
+and machinery for production and packaging; (b) deficient quality and food safety 
+control systems, including lack of basic awareness on good hygienic and 
+manufacturing practices;(c) lack of branding & marketing skills and inability to 
+integrate with the supply chains, etc.;(d) capital deficiency and low bank credit. 
+1.1.3 Unorganized micro food processing units, need intensive hand holding support for 
+skill training, entrepreneurship, technology, credit and marketing, across the value 
+chain, necessitating active participation of the state government for better 
+outreach. In the last decade, Central and State Governments have made intensive 
+efforts to organize farmers in Food Processing Organisations (FPOs) and women’s 
+Self Help Groups (SHGs). SHGs have achieved considerable progress in thrift and 
+their repayment record with 97% NPA level is among the best. Governments have 
+made efforts to enable SHGs to undertake various manufacturing and service 
+sector activities including food processing. However, there are few Government 
+schemes to support FPOs and SHGs to make investment and upscale their 
+operations. 
+1.1.4 This scheme is a centrally sponsored scheme that is designed to address the 
+challenges faced by the micro enterprises and to tap the potential of groups and 
+cooperatives in supporting the upgradation and formalization of these enterprises. 
+1.2 Aims 
+1.2.1 The scheme aims to: 
+i) 
+Enhance the competitiveness of existing individual micro-enterprises in the 
+unorganized segment of the food processing industry and promote 
+formalization of the sector; and 
+ 
+ 
+ 
+1NSSO, 2015 
+
+--- p5 ---
+5 
+ 
+ii) Support Farmer Producer Organizations (FPOs), Self Help Groups (SHGs) and 
+Producers Cooperatives along their entire value chain. 
+1.3 
+Objectives 
+1.3.1 The objectives of scheme are to build capability of microenterprises to enable: 
+i) 
+Increased access to credit by existing micro food processing entrepreneurs, 
+FPOs, Self Help Groups and Co-operatives; 
+ii) Integration with organized supply chain by strengthening branding & 
+marketing; 
+iii) Support for transition of existing 2,00,000 enterprises into formal framework; 
+iv) Increased access to common services like common processing facility, 
+laboratories, storage, packaging, marketing and incubation services; 
+v) Strengthening of institutions, research and training in the food processing 
+sector; and 
+vi) Increased access for the enterprises, to professional and technical support. 
+1.4 
+Outlay 
+1.4.1 The scheme envisages an outlay of Rs. 10,000 crore over a period of five years 
+from 2020-21 to 2024-25. The expenditure under the scheme would to be shared 
+in 60:40 ratio between Central and State Governments, in 90:10 ratio with North 
+Eastern and Himalayan States, 60:40 ratio with UTs with legislature and 100% by 
+the Center for other UTs. 
+1.5 
+Coverage 
+1.5.1 Under the scheme, 2,00,000 micro food processing units will be directly assisted 
+with credit linked subsidy. Adequate supportive common infrastructure and 
+institutional architecture will be supported to accelerate growth of the sector. 
+ 
+2.0 
+One District One Product 
+2.1 The Scheme adopts One District One Product (ODOP) approach to reap the benefit 
+of scale in terms of procurement of inputs, availing common services and 
+marketing of products. ODOP for the scheme will provide the framework for value 
+chain development and alignment of support infrastructure. There may be more 
+than one cluster of ODOP product in one district. There may be cluster of ODOP 
+product consisting of more than one adjacent district in a State. 
+ 
+2.2 The States would identify the food product for a district, keeping in perspective the 
+focus of the scheme on perishables. A baseline study would be carried out by the 
+State Government. The ODOP product could be a perishable agri produce, cereal 
+based product or a food product widely produced in a district and their allied sectors. 
+Illustrative list of such products includes mango, potato, litchi, 
+
+--- p6 ---
+6 
+ 
+tomato, tapioca, kinnu, bhujia, petha, papad, pickle, millet based products, 
+fisheries, poultry, meat as well as animal feed among others. In addition, certain 
+other traditional and innovative products including waste to wealth products could 
+be supported under the Scheme. For example, honey, minor forest products in 
+tribal areas, traditional Indian herbal edible items like turmeric, amla, haldi, etc. 
+Support for agricultural produce would be for their processing along with efforts to 
+reduce wastage, proper assaying and storage and marketing.  
+2.3 With respect to support to existing individual micro units for capital investment, 
+preference would be given to those producing ODOP products. However, existing 
+units producing other products would also be supported. In case of capital 
+investment by groups, predominately those involved in ODOP products would be 
+supported. 
+2.4 Support to groups processing other products in such districts would only be for 
+those already processing those products and with adequate technical, financial 
+and entrepreneurial strength. 
+2.5 New units, whether for individuals or groups would only be supported for ODOP 
+products. 
+2.6 Support for common infrastructure and marketing & branding would only be for 
+ODOP products. In case of support for marketing & branding at State or regional 
+level, same products of districts not having that product as ODOP could also be 
+included. 
+2.7 Department of Commerce is focusing on agriculture crops on a cluster approach 
+for support for exports under the Agriculture Export Policy and Ministry of 
+Agriculture is also focusing on cluster approach for development of specific agri- 
+produce in districts having comparative advantage. A number of states have 
+adopted similar cluster based development. The ODOP approach of the Scheme 
+would lead to ease in providing common facilities and other support services. 
+ 
+3.0 Programme Components 
+ 
+3.1 The programme has four broad components addressing the needs of the sector: 
+ 
+i) 
+Support to individual and groups of micro enterprises; 
+ii) 
+Branding and Marketing support; 
+iii) 
+Support for strengthening of institutions; 
+iv) 
+Setting up robust project management framework. 
+3.2 Details of each of these components are described below. 
+
+--- p8 ---
+8 
+ 
+4.3.2 Applications would be invited at the district level on an ongoing basis for Units, 
+from those interested in availing the benefits under the Scheme. Resource Persons 
+(RPs) would undertake survey of various clusters and identify units that show 
+potential for availing benefits under the Scheme. For applications received directly, 
+RPs would undertake field verification and due diligence to assess their potential. 
+4.3.3 All the potential cases based on identification of Units directly by RPs and 
+application received would be submitted before the District Level Committee. 
+District Level Committee should study the report submitted by RP for each Unit 
+and interview the interested persons. 
+4.3.4 Due diligence to be carried out by the RP for each Unit should have the following 
+details: 
+i) Annual Turnover of the enterprise; 
+ii) Track Record of payments by the enterprise; 
+iii) Existing infrastructure; 
+iv) Backward and Forward Linkages; 
+v) Proximity to clusters; 
+vi) Marketing linkages of the enterprise. 
+4.3.5 For the cases recommended by the District Level Committee/SNA, RPs should 
+help them in preparation of DPR for availing bank loan for upgradation of the Unit. 
+The DPR along with necessary documents should be submitted to the Banks for 
+sanction of loan. 
+4.4 
+The procedure delineated above would apply for selection of new units also, 
+provided the ODOP baseline study throws up a need / potential for such new 
+investments. 
+4.5 
+State Governments should decide at what level they would want to finalize 
+individual micro units list to be supported, by DLC or at SNA level. Similarly, for 
+applications for capital investment by groups, common infrastructure & marketing 
+& branding, the states should decide the role of DLC/SNA in routing of applications. 
+ 
+5.0 
+Group Category 
+ 
+5.1 
+The Scheme would support clusters and groups such as FPOs/SHGs/ producer 
+cooperatives along their entire value chain for sorting, grading, assaying, storage, 
+common processing, packaging, marketing, processing of agri-produce, and 
+testing laboratories. 
+ 
+5.2 
+Farmer Producer Organizations (FPOs)/Producer Cooperatives 
+5.2.1 FPOs and Producer Cooperatives would be provided the following support: 
+

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/localization/app_strings.dart';
+import '../../core/utils/presentation_text.dart';
 import '../../core/widgets/app_states.dart';
 import '../../providers/scheme_provider.dart';
 import 'scheme_detail_screen.dart';
@@ -179,7 +180,7 @@ class _SchemesScreenState extends State<SchemesScreen> {
                                   child: ListTile(
                                     contentPadding: const EdgeInsets.all(16),
                                     title: Text(
-                                      scheme.schemeName,
+                                      scheme.displayTitle,
                                       style: Theme.of(
                                         context,
                                       ).textTheme.titleMedium,
@@ -189,8 +190,12 @@ class _SchemesScreenState extends State<SchemesScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         const SizedBox(height: 8),
+                                        // Curated short description only. The
+                                        // raw `description` column (PDF
+                                        // extraction) is never displayed.
                                         Text(
-                                          scheme.description,
+                                          scheme.cleanShortDescription ??
+                                              schemeAboutFallback,
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),

@@ -4,6 +4,7 @@ from pathlib import Path
 import fitz
 from fastapi.testclient import TestClient
 
+from app.core.config import settings
 from app.services import government_scheme_service as scheme_service_module
 
 PAYLOAD = {
@@ -132,6 +133,9 @@ def test_upload_process_and_search_scheme_document(client: TestClient, auth_head
     monkeypatch.setattr(scheme_service_module, "get_scheme_embedding_service", lambda: FakeEmbeddingService())
     shared_vector_store = FakeVectorStoreService()
     monkeypatch.setattr(scheme_service_module, "VectorStoreService", lambda embedding_service=None: shared_vector_store)
+    # Redirect stored PDFs into the temporary directory so the tracked seed
+    # fixtures under backend/storage/schemes/ are never overwritten.
+    monkeypatch.setattr(settings, "SCHEME_STORAGE_DIR", str(tmp_path / "schemes"))
 
     scheme_id = create(client, auth_headers)
     pdf_path = tmp_path / "scheme.pdf"
@@ -163,3 +167,121 @@ def test_upload_process_and_search_scheme_document(client: TestClient, auth_head
 
     process_response = client.post(f"/api/documents/{document_id}/process", headers=auth_headers)
     assert process_response.status_code == 200
+
+
+
+# ── Citizen-facing presentation hardening ───────────────────────────────────
+
+CORRUPTED_PDF_BENEFIT = "&TO&P) - Part (8 | 29 | ) Government of India he"
+CORRUPTED_PDF_DESCRIPTION = "Page No. 1 Uttam fasal Uttam Enam NATIONAL AGRICULTURE MARKET"
+
+
+def test_scheme_detail_returns_clean_presentation_not_raw_extraction(
+    client: TestClient, auth_headers: dict
+):
+    """A catalogue scheme with poisoned raw columns must still return clean,
+    curated citizen-facing presentation and never leak PDF extraction."""
+    payload = {
+        **PAYLOAD,
+        "scheme_name": "PM-KISAN Operational Guidelines",
+        "description": CORRUPTED_PDF_DESCRIPTION,
+        "benefits": CORRUPTED_PDF_BENEFIT,
+        "eligibility_summary": "Page No. 12 Ministry of Agriculture & Farmers Welfare",
+        "required_documents": "Page No. 4",
+        "application_process": "Government of India",
+    }
+    created = client.post("/api/schemes", json=payload, headers=auth_headers)
+    assert created.status_code == 201
+    scheme_id = created.json()["data"]["id"]
+
+    response = client.get(f"/api/schemes/{scheme_id}", headers=auth_headers)
+    assert response.status_code == 200
+    data = response.json()["data"]
+
+    # Clean curated presentation is delivered.
+    assert data["display_name"] == "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)"
+    assert data["about"].startswith("PM-KISAN gives income support")
+    assert data["benefits_list"] == [
+        "Rs. 6,000 per year paid directly into the bank account of eligible farmer families",
+        "Support to buy seeds, fertilisers and other farm inputs",
+    ]
+    assert data["documents"]
+    assert data["application"]
+    assert data["eligibility_summary"].startswith("Generally for landholding farmer families")
+
+    # No raw extraction anywhere in the citizen-facing payload.
+    for value in (
+        data.get("about"),
+        data.get("eligibility_summary"),
+        *data.get("benefits_list", []),
+        *data.get("documents", []),
+        *data.get("application", []),
+    ):
+        assert value is None or "Page No" not in value
+        assert value is None or "&TO&P" not in value
+        assert value is None or "Government of India" not in value
+
+    # Legacy raw columns that were pure extraction noise are nulled.
+    assert data["required_documents"] is None
+    assert data["application_process"] is None
+    assert data["description"] is None
+    assert data["benefits"] is None
+
+
+def test_non_catalogue_scheme_gets_safe_fallback_not_raw_extraction(
+    client: TestClient, auth_headers: dict
+):
+    payload = {
+        **PAYLOAD,
+        "scheme_name": "Locally Registered Test Scheme",
+        "description": CORRUPTED_PDF_DESCRIPTION,
+        "benefits": CORRUPTED_PDF_BENEFIT,
+        "eligibility_summary": "Page No. 12 Ministry of Agriculture",
+        "required_documents": "Page No. 4",
+        "application_process": "Government of India",
+    }
+    created = client.post("/api/schemes", json=payload, headers=auth_headers)
+    assert created.status_code == 201
+    scheme_id = created.json()["data"]["id"]
+
+    data = client.get(f"/api/schemes/{scheme_id}", headers=auth_headers).json()["data"]
+
+    assert data["about"] == "Information about this scheme is being prepared."
+    assert data["benefits_list"] == []
+    assert data["documents"] == []
+    assert data["application"] == []
+    # Raw extraction is withheld rather than shipped as the fallback.
+    assert data["description"] is None
+    assert data["benefits"] is None
+    assert data["required_documents"] is None
+    assert data["application_process"] is None
+    assert data["eligibility_summary"] is None
+
+
+
+def test_scheme_detail_includes_presentation_about(client: TestClient, auth_headers: dict):
+    """The scheme detail endpoint must return curated 'about' text from the
+    presentation metadata, not just the raw description column."""
+    scheme_id = create(client, auth_headers)
+    response = client.get(f"/api/schemes/{scheme_id}", headers=auth_headers)
+    assert response.status_code == 200
+    data = response.json()["data"]
+    # 'about' is populated from presentation short_description when available.
+    assert "about" in data
+
+
+def test_scheme_detail_presentation_is_not_raw_extraction(client: TestClient, auth_headers: dict):
+    """User-facing presentation fields must not contain raw PDF extraction
+    noise such as page markers or letterhead fragments."""
+    from app.services.scheme_presentation_service import is_extraction_noise
+
+    scheme_id = create(client, auth_headers)
+    response = client.get(f"/api/schemes/{scheme_id}", headers=auth_headers)
+    assert response.status_code == 200
+    data = response.json()["data"]
+    about = data.get("about") or ""
+    benefits = data.get("benefits_list") or []
+    # None of the fields should be obvious extraction noise.
+    assert not is_extraction_noise(about), f"about looks like extraction noise: {about!r}"
+    for bullet in benefits:
+        assert not is_extraction_noise(bullet), f"benefit bullet looks like noise: {bullet!r}"

@@ -1,0 +1,511 @@
+--- p1 ---
+ 
+ 
+ 
+ 
+ 
+OPERATIONAL GUIDELINES 
+ 
+Pradhan Mantri Fasal Bima Yojana 
+(PMFBY)  
+ 
+ 
+ 
+(Revised) 
+ 
+ 
+Department of Agriculture, Cooperation and Farmers Welfare 
+Ministry of Agriculture & Farmers Welfare 
+Krishi Bhawan, New Delhi-110001 
+
+--- p2 ---
+ 
+Index 
+Sl. No Section 
+Page No. 
+                 Abbreviations 
+I-II 
+1 
+Objective of the Scheme 
+1 
+2 
+Adoption of Technology for Scheme Administration 
+1-2 
+3 
+Coverage of Farmers 
+3 
+4 
+Coverage of Crops 
+4 
+5 
+Coverage of Risks & Exclusions 
+4-5 
+6 
+Preconditions for implementation of the Scheme 
+5-6 
+7 
+Notification 
+7-11 
+8 
+Engagement of Common Service Centres and Intermediaries for 
+coverage of non loanee Farmers 
+11 
+9 
+Electronic Remittance of Funds 
+11-12 
+10 
+Census code Mapping of Entities 
+12 
+11 
+Digitization of Land Records 
+12 
+12 
+Sum Insured/Coverage Limit 
+12 
+13 
+Premium Rates and Premium Subsidy 
+13-14 
+14 
+Budget for Administrative Expenses 
+14 
+15 
+Technical Support Unit(TSU)/Central Programme Management Unit(CPMU) 
+15 
+16 
+Seasonality Discipline 
+16-20 
+17 
+Collection of Proposals and Premium from Farmers 
+21-27 
+18 
+Assessment of Loss/Short Fall in Yield 
+28-31 
+19 
+Dispute Resolution regarding Yield Data/Crop Loss 
+31-36 
+20 
+Use of Innovative Technologies 
+37-38 
+21 
+Assessment of Claims 
+38-53 
+22 
+Participation of Loss Assessors/Evaluators for Loss Assessment under the Scheme 
+53-54 
+23 
+Procedure for Settlement of Claims 
+55-56 
+24 
+Important Conditions/Clauses Applicable for Coverage of Risks 
+56 
+25 
+Acreage Discrepancy 
+57-58 
+26 
+Publicity and Awareness 
+58 
+27 
+Service Charges 
+58-59 
+28 
+Goods & Service Tax(GST) 
+59 
+29 
+Monitoring and Review of the Scheme 
+59-60 
+30 
+Grievance Redressal Mechanism 
+60-61 
+31 
+Empanelment and Selection of Insurance Companies 
+61-62 
+32 
+Clustering/Clubbing of districts for bidding by the State 
+62-63 
+33 
+Assessment of Performance and De-empanelment of Insurance Companies 
+64 
+34 
+Evaluation of Efficiency of Nodal Department of the State 
+64 
+35 
+Role & Responsibilities of Various Agencies 
+64-74 
+36 
+National Crop Insurance Portal for administration of Crop Insurance Program 
+75-77 
+                Annexure – 1  
+78-85 
+                Annexure – 2 
+86-89 
+                Annexure – 3 
+90-93 
+
+--- p3 ---
+ 
+Table Index 
+Table No. 
+Topic 
+Para 
+Number 
+Table 1 
+Premium rate payable by the farmer 
+13.1 
+Table 2 
+Seasonality Discipline 
+16.2 
+Table 3 
+Calculation of crop-wise Sum Insured 
+17.4.4 
+Table 4 
+Number of CCEs to be conducted at IU level 
+18.2 
+Table 5 
+Yield Calculation for multi-picking crop 
+18.3.8.3 
+Table 6 
+Types of resolution to be used for vegetation index derivation for different 
+levels of analysis 
+19.7 
+Table 7 
+Calculation of Threshold Yield 
+21.1.2 
+Table 8 
+Detailed Procedure for On Account Payment of Claims due to Mid-Season 
+Adversity 
+21.2.7.2 
+Table 9 
+Detailed Procedure and Timelines for payment of Prevented / Failed Sowing 
+and Prevented Planting / Germination Claims 
+21.3.6.1 
+Table 10 
+Detailed Procedure and Timelines for payment of Post Harvest Loss 
+21.4.8.1 
+Table 11 
+Detailed Procedure and Timelines for payment of localized claims 
+21.5.9.1 
+Table 12 
+Criteria for Performance Evaluation and Ranking of Loss Assessment Agencies 
+22.1.4, 22.2 
+Table 13 
+Illustration for classification of risks, clustering/clubbing of risks and districts 
+and determination of L1 bidder 
+Annexure 1 
+Table 14 
+Penalty and performance Monitoring/Evaluation of Empanelled Insurance 
+Companies 
+Annexure 2 
+Table 15 
+Illustrative Evaluation of Efficiency of Nodal Department of State 
+Annexure 3 
+ 
+ 
+ 
+
+--- p4 ---
+ 
+Abbreviations 
+ 
+AIC 
+ Agricultural Insurance Company of India Ltd  
+ACF 
+ Area Correction Factor 
+APR 
+ Actuarial Premium Rate 
+ARG 
+ Automatic Rain Gauge  
+AWS 
+ Automatic Weather Stations  
+AY 
+ Actual Yield 
+CB 
+ Commercial Banks 
+CBS 
+ Core Banking Solution 
+CCAFS 
+ Research program on Climate Change, Agriculture and Food Security 
+CCEs 
+ Crop Cutting Experiments 
+CPMU 
+ Central Program Management Unit 
+CSC 
+ Common Service Center 
+CSO 
+ Central Statistical Office 
+CV 
+ Co-efficient of Variance  
+DAC&FW 
+ Department of Agriculture, Cooperation and Farmers Welfare  
+DBT 
+ Direct Benefit Transfer 
+DCCBs 
+ District Central Cooperative Banks  
+DLMC 
+ District Level Monitoring Committee 
+DLTC  
+District Level Technical Committee 
+ESI 
+ Expected Sum Insured 
+FASAL 
+Forecasting Agricultural output using Space, Agro meteorological and Land based observations  
+FIs 
+ Financial Institutions 
+GIC Re 
+General Insurance Corporation of India 
+GFR 
+ General Financial Rule 
+GIS 
+ Geographic Information System  
+GPS 
+ Global Positioning System 
+IA 
+ Implementing Agency 
+IC 
+ Insurance Company 
+IASRI 
+ Indian Agricultural Statistical Research Institute 
+IFPRI 
+ International Food Policy Research Institute 
+IMD 
+ Indian Meteorological Department 
+IRRI 
+ International Rice Research Institute 
+IRDAI 
+ Insurance Regulatory and Development Authority of India 
+ISRO 
+ Indian Space Research Organisation 
+ISS 
+ Interest Subvention Scheme 
+IT 
+ Information Technology 
+IU 
+ Insurance Unit 
+KCC 
+ Kisan Credit Cards 
+LC 
+ Loss Cost 
+LPA 
+ Long period Average 
+LPC 
+ Land Possession Certificate 
+MIS 
+ Management Information System 
+MNCFC 
+ Mahalanobis National Crop Forecast Centre  
+MOA&FW   
+Ministry of Agriculture and Farmers Welfare  
+I 
+
+--- p5 ---
+ 
+NABARD        National Bank for Agriculture and Rural Development  
+NAIS 
+ National Agricultural Insurance Scheme 
+NCIP 
+ National Crop Insurance Portal 
+NCIP* 
+ National Crop Insurance Programme 
+NEFT 
+ National Electronic fund Transfer 
+NFA 
+ Notified Area 
+NLMC 
+ National Level Monitoring Committee  
+NOAACPC 
+National Oceanic and Atmospheric Administration Climate Prediction Center 
+NRSC 
+ National Remote Sensing Centre, ISRO  
+NSSO 
+ National Sample Survey Organization 
+NTSU 
+ National Technical Support unit 
+PACS 
+ Primary Agricultural Credit Society 
+PMFS 
+ Public Finance Management System 
+PMU 
+ Project Management Unit 
+PRIs 
+ Panchayati Raj Institutions 
+RBI 
+ Reserve Bank of India 
+RoR 
+ Records of Right  
+RRBs 
+ Regional Rural Banks 
+RST 
+ Remote Sensing Technology  
+RTGS 
+ Real Time Gross Settlement  
+SAO 
+ Seasonal Agricultural Operations  
+SAC 
+ Space Applications Centre, ISRO  
+SI 
+ Sum Insured 
+SLA 
+ Service level agreement 
+SLCC 
+ State Level Coordination Committee 
+SLCCCI 
+ State Level Coordination Committee on Crop Insurance  
+SLTC 
+ State Level Technical Committee 
+SOF 
+ Scale of Finance 
+SOP 
+ Standard Operating Procedures 
+SRSC 
+ State Remote Sensing Centres 
+STAC 
+ State level Technical Advisory Committee 
+STSU 
+ State Technical Support Unit 
+TAC 
+ Technical Advisory Committee 
+TSU 
+ Technical Support Unit 
+TY 
+ Threshold Yield 
+UIDAI 
+ Unique Identification Authority of India 
+USSD 
+ Unstructured Supplementary Service Data  
+UT 
+ Union Territory 
+UTR 
+ Unique Transaction Reference  
+VLE 
+ Village Level Entrepreneur 
+UAV 
+ Unmanned Aerial Vehicle 
+WMO 
+ World Meteorological Organisation 
+XML 
+ eXtensible Markup Language 
+II 
+
+--- p6 ---
+ 
+ 
+1. 
+ Objective of the Scheme 
+ 
+Pradhan Mantri Fasal Bima Yojana (PMFBY) aims at supporting sustainable production in agriculture 
+sector by way of  
+• 
+Providing financial support to farmers suffering crop loss/damage arising out of unforeseen events 
+• 
+Stabilizing the income of farmers to ensure their continuance in farming 
+• 
+Encouraging farmers to adopt innovative and modern agricultural practices 
+• 
+Ensuring flow of credit to the agriculture sector which will contribute to food security, crop 
+diversification and enhancing growth and competitiveness of agriculture sector besides protecting 
+farmers from production risks. 
+2. 
+ Adoption of Technology for Scheme Administration: 
+2.1 
+ 
+In an endeavour to integrate Technology in implementation and execution of the Scheme, the Govt. of 
+ 
+India has designed and developed a National Crop Insurance Portal (NCIP) (www. pmfby.gov.in). This 
+ 
+will bring in better administration and coordination amongst stakeholders viz.  Farmers, States, 
+ 
+Insurers and Banks as well as real time dissemination of information and transparency.  
+2.2 
+ 
+The successful running of the Portal calls for responsible participation by different stakeholders who 
+ 
+will have the  responsibility for census coding and updating revenue/administrative units, AWS code 
+ 
+mapping and updating requisite information/details as per login credential module.  
+2.3 
+ Implementing States and Insurance Companies during each crop season are required to digitize and 
+ upload on the web Portal in the relevant module, basic information like notified areas, crops, sum 
+insured, Govt. subsidy, and premium to be paid by farmers and name of the implementing Insurance 
+Companies in the particular insurance unit etc., well within the prescribed time. This will facilitate 
+farmers and other stakeholders to get the relevant information on Internet and through SMS. State 
+Govt. and concerned Insurance Company will be responsible for any incorrect entry/ errors/ omissions 
+etc. 
+2.4 
+ Digitization of basic information/notification should compulsorily be done before floating tender 
+documents which will be followed by entry of bidded Premium rates and name of selected Insurance 
+Company immediately after finalization of bids and issue of work order. 
+2.5 
+ Since the National Crop Insurance Portal has been conceptualised for auto administration and 
+seamless flow of data/information/reports on real time basis, State Govt. would not be allowed to 
+create/use separate Portal/website for Crop Insurance purposes.  
+2.6 
+ 
+All Stakeholders have defined roles and responsibilities and accessibility to related modules on the 
+ 
+Portal for administration of the Scheme. Details of operationalization of modules for each 
+ 
+stakeholder are available on the Portal for ready reference.  
+
+--- p11 ---
+ 
+www.pmfby.gov.in 
+Revised Operational Guidelines of PMFBY 
+6 
+ 
+constitute SLCCCI for implementation of PMFBY on the lines similar to that of NAIS/NCIP*. The present 
+ 
+composition of SLCCCI may be strengthened by including representatives from State Horticulture 
+ 
+Dept., State Remote Sensing Application Centre, India Meteorological Department (IMD), Farmers’ 
+ 
+Representatives and empanelled Insurance Companies for implementing PMFBY. Chairman of SLCCCI 
+ 
+may co-opt representatives from other departments/agencies, if considered necessary. 
+6.2 
+ 
+Insurance Company: 
+ 
+ 
+Empanelment of Insurance Companies and their participation for implementation of the Scheme 
+ 
+(PMFBY) will imply their acceptance of all provisions, modalities and guidelines of the Scheme. The 
+ 
+empanelled Insurance Companies have to deploy requisite infrastructure and resources for 
+ 
+implementation of PMFBY particularly for following identified major activities: 
+6.2.1  
+To carry out Pilot study for leveraging new technology for effective implementation of Scheme in  a 
+ 
+transparent manner,  
+6.2.2  
+Deployment of requisite  infrastructure to increase the outreach to rural farmers at their doorstep,  
+6.2.3  
+Commitment for at least 10  % incremental increase in Non loanee coverage,  
+6.2.4  
+Deployment of sufficient manpower to co-observe CCEs and allied activities and compulsory use of 
+ 
+CCE Co-observation app,  
+6.2.5  
+Allocation of requisite resources and commitment for advertisements, awareness generation and 
+ 
+capacity building of stakeholders about the Scheme. The detailed planning for the same should be 
+ 
+submitted to Central and State Govt. in advance, before the start of each season. 
+6.3 
+ Submission of UID (AADHAAR) by farmer: 
+6.3.1  
+Aadhaar has been made mandatory for availing Crop insurance from Kharif 2017 season onwards. 
+ 
+Therefore, all banks are advised to mandatorily obtain Aadhaar number of their farmers and the same 
+ 
+applies 
+for 
+non-loanee 
+farmers 
+enrolled 
+through 
+banks/Insurance 
+companies/insurance 
+ 
+intermediaries. 
+6.3.2  
+Farmers not having Aadhaar ID 

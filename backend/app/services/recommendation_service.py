@@ -4,6 +4,7 @@ from __future__ import annotations
 import math
 import re
 import time
+from copy import deepcopy
 from collections import defaultdict
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -50,6 +51,7 @@ from app.schemas.recommendation import (
 from app.services.eligibility_catalog_service import get_catalogue_entry_for_scheme
 from app.services.eligibility_evaluator import EligibilityEvaluator, get_eligibility_evaluator
 from app.services.government_scheme_service import GovernmentSchemeService
+from app.services.scheme_presentation_service import presentation_for_scheme
 
 logger = get_logger(__name__)
 
@@ -101,6 +103,11 @@ class CitizenContext:
     family_size: Optional[int]
     document_types: set[str] = field(default_factory=set)
     document_names: set[str] = field(default_factory=set)
+    # Canonical citizen evidence view (built by CitizenContextService via
+    # CitizenEvidenceService). Present on all contexts built through the
+    # service; adapted from raw sets for hand-constructed/test contexts.
+    citizen_evidence: Any = None
+    verified_document_types: set[str] = field(default_factory=set)
 
     @property
     def state(self) -> str:
@@ -163,6 +170,15 @@ class CitizenContext:
         return needle.lower() in (haystack or "").lower()
 
     def to_snapshot(self) -> dict[str, Any]:
+        from app.services.citizen_evidence_service import citizen_evidence_for as _evidence_for  # local import: avoid cycle
+
+        try:
+            evidence_view = _evidence_for(self)
+            evidence_states = dict(evidence_view.states)
+            unmapped = list(evidence_view.unmapped_types)
+        except Exception:  # pragma: no cover - snapshot must never fail
+            evidence_states = {}
+            unmapped = []
         return {
             "citizen_id": getattr(self.citizen, "id", None),
             "full_name": getattr(self.citizen, "full_name", None),
@@ -176,6 +192,10 @@ class CitizenContext:
             "family_size": self.family_size,
             "profile_completion_percentage": self.profile_completion_percentage,
             "document_types": sorted(self.document_types),
+            "document_names": sorted(self.document_names),
+            "verified_document_types": sorted(self.verified_document_types),
+            "evidence_states": evidence_states,
+            "unmapped_document_types": unmapped,
             "total_land_area": self.total_land_area,
             "age": self.age,
             "senior_citizen": self.senior_citizen,
@@ -267,6 +287,12 @@ class SchemeRecommendation:
     profile_match_percentage: float
     semantic_query: str
     candidate_chunks: list[dict[str, Any]] = field(default_factory=list)
+    # Canonical evidence requirements the authoritative evaluation found
+    # unsatisfied (e.g. ``["bank_account"]``). This is EVIDENCE, not rules: it
+    # is deliberately kept separate from ``missing_requirements`` (which holds
+    # FAIL/UNKNOWN eligibility conditions). Recomputed on every evaluation and
+    # never persisted, so it can never become a stale snapshot.
+    missing_evidence: list[str] = field(default_factory=list)
 
     def to_match_payload(self, citizen_id: str, history_id: str) -> dict[str, Any]:
         return {
@@ -314,9 +340,21 @@ class CitizenContextService:
         documents = self.document_repo.get_by_citizen_id(citizen_id)
         total_land_area = self.land_repo.get_total_area(citizen_id)
         age = self._calculate_age(getattr(citizen, "date_of_birth", None))
-        document_types = {str(getattr(document, "document_type", "")).lower() for document in documents}
-        document_names = {str(getattr(document, "document_name", "")).lower() for document in documents}
         profile_completion = int(getattr(profile, "profile_completion_percentage", 0) or 0)
+
+        # Canonical evidence: government (DigiLocker) documents and the Build
+        # My Profile ``uploaded_documents`` resolve through the same alias map
+        # (``citizen_evidence_service``), so uploaded+verified Aadhaar/Land
+        # Record is visible to eligibility as ``aadhaar``/``land_record``.
+        # ``context_service`` now owns the merge; eligibility only reads the
+        # canonical ``citizen_evidence`` view (with raw sets adapted only for
+        # persisted-snapshot/test compatibility).
+        from app.services.citizen_evidence_service import CitizenEvidenceService
+
+        evidence = CitizenEvidenceService(self.db).build(citizen_id)
+        document_types = set(evidence.available_types)
+        document_names = set(evidence.names)
+        verified_types = set(evidence.verified_types)
 
         return CitizenContext(
             citizen=citizen,
@@ -330,6 +368,8 @@ class CitizenContextService:
             family_size=getattr(profile, "family_member_count", None),
             document_types=document_types,
             document_names=document_names,
+            citizen_evidence=evidence,
+            verified_document_types=verified_types,
         )
 
     def _calculate_age(self, date_of_birth: Any) -> Optional[int]:
@@ -577,6 +617,76 @@ def _missing_key(entry: Any) -> str:
     return ""
 
 
+def _condition_counts(matched_rules: Any, missing_requirements: Any) -> tuple[int, int]:
+    """Count citizen-presentable mandatory conditions from serialized rules.
+
+    Works on the serialized condition dicts embedded in recommendations and
+    eligibility-check payloads (``_serialize_structured_condition`` output for
+    the structured engine, ``_serialize_evaluation`` output for the legacy
+    rule engine). Returns ``(passed, total)`` where:
+
+    - optional conditions (``mandatory == False`` / ``severity == optional``)
+      are excluded — citizens are never blocked by preference rules;
+    - ``NOT_APPLICABLE`` conditions (conditional rules that did not apply)
+      are excluded;
+    - ``PASS`` counts as met, ``FAIL``/``UNKNOWN`` count as not met;
+    - legacy payloads without a ``result`` key fall back to ``passed``.
+    """
+    total = 0
+    passed = 0
+    for item in list(matched_rules or []) + list(missing_requirements or []):
+        if not isinstance(item, Mapping):
+            continue
+        if item.get("mandatory") is False or item.get("severity") == "optional":
+            continue
+        result = str(item.get("result") or "").strip().upper()
+        if result in {"NOT_APPLICABLE", "MANUAL_REVIEW"}:
+            continue
+        total += 1
+        if result == "PASS" or (not result and item.get("passed") is True):
+            passed += 1
+    return passed, total
+
+
+def _missing_evidence_for(
+    context: "CitizenContext",
+    required_documents: Iterable[str] | None,
+) -> list[str]:
+    """Authoritative evidence shortfall for one requirement set.
+
+    Uses the SAME canonical citizen evidence view the evaluator uses
+    (``citizen_evidence_service``), so a document the citizen has uploaded and
+    verified can never be reported as missing. Requirement keys the alias table
+    does not positively recognise are reported as missing rather than being
+    silently satisfied.
+    """
+    required = [str(item or "").strip().lower() for item in (required_documents or [])]
+    required = [item for item in required if item]
+    if not required:
+        return []
+
+    evidence = getattr(context, "citizen_evidence", None)
+    if evidence is None:
+        try:
+            from app.services.citizen_evidence_service import evidence_from_raw_types
+
+            evidence = evidence_from_raw_types(
+                getattr(context, "document_types", None) or [],
+                getattr(context, "document_names", None) or [],
+                verified_types=getattr(context, "verified_document_types", None),
+            )
+        except Exception:  # pragma: no cover - defensive
+            evidence = None
+
+    if evidence is None:
+        return list(required)
+
+    try:
+        return list(evidence.missing_requirements(required))
+    except Exception:  # pragma: no cover - defensive
+        return list(required)
+
+
 class RankingService:
     def score(
         self,
@@ -635,6 +745,32 @@ class RecommendationHistoryService:
         for row in log_rows:
             payloads.append({"citizen_id": citizen_id, "history_id": history_id, **row})
         return self.repo.log_repo.create_many(payloads)
+
+
+def _has_retrieval_artifacts(text: str) -> bool:
+    """True when text still carries RAG/OCR pipeline bookkeeping.
+
+    Fragments such as ``SMAM Operational Guidelines 2025 smam-guidelines.pdf
+    chunk`` are pipeline output, not scheme prose, and must never become the
+    citizen-facing description even when nothing better exists for a scheme.
+    """
+    normalized = _normalize_text(text)
+    if not normalized:
+        return True
+    if ".pdf" in normalized or ".docx" in normalized:
+        return True
+    return any(
+        marker in normalized
+        for marker in (
+            "chunk",
+            "retrieved",
+            "embedding",
+            "similarity score",
+            "page no",
+            "page number",
+            "ocr",
+        )
+    )
 
 
 class EligibilityEngineService:
@@ -743,6 +879,164 @@ class EligibilityEngineService:
         benefits = (candidate.scheme.benefits or candidate.scheme.description or "").strip()
         return benefits[:200] if benefits else None
 
+    def _public_scheme_description(self, scheme: GovernmentScheme) -> str | None:
+        """Return citizen-facing scheme text from stored scheme metadata.
+
+        Recommendation detail should not use retrieval chunks as the scheme
+        overview. Prefer existing curated fields; when the scheme has no clean
+        metadata, lightly cleaned source text is preserved — but obviously
+        unrelated fragments (letterhead addresses, page headers, OCR artifacts)
+        are never presented as the scheme description.
+        """
+        candidates = (
+            getattr(scheme, "description", None),
+            getattr(scheme, "eligibility_summary", None),
+            getattr(scheme, "benefits", None),
+        )
+        for value in candidates:
+            clean = self._clean_public_scheme_text(value, max_length=500)
+            if (
+                clean
+                and not self._looks_like_raw_source_dump(clean, scheme)
+                and not self._looks_like_unrelated_fragment(clean)
+            ):
+                return clean
+        # No curated metadata: preserve the cleaned source text, but still
+        # refuse addresses / letterheads / OCR headers / retrieval artifacts.
+        for value in candidates:
+            clean = self._clean_public_scheme_text(value, max_length=320)
+            if (
+                clean
+                and not self._looks_like_unrelated_fragment(clean)
+                and not _has_retrieval_artifacts(clean)
+            ):
+                return clean
+        return None
+
+    def _public_scheme_benefits(self, scheme: GovernmentScheme) -> str | None:
+        for value in (getattr(scheme, "benefits", None), getattr(scheme, "description", None)):
+            clean = self._clean_public_scheme_text(value, max_length=300)
+            if (
+                clean
+                and not self._looks_like_raw_source_dump(clean, scheme)
+                and not self._looks_like_unrelated_fragment(clean)
+            ):
+                return clean
+        return None
+
+    @staticmethod
+    def _clean_public_scheme_text(value: Any, *, max_length: int) -> str | None:
+        text = re.sub(r"\s+", " ", str(value or "")).strip()
+        if not text:
+            return None
+        # Page number / leading list numbering.
+        text = re.sub(r"^(?:page\s*(?:no\.?)?\s*\d+|[0-9]+\s+)", "", text, flags=re.IGNORECASE).strip()
+        # Letterhead heading run ("PRADHAN MANTRI KISAN SAMMAN NIDHI SCHEME ...").
+        text = re.sub(r"^[\d\s.,;:\-]*[A-Z][A-Z0-9\s()/&.,'\-]{12,}", "", text).strip()
+        # Letterhead address fragments ("New Delhi-110001", "NewDelhi 110001").
+        text = re.sub(
+            r"\bNew\s*Delhi\b\s*[-\u2013]?\s*(?:pin\s*(?:code)?\s*[-\u2013:]?\s*)?\d{0,6}",
+            "",
+            text,
+            flags=re.IGNORECASE,
+        ).strip()
+        text = re.sub(r"\bNewDelhi\b\s*[-\u2013]?\s*\d{0,6}", "", text, flags=re.IGNORECASE).strip()
+        text = re.sub(
+            r"\b(?:pin\s*(?:code)?|pincode)\s*[-\u2013:]?\s*\d{6}\b",
+            "",
+            text,
+            flags=re.IGNORECASE,
+        ).strip()
+        text = re.sub(r"\bDated\s*:?\s*[^.]{0,40}", "", text, flags=re.IGNORECASE).strip()
+        text = re.sub(r"\bF\.?\s*No\.?\s*[:\-\w/(). ]{3,80}", "", text, flags=re.IGNORECASE).strip()
+        text = re.sub(r"\s+", " ", text).strip(" ,.;:-")
+        if not text:
+            return None
+        if len(text) <= max_length:
+            return text
+        truncated = text[:max_length]
+        boundary = truncated.rfind(" ")
+        if boundary > max_length * 0.6:
+            truncated = truncated[:boundary]
+        return truncated.rstrip(" ,.;:-") + "..."
+
+    # Letterhead / OCR artifacts that must never become citizen-facing text.
+    _LETTERHEAD_TOKENS = (
+        "newdelhi",
+        "new delhi",
+        "krishi bhawan",
+        "kisan bhawan",
+        "udyog bhawan",
+        "shastri bhawan",
+        "niti ayog",
+        "www.",
+        "http",
+        "@gov.in",
+        "@nic.in",
+        "e-mail",
+        "telefax",
+        "telephone",
+        "fax",
+        "pin code",
+        "pincode",
+        "f.no",
+        "f. no",
+    )
+
+    @classmethod
+    def _looks_like_unrelated_fragment(cls, text: str) -> bool:
+        """True for letterhead addresses / page headers / OCR artifacts.
+
+        A real sentence that merely mentions an address is preserved; only
+        fragments whose letterhead content dominates (or that are nothing but a
+        pincode/address) are rejected. This keeps "preserve the source text"
+        honest without letting a scanned letterhead become the scheme summary.
+        """
+        normalized = _normalize_text(text)
+        if not normalized:
+            return True
+        stripped = normalized.strip(" ,.;:-")
+        if re.fullmatch(r"(?:new\s*delhi[-\s]*)?\d{6}", stripped):
+            return True
+        hits = sum(1 for token in cls._LETTERHEAD_TOKENS if token in normalized)
+        if hits == 0:
+            return False
+        without_tokens = normalized
+        for token in cls._LETTERHEAD_TOKENS:
+            without_tokens = without_tokens.replace(token, " ")
+        without_tokens = re.sub(r"[\d\W_]+", " ", without_tokens).strip()
+        return len(text) <= 120 or len(without_tokens) < 60
+
+    @staticmethod
+    def _looks_like_raw_source_dump(text: str, scheme: GovernmentScheme | None = None) -> bool:
+        normalized = _normalize_text(text)
+        if not normalized:
+            return True
+        if _has_retrieval_artifacts(text):
+            return True
+        markers = (
+            "page no",
+            ".pdf",
+            "new delhi",
+            "dated:",
+            "subject:",
+            "directory",
+            "lead implementing agency",
+            "cooperation & farmers",
+            "f.no",
+        )
+        marker_hits = sum(1 for marker in markers if marker in normalized)
+        alpha_chars = [char for char in text if char.isalpha()]
+        upper_ratio = sum(1 for char in alpha_chars if char.isupper()) / max(1, len(alpha_chars))
+        starts_like_heading = bool(re.match(r"^\d+\s+[A-Z][A-Z\s()/&.-]{20,}", text))
+        scheme_name = _normalize_text(getattr(scheme, "scheme_name", "") if scheme else "")
+        mostly_title = bool(
+            scheme_name
+            and normalized.replace("-", " ").startswith(scheme_name.replace("-", " ")[:30])
+            and len(text) > 120
+        )
+        return marker_hits >= 2 or starts_like_heading or (upper_ratio > 0.65 and len(text) > 80) or mostly_title
+
     def _profile_match_percentage(self, context: CitizenContext) -> float:
         completeness = context.profile_completion_percentage or 0
         document_bonus = min(20.0, len(context.document_types) * 4.0)
@@ -752,11 +1046,22 @@ class EligibilityEngineService:
     def _document_score(self, required_documents: list[str], context: CitizenContext) -> float:
         if not required_documents:
             return 100.0 if context.has_documents else 70.0
-        matched = 0
-        for required in required_documents:
-            needle = required.lower()
-            if needle in context.document_types or needle in context.document_names:
-                matched += 1
+        try:
+            from app.services.citizen_evidence_service import evidence_from_raw_types
+            evidence = getattr(context, "citizen_evidence", None)
+            if evidence is None:
+                evidence = evidence_from_raw_types(
+                    getattr(context, "document_types", None) or [],
+                    getattr(context, "document_names", None) or [],
+                    verified_types=getattr(context, "verified_document_types", None),
+                )
+            matched = sum(1 for required in required_documents if evidence.satisfies(required))
+        except Exception:
+            matched = 0
+            for required in required_documents:
+                needle = required.lower()
+                if needle in context.document_types or needle in context.document_names:
+                    matched += 1
         return round((matched / len(required_documents)) * 100.0, 2)
 
     def _benefit_score(self, candidate: SchemeCandidate) -> float:
@@ -860,6 +1165,7 @@ class EligibilityEngineService:
             profile_match_percentage=profile_match_percentage,
             semantic_query=candidate.aggregated_text,
             candidate_chunks=candidate.chunks,
+            missing_evidence=list(getattr(eligibility_result, "missing_evidence", []) or []),
         )
         
         # Build log rows for audit trail
@@ -929,6 +1235,7 @@ class EligibilityEngineService:
             profile_match_percentage=profile_match_percentage,
             semantic_query=candidate.aggregated_text,
             candidate_chunks=candidate.chunks,
+            missing_evidence=_missing_evidence_for(context, required_documents),
         )
         log_rows = [
             {
@@ -1311,6 +1618,9 @@ class EligibilityEngineService:
         recommendation, _ = self._evaluate_candidate(context, candidate, category=category, state=state)
         total_rules = len(recommendation.matched_rules) + len(recommendation.missing_requirements)
         passed_rules = len(recommendation.matched_rules)
+        mandatory_passed, mandatory_total = _condition_counts(
+            recommendation.matched_rules, recommendation.missing_requirements
+        )
         return EligibilityCheckResponse(
             citizen_id=citizen_id,
             evaluated_at=datetime.utcnow(),
@@ -1324,6 +1634,14 @@ class EligibilityEngineService:
             required_documents=recommendation.required_documents,
             application_ready=recommendation.application_ready,
             reasoning=recommendation.recommendation_reason,
+            mandatory_rules_total=mandatory_total,
+            mandatory_rules_passed=mandatory_passed,
+            evidence_checklist=self._build_evidence_checklist(
+                citizen_id,
+                recommendation.required_documents,
+                recommendation.missing_requirements,
+                recommendation.missing_evidence,
+            ),
         )
 
     def preview(self, citizen_id: str, limit: int = 5, category: str | None = None, state: str | None = None, query_override: str | None = None) -> EligibilityPreviewResponse:
@@ -1346,8 +1664,93 @@ class EligibilityEngineService:
 
     def _match_to_response(self, match: CitizenSchemeMatch) -> RecommendationMatchResponse:
         response = RecommendationMatchResponse.model_validate(match)
-        response.evidence_checklist = self._evidence_checklist_for_match(match)
+        current = self._current_recommendation_for_match(match)
+        if current is not None:
+            self._apply_current_recommendation(response, current)
+        else:
+            response.evidence_checklist = self._evidence_checklist_for_match(match)
+        # Structured citizen presentation (curated, PDF-grounded). Additive:
+        # the legacy sanitized description/benefits strings above are untouched.
+        self._apply_presentation(response, match.scheme_id)
         return response
+
+    def _apply_presentation(
+        self, response: RecommendationMatchResponse, scheme_id: str
+    ) -> None:
+        """Populate display_name / short_description / benefits_list.
+
+        Content comes from the curated presentation metadata; raw PDF
+        extraction is never placed in these fields.
+        """
+        try:
+            scheme = self.scheme_repo.get(scheme_id)
+            presentation = presentation_for_scheme(scheme)
+        except Exception as exc:  # pragma: no cover - presentation is non-critical
+            logger.warning("Presentation metadata unavailable for %s: %s", scheme_id, exc)
+            return
+        response.display_name = presentation["display_name"]
+        response.short_description = presentation["short_description"]
+        response.benefits_list = presentation["benefits"]
+
+    def _current_recommendation_for_match(
+        self, match: CitizenSchemeMatch
+    ) -> SchemeRecommendation | None:
+        scheme = self.scheme_repo.get(match.scheme_id)
+        if scheme is None:
+            return None
+        try:
+            context = self.context_service.build(match.citizen_id)
+            candidate = SchemeCandidate(
+                scheme=scheme,
+                semantic_score=float((match.similarity_score or 0.0) / 100.0),
+                chunks=[],
+                aggregated_text="",
+            )
+            recommendation, _ = self._evaluate_candidate(context, candidate)
+            recommendation.ranking_position = match.ranking_position
+            return recommendation
+        except Exception as exc:  # pragma: no cover - stale snapshot fallback
+            logger.warning(
+                "Could not refresh recommendation match %s from current context: %s",
+                match.id,
+                exc,
+            )
+            return None
+
+    def _apply_current_recommendation(
+        self,
+        response: RecommendationMatchResponse,
+        current: SchemeRecommendation,
+    ) -> None:
+        mandatory_passed, mandatory_total = _condition_counts(
+            current.matched_rules,
+            current.missing_requirements,
+        )
+        response.scheme_name = current.scheme.scheme_name
+        response.description = self._public_scheme_description(current.scheme)
+        response.benefits = self._public_scheme_benefits(current.scheme)
+        response.eligibility_status = str(
+            getattr(current.eligibility_status, "value", current.eligibility_status)
+        )
+        response.eligibility_percentage = current.eligibility_percentage
+        response.confidence_score = current.confidence_score
+        response.overall_score = current.overall_score
+        response.recommendation_reason = current.recommendation_reason
+        response.matched_rules = deepcopy(current.matched_rules)
+        response.missing_requirements = deepcopy(current.missing_requirements)
+        response.required_documents = list(current.required_documents)
+        response.estimated_benefit = current.estimated_benefit
+        response.application_ready = current.application_ready
+        response.profile_match_percentage = current.profile_match_percentage
+        response.semantic_query = ""
+        response.mandatory_rules_total = mandatory_total
+        response.mandatory_rules_passed = mandatory_passed
+        response.evidence_checklist = self._build_evidence_checklist(
+            response.citizen_id,
+            current.required_documents,
+            current.missing_requirements,
+            current.missing_evidence,
+        )
 
     def _match_to_response_match(self, match: CitizenSchemeMatch, history_id: str) -> RecommendationMatchResponse:
         if match.history_id != history_id:
@@ -1359,30 +1762,78 @@ class EligibilityEngineService:
     ) -> list[dict[str, Any]]:
         """Serialize the centralized evidence checklist for one match.
 
-        Uses the match's own required_documents/missing_requirements plus the
-        citizen's CURRENT uploaded document types (not a stale snapshot), so
+        Uses the match's own required_documents plus the citizen's CURRENT
+        uploaded/verified documents, and recomputes the evidence shortfall live
+        from the canonical evidence layer (not from a stale snapshot), so
         "Still needed" flips to "available" as soon as the user uploads.
         Engine requirements are never hidden or weakened here.
+        """
+        missing_evidence: list[str] = []
+        try:
+            context = self.context_service.build(match.citizen_id)
+            missing_evidence = _missing_evidence_for(
+                context, match.required_documents or []
+            )
+        except Exception:  # pragma: no cover - defensive
+            missing_evidence = []
+        return self._build_evidence_checklist(
+            match.citizen_id,
+            match.required_documents or [],
+            match.missing_requirements or [],
+            missing_evidence,
+        )
+
+    def _build_evidence_checklist(
+        self,
+        citizen_id: str,
+        required: Iterable[Any],
+        missing_entries: Iterable[Any],
+        missing_evidence: Iterable[Any] | None = None,
+    ) -> list[dict[str, Any]]:
+        """Build the citizen evidence checklist from raw requirement keys.
+
+        Shared by the stored-match serializer and the live
+        ``/eligibility/check`` endpoint so both expose identical
+        human-readable labels and document status. Uses the existing
+        ``resolve_evidence_checklist`` mapping — no second mapping table.
+
+        ``missing_entries`` carries the FAILED/UNKNOWN eligibility conditions
+        (rule outcomes); ``missing_evidence`` carries the canonical evidence
+        requirements the evaluator found unsatisfied. Both are needed and both
+        are kept distinct: the former drives the "information needed" prompts
+        for profile facts, the latter marks a genuinely absent document as
+        ``needed`` instead of ``manual``. A verified document can never appear
+        in either set because both are resolved against the citizen's CURRENT
+        canonical evidence.
         """
         from app.services.evidence_mapping_service import (
             resolve_evidence_checklist,
         )
 
-        required = [str(d or "") for d in (match.required_documents or [])]
-        missing_entries = match.missing_requirements or []
-        missing_keys = {_missing_key(entry) for entry in missing_entries}
+        required_keys = [str(d or "") for d in (required or [])]
+        missing_keys = {_missing_key(entry) for entry in (missing_entries or [])}
+        missing_keys.update(
+            str(entry or "").strip().lower() for entry in (missing_evidence or [])
+        )
         missing_keys.discard("")
         try:
-            uploaded = set(self.context_service.build(match.citizen_id).document_types)
+            built = self.context_service.build(citizen_id)
+            evidence = getattr(built, "citizen_evidence", None)
+            if evidence is not None:
+                verified_types: set[str] = set(getattr(evidence, "verified_types", set()) or set())
+            else:
+                verified_types = set(getattr(built, "verified_document_types", set()) or set())
+            uploaded: set[str] = set(getattr(built, "document_types", set()) or set())
         except Exception:
             uploaded = set()
+            verified_types = set()
         checklist = resolve_evidence_checklist(
-            required,
+            required_keys,
             uploaded,
             missing_only=sorted(missing_keys),
+            verified_document_types=verified_types,
         )
         return [item.to_dict() for item in checklist]
-        return self._match_to_response(match)
 
     def _history_to_response(self, history: RecommendationHistory, matches: list[CitizenSchemeMatch]) -> RecommendationHistoryResponse:
         response = RecommendationHistoryResponse.model_validate(history)

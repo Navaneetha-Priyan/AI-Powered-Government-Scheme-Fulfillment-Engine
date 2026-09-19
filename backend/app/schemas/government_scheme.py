@@ -81,6 +81,20 @@ class SchemeResponse(BaseModel):
     is_deleted: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
+    # ── Source-quality / audit fields ──────────────────────────────────────────
+    source_status: Optional[str] = None
+    source_pdf: Optional[str] = None
+    # ── Structured citizen-facing presentation fields (primary provenance =
+    # backend/data/scheme_presentation.json) ──────────────────────────────────
+    display_name: Optional[str] = None
+    about: Optional[str] = None
+    benefits_list: Optional[list[str]] = None
+    who_it_is_for: Optional[str] = None
+    eligibility_summary: Optional[str] = None
+    documents: Optional[list[str]] = None
+    application: Optional[list[str]] = None
+    source_status: Optional[str] = None
+    source_pdf: Optional[str] = None
 
 
 class SchemeDocumentResponse(BaseModel):

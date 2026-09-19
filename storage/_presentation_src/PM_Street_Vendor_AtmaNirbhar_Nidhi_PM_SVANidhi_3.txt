@@ -1,0 +1,688 @@
+--- p1 ---
+ 
+ 
+All India Highest Pendency ULBs – Data as on 7th August 2026 
+ 
+State Name 
+ULB Name 
+Ulb Code 
+District Name 
+Pending 
+Disbursement  
+DELHI 
+Municipal Corporation of 
+Delhi    
+276402 
+NEW DELHI 
+7615 
+KARNATAKA 
+Bbmp Municipal 
+Corporations  
+276600 
+BENGALURU URBAN 
+6370 
+MAHARASH
+TRA 
+Greater Mumbai Municipal 
+Corporations  
+251488 
+MUMBAI 
+4741 
+GUJARAT 
+Ahmedabad Municipal 
+Corporations  
+251096 
+AHMADABAD 
+3524 
+TAMIL 
+NADU 
+Greater Chennai 
+Corporation Municipal 
+Corporations  
+252294 
+CHENNAI 
+3291 
+UTTAR 
+PRADESH 
+Varanasi Municipal 
+Corporations  
+249531 
+VARANASI 
+3034 
+GUJARAT 
+Surat Municipal 
+Corporations  
+251231 
+SURAT 
+2760 
+UTTAR 
+PRADESH 
+Meerut Municipal 
+Corporations  
+248964 
+MEERUT 
+2711 
+UTTAR 
+PRADESH 
+Prayagraj Municipal 
+Corporations  
+249369 
+PRAYAGRAJ 
+2703 
+UTTAR 
+PRADESH 
+Ghaziabad Municipal 
+Corporations  
+248988 
+GHAZIABAD 
+2179 
+UTTAR 
+PRADESH 
+Agra Municipal Corporations  249062 
+AGRA 
+2169 
+ANDHRA 
+PRADESH 
+Visakhapatnam Municipal 
+Corporations  
+251719 
+VISAKHAPATANAM 
+2147 
+MADHYA 
+PRADESH 
+Indore Municipal 
+Corporations  
+250901 
+INDORE 
+2101 
+MADHYA 
+PRADESH 
+Bhopal Municipal 
+Corporations  
+250946 
+BHOPAL 
+1907 
+UTTAR 
+PRADESH 
+Lucknow Municipal 
+Corporations  
+249234 
+LUCKNOW 
+1895 
+MAHARASH
+TRA 
+Vasai-Virar Municipal 
+Corporations  
+251463 
+PALGHAR 
+1865 
+HARYANA 
+Faridabad Municipal 
+Corporations  
+248585 
+FARIDABAD 
+1826 
+MAHARASH
+TRA 
+Chhatrapati Sambhajinagar 
+Municipal Corporation  
+251428 
+CHHATRAPATI 
+SAMBHAJINAGAR 
+1690 
+ANDHRA 
+PRADESH 
+Vijayawada  Municipal 
+Corporations  
+251746 
+KRISHNA 
+1617 
+PUNJAB 
+Amritsar Municipal 
+Corporation  
+248273 
+AMRITSAR 
+1548 
+
+--- p2 ---
+HARYANA 
+Gurugram Municipal 
+Corporations  
+248576 
+GURUGRAM 
+1546 
+TAMIL 
+NADU 
+Coimbatore Municipal 
+Corporations  
+252653 
+COIMBATORE 
+1542 
+UTTAR 
+PRADESH 
+Gorakhpur Municipal 
+Corporations  
+249444 
+GORAKHPUR 
+1507 
+UTTAR 
+PRADESH 
+Kanpur Municipal 
+Corporations  
+249286 
+KANPUR NAGAR 
+1476 
+MAHARASH
+TRA 
+Pune Municipal 
+Corporations  
+251530 
+PUNE 
+1405 
+MAHARASH
+TRA 
+Navi Mumbai Municipal 
+Corporations  
+251472 
+THANE 
+1310 
+MAHARASH
+TRA 
+Solapur Municipal 
+Corporations  
+251577 
+SOLAPUR 
+1235 
+MAHARASH
+TRA 
+Nagpur Municipal 
+Corporations  
+251362 
+NAGPUR 
+1126 
+GUJARAT 
+Vadodara Municipal 
+Corporations  
+251209 
+VADODARA 
+1094 
+MADHYA 
+PRADESH 
+Ujjain Municipal 
+Corporations  
+250851 
+UJJAIN 
+1054 
+MAHARASH
+TRA 
+Nashik Municipal 
+Corporations  
+251442 
+NASHIK 
+1022 
+KARNATAKA 
+Mysuru Municipal 
+Corporations  
+252045 
+MYSURU 
+1020 
+GUJARAT 
+Rajkot Municipal 
+Corporations  
+251120 
+RAJKOT 
+999 
+UTTAR 
+PRADESH 
+Jhansi Municipal 
+Corporations  
+249314 
+JHANSI 
+994 
+MAHARASH
+TRA 
+Kalyan-Dombivli Municipal 
+Corporations  
+251483 
+THANE 
+981 
+PUNJAB 
+Ludhiana Municipal 
+Corporation  
+248338 
+LUDHIANA 
+972 
+ODISHA 
+Bhubaneswar Municipal 
+Corporations  
+250520 
+KHORDHA 
+969 
+MAHARASH
+TRA 
+Thane Municipal 
+Corporations  
+251471 
+THANE 
+914 
+MADHYA 
+PRADESH 
+Jabalpur Municipal 
+Corporations  
+250995 
+JABALPUR 
+912 
+TELANGAN
+A 
+Greater Hyderabad 
+Municipal Corporation  
+251664 
+HYDERABAD 
+912 
+UTTAR 
+PRADESH 
+Bareilly Municipal 
+Corporations  
+249149 
+BAREILLY 
+897 
+RAJASTHAN 
+Jaipur Municipal 
+Corporation  
+248736 
+JAIPUR 
+880 
+UTTAR 
+PRADESH 
+Saharanpur Municipal 
+Corporations  
+248873 
+SAHARANPUR 
+878 
+KARNATAKA 
+Hubballi-Dharwad Municipal 
+Corporations  
+251893 
+DHARWAD 
+862 
+MAHARASH
+TRA 
+Mira-Bhayandar Municipal 
+Corporations  
+251470 
+THANE 
+800 
+
+--- p3 ---
+TAMIL 
+NADU 
+Tiruchirappalli Municipal 
+Corporations  
+252749 
+TIRUCHIRAPPALLI 
+779 
+JHARKHAN
+D 
+Dhanbad Municipal 
+Corporations  
+250378 
+DHANBAD 
+769 
+HARYANA 
+Yamuna Municipal 
+Corporations  
+248500 
+YAMUNANAGAR 
+759 
+TAMIL 
+NADU 
+Dindigul Municipal 
+Corporations  
+252707 
+DINDIGUL 
+752 
+MAHARASH
+TRA 
+Pimpri Chinchwad Municipal 
+Corporations  
+251528 
+PUNE 
+744 
+MADHYA 
+PRADESH 
+Gwalior Municipal 
+Corporations  
+250694 
+GWALIOR 
+714 
+PUNJAB 
+Jalandhar Municipal 
+Corporation  
+248296 
+JALANDHAR 
+708 
+MAHARASH
+TRA 
+Panvel Municipal 
+Corporations  
+251492 
+RAIGAD 
+701 
+ANDHRA 
+PRADESH 
+Chittoor Municipal 
+Corporations  
+248122 
+CHITTOOR 
+684 
+ANDHRA 
+PRADESH 
+Guntur Municipal 
+Corporations  
+251757 
+GUNTUR 
+656 
+ANDHRA 
+PRADESH 
+Nellore  Municipal 
+Corporations  
+251772 
+SPSR NELLORE 
+631 
+MAHARASH
+TRA 
+Nanded-Waghala Municipal 
+Corporations  
+251401 
+NANDED 
+617 
+MAHARASH
+TRA 
+Jalna Municipal 
+Corporations  
+251423 
+JALNA 
+601 
+KARNATAKA 
+Davanagere Municipal 
+Corporations  
+251941 
+DAVANGERE 
+591 
+UTTAR 
+PRADESH 
+Aligarh Municipal 
+Corporations  
+249025 
+ALIGARH 
+586 
+CHHATTISG
+ARH 
+Raipur Municipal 
+Corporations  
+250653 
+RAIPUR 
+562 
+ASSAM 
+Guwahati Municipal 
+Corporations  
+249854 
+KAMRUP METRO 
+558 
+TAMIL 
+NADU 
+Tiruppur Municipal 
+Corporations  
+252621 
+TIRUPPUR 
+550 
+ANDHRA 
+PRADESH 
+Venkatagiri Municipality  
+251774 
+SPSR NELLORE 
+540 
+UTTAR 
+PRADESH 
+Mathura-Vrindavan 
+Municipal Corporations  
+249052 
+MATHURA 
+535 
+GUJARAT 
+Bhav Municipal 
+Corporations  
+251165 
+BHAVNAGAR 
+519 
+CHHATTISG
+ARH 
+Bilaspur Municipal 
+Corporations  
+250616 
+BILASPUR 
+515 
+TAMIL 
+NADU 
+Tambaram Municipal 
+Corporations  
+252319 
+KANCHIPURAM 
+509 
+UTTAR 
+PRADESH 
+Firozabad Municipal 
+Corporations  
+249079 
+FIROZABAD 
+501 
+HARYANA 
+Karnal Municipal 
+Corporations  
+248517 
+KARNAL 
+500 
+
+--- p4 ---
+ANDHRA 
+PRADESH 
+Madanapalli Municipality  
+248119 
+CHITTOOR 
+483 
+WEST 
+BENGAL 
+English Bazar Municipality  
+249991 
+MALDAH 
+471 
+KERALA 
+Thiruvananthapuram 
+Municipal Corporations  
+252260 
+THIRUVANANTHAPU
+RAM 
+467 
+MAHARASH
+TRA 
+Akola Municipal Corporation  251312 
+AKOLA 
+454 
+WEST 
+BENGAL 
+Asansol Municipal 
+Corporations  
+250032 
+PURBA 
+BARDHAMAN 
+449 
+HARYANA 
+Panipat Municipal 
+Corporations  
+248521 
+PANIPAT 
+446 
+MADHYA 
+PRADESH 
+Dewas Municipal 
+Corporations  
+250867 
+DEWAS 
+446 
+JHARKHAN
+D 
+Ranchi Municipal 
+Corporations  
+250413 
+RANCHI 
+439 
+KERALA 
+Kozhikode Municipal 
+Corporations  
+252160 
+KOZHIKODE 
+428 
+HARYANA 
+Rohtak Municipal 
+Corporations  
+248557 
+ROHTAK 
+420 
+ODISHA 
+Cuttack Municipal 
+Corporations  
+250501 
+CUTTACK 
+418 
+BIHAR 
+Biharsharif Municipal 
+Corporations  
+249642 
+NALANDA 
+415 
+JHARKHAN
+D 
+Deoghar Municipal 
+Corporations  
+248049 
+DEOGHAR 
+406 
+WEST 
+BENGAL 
+Howrah Municipal 
+Corporations  
+250247 
+HOWRAH 
+394 
+ANDHRA 
+PRADESH 
+Piduguralla Municipality  
+253167 
+GUNTUR 
+393 
+MAHARASH
+TRA 
+Bhiwandi Municipal 
+Corporations  
+251477 
+THANE 
+390 
+TAMIL 
+NADU 
+Vellore Municipal 
+Corporations  
+252381 
+VELLORE 
+384 
+UTTAR 
+PRADESH 
+Moradabad Municipal 
+Corporations  
+248929 
+MORADABAD 
+383 
+KARNATAKA 
+Ballari Municipal 
+Corporations  
+251927 
+BALLARI 
+381 
+CHHATTISG
+ARH 
+Bhilai Municipal 
+Corporations  
+250639 
+DURG 
+380 
+BIHAR 
+Patna Municipal 
+Corporations  
+249650 
+PATNA 
+378 
+MAHARASH
+TRA 
+Ulhasnagar Municipal 
+Corporation  
+251484 
+THANE 
+378 
+WEST 
+BENGAL 
+Siliguri Municipal 
+Corporations  
+249957 
+DARJEELING 
+375 
+ANDHRA 
+PRADESH 
+Tirupati Municipal 
+Corporations  
+248121 
+CHITTOOR 
+369 
+JHARKHAN
+D 
+Jamshedpur Notified Area 
+Council  
+250434 
+EAST SINGHBUM 
+365 
+
+--- p5 ---
+MAHARASH
+TRA 
+Jalgaon Municipal 
+Corporation  
+276571 
+JALGAON 
+354 
+UTTAR 
+PRADESH 
+Ayodhya Municipal 
+Corporations  
+249391 
+AYODHYA 
+353 
+MAHARASH
+TRA 
+Parbhani Municipal 
+Corporations  
+251416 
+PARBHANI 
+352 
+TAMIL 
+NADU 
+Salem Municipal 
+Corporations  
+252474 
+SALEM 
+351 
+PUNJAB 
+Bathinda Municipal 
+Corporation  
+248367 
+BATHINDA 
+345 
+ 
+

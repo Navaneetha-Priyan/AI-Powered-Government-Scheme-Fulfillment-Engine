@@ -176,6 +176,80 @@ class TestCitizenProfileAfterSync:
         assert response.status_code == 401
 
 
+class TestProfileCompletionRefreshViaApi:
+    """Both profile write endpoints must persist a refreshed completion score.
+
+    ``GET /citizen/dashboard`` reads the stored
+    ``profile_completion_percentage``, and the eligibility engine consumes the
+    same value. A stale score after a profile edit is a silent quality bug, so
+    each write path is asserted at the HTTP boundary.
+    """
+
+    def test_extended_profile_update_refreshes_dashboard_completion(
+        self, client: TestClient, synced_auth_headers: dict
+    ):
+        """``PUT /citizen/profile`` must refresh the dashboard completion."""
+        before = client.get("/citizen/dashboard", headers=synced_auth_headers)
+        assert before.status_code == 200
+        baseline = before.json()["data"]["profile_completion_percentage"]
+
+        response = client.put(
+            "/citizen/profile",
+            json={
+                "occupation": "Farmer",
+                "annual_income": 84000.0,
+                "caste": "Vanniyar",
+                "religion": "Hindu",
+                "education_level": "10th",
+                "blood_group": "O+",
+                "marital_status": "married",
+                "family_member_count": 4,
+            },
+            headers=synced_auth_headers,
+        )
+        assert response.status_code == 200
+
+        after = client.get("/citizen/dashboard", headers=synced_auth_headers)
+        assert after.status_code == 200
+        completion = after.json()["data"]["profile_completion_percentage"]
+
+        assert completion > baseline
+        assert completion == response.json()["data"][
+            "profile_completion_percentage"
+        ]
+
+    def test_auth_profile_update_refreshes_dashboard_completion(
+        self, client: TestClient, auth_headers: dict
+    ):
+        """``PUT /auth/profile`` must also refresh the dashboard completion.
+
+        This endpoint writes citizen columns (date_of_birth, gender, village,
+        pincode) that are part of the completion score.
+        """
+        baseline = client.get(
+            "/citizen/dashboard", headers=auth_headers
+        ).json()["data"]["profile_completion_percentage"]
+
+        response = client.put(
+            "/auth/profile",
+            json={
+                "date_of_birth": "1990-05-12T00:00:00",
+                "gender": "male",
+                "village": "Kandachipuram",
+                "pincode": "605401",
+            },
+            headers=auth_headers,
+        )
+        assert response.status_code == 200
+        assert response.json()["success"] is True
+
+        completion = client.get(
+            "/citizen/dashboard", headers=auth_headers
+        ).json()["data"]["profile_completion_percentage"]
+
+        assert completion > baseline
+
+
 class TestCitizenProfileDetails:
     """Tests for profile details endpoint"""
 

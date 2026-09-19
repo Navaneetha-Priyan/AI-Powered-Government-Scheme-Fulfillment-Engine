@@ -122,14 +122,16 @@ class RecommendationProvider extends ChangeNotifier {
   /// Loads a single recommendation detail, caching it and de-duplicating
   /// concurrent requests.
   Future<RecommendationMatch?> loadRecommendationDetail(
-    String recommendationId,
+    String recommendationId, {
+    bool forceRefresh = false,
+  }
   ) async {
     if (recommendationId.isEmpty) {
       return null;
     }
 
     final cached = _detailCache[recommendationId];
-    if (cached != null) {
+    if (!forceRefresh && cached != null) {
       return cached;
     }
 

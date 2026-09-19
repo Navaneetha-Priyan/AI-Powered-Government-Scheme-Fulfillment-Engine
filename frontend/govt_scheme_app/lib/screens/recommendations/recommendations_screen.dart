@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/localization/app_strings.dart';
+import '../../core/presentation/eligibility_presenter.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_states.dart';
 import '../../models/recommendation.dart';
@@ -146,7 +147,6 @@ class _SummaryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(18),
@@ -166,7 +166,6 @@ class _SummaryHeader extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _Chip(icon: Icons.check_circle_outline, label: '${summary.eligibleCount} eligible', color: const Color(0xFF16803C)),
-                _Chip(icon: Icons.auto_awesome_rounded, label: '${summary.overallConfidence.toStringAsFixed(0)}% confidence', color: cs.primary),
               ],
             ),
             const SizedBox(height: 8),
@@ -246,7 +245,7 @@ class _SchemeCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(match.schemeName,
+                        Text(match.displayTitle,
                             softWrap: true,
                             style: Theme.of(context)
                                 .textTheme
@@ -254,7 +253,8 @@ class _SchemeCard extends StatelessWidget {
                                 ?.copyWith(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 4),
                         _StatusPill(
-                            status: match.eligibilityStatus, color: eligColor),
+                            status: cardStatusLine(match.eligibilityStatus),
+                            color: eligColor),
                         if (isEligible)
                           const Text('Highly Recommended',
                               style: TextStyle(color: Color(0xFF16803C), fontWeight: FontWeight.w700, fontSize: 12)),
@@ -264,36 +264,36 @@ class _SchemeCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 14),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(
-                  '${cardStatusLine(match.eligibilityStatus)}',
-                  softWrap: true,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                ),
-              ),
               // ── Citizen-facing sections (sanitized, wrapped, bounded) ──
               // Raw retrieval metadata (semantic_query chunks, file refs,
-              // page markers) is intentionally never rendered on the card.
-              if (match.cardReason != null) ...[
-                const SizedBox(height: 12),
-                Text('Why you match:',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
-                const SizedBox(height: 4),
-                Text(match.cardReason!,
+              // page markers) and the raw recommendation_reason log string
+              // are intentionally never rendered on the card. The short
+              // description comes from the curated presentation metadata.
+              if (match.cleanShortDescription != null) ...[
+                Text(match.cleanShortDescription!,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
                     style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 4),
               ],
-              for (final bullet in match.cardMatchBullets)
-                _Bullet(icon: Icons.check_circle_outline, text: bullet),
-              if (match.cardBenefit != null) ...[
-                const SizedBox(height: 10),
-                Text('Benefit:',
+              if (match.cardMatchBullets.isNotEmpty) ...[
+                Text('Why this may be useful for you:',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 4),
-                Text(match.cardBenefit!,
-                    style: Theme.of(context).textTheme.bodyMedium),
+                for (final bullet in match.cardMatchBullets)
+                  _Bullet(icon: Icons.check_circle_outline, text: bullet),
+              ],
+              // Benefits come from the curated presentation metadata only.
+              // The raw DB/RAG-derived benefit string is never rendered, and
+              // an empty list omits the section entirely.
+              if (match.benefitBullets.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text('Benefits:',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                for (final bullet in match.benefitBullets.take(3))
+                  _Bullet(icon: Icons.check_circle_outline, text: bullet),
               ],
               if (match.cardMissingBullets.isNotEmpty) ...[
                 const SizedBox(height: 10),
@@ -342,7 +342,8 @@ class _StatusPill extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 220),
         child: Text(
-          AppFormatters.titleCase(status),
+          // Already a citizen label from the presentation layer.
+          status,
           softWrap: true,
           style: TextStyle(
               fontSize: 12, fontWeight: FontWeight.w700, color: color),
@@ -381,36 +382,10 @@ class _Bullet extends StatelessWidget {
 }
 
 String cardStatusLine(String statusLabel) {
-  if (statusLabel.isEmpty || statusLabel.toLowerCase() == 'unknown') {
-    return 'View scheme details';
-  }
-  return statusLabel;
-}
-
-class _ScoreChip extends StatelessWidget {
-  const _ScoreChip({required this.label, required this.value, required this.color});
-  final String label, value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      // Short bounded label only; wraps on narrow screens.
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 160),
-        child: Text('$label  $value',
-            softWrap: true,
-            style:
-                TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
-      ),
-    );
-  }
+  // Delegate to the shared presentation layer: raw backend statuses
+  // ("potentially_eligible", "insufficient_information", ...) become
+  // citizen phrases and internal names are never leaked.
+  return EligibilityPresentationPresenter.citizenStatusLabel(statusLabel);
 }
 
 /// Public, testable vertical list of recommendation cards.

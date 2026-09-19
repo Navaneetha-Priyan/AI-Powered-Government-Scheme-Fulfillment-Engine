@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from typing import Tuple, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from app.repositories.citizen_repository import CitizenRepository, LoginAuditRepository
+from app.repositories.citizen_profile_repository import CitizenProfileRepository
 from app.schemas.citizen import (
     CitizenRegisterRequest,
     CitizenLoginRequest,
@@ -62,6 +63,7 @@ class AuthenticationService:
         self.db = db
         self.citizen_repo = CitizenRepository(db)
         self.audit_repo = LoginAuditRepository(db)
+        self.profile_repo = CitizenProfileRepository(db)
 
     def register(
         self, register_data: CitizenRegisterRequest
@@ -306,8 +308,43 @@ class AuthenticationService:
         update_dict = update_data.model_dump(exclude_unset=True)
         updated_citizen = self.citizen_repo.update(citizen_id, update_dict)
 
+        # This endpoint edits citizen columns (full_name, date_of_birth, gender,
+        # address, pincode) that are part of the completion score, so the
+        # stored score must be recomputed here too. The eligibility engine reads
+        # it via ``CitizenContext.profile_completion_percentage`` (used by
+        # ``_profile_match_percentage`` and the application-readiness gate), so
+        # a stale value would silently degrade recommendation quality. The score
+        # is always derived — never accepted from the request payload.
+        self._refresh_profile_completion(citizen_id, updated_citizen)
+
         audit_logger.info(f"Citizen profile updated: {citizen_id}")
         return CitizenProfileResponse.model_validate(updated_citizen)
+
+    def _refresh_profile_completion(self, citizen_id: str, citizen: Citizen) -> None:
+        """Recompute and persist the citizen's profile completion percentage.
+
+        Reuses the single-source-of-truth ``calculate_profile_completion``
+        helper so the auth profile edit path and the extended-profile edit path
+        can never disagree about the score. Creating the profile row is
+        acceptable here: a citizen-only edit still needs somewhere to store the
+        derived score, matching ``ProfileEnrichmentService`` behaviour.
+        """
+        from app.services.citizen_profile_service import (
+            calculate_profile_completion,
+        )
+
+        try:
+            profile = self.profile_repo.get_by_citizen_id(citizen_id)
+            completion = calculate_profile_completion(citizen, profile or {})
+            self.profile_repo.upsert(
+                citizen_id, {"profile_completion_percentage": completion}
+            )
+        except Exception as e:
+            # A completion-refresh failure must never fail the profile update
+            # itself; the score is derived data that can be rebuilt later.
+            logger.warning(
+                f"Profile completion refresh skipped for citizen {citizen_id}: {e}"
+            )
 
     def change_password(
         self, citizen_id: str, password_data: ChangePasswordRequest

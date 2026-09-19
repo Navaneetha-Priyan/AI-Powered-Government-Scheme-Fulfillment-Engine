@@ -22,6 +22,10 @@ from app.schemas.government_scheme import (
 from app.schemas.rag import RagQueryRequest, RagQueryResponse
 from app.services.government_scheme_service import GovernmentSchemeService
 from app.services.rag_response_service import get_rag_response_service
+from app.services.scheme_presentation_service import (
+    is_valid_presentation_text,
+    presentation_for_scheme,
+)
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api", tags=["Government Scheme Knowledge Base"])
@@ -101,7 +105,48 @@ async def get_scheme(
 ):
     try:
         scheme = GovernmentSchemeService(db).get_scheme(scheme_id)
-        return SuccessResponse(success=True, message="Scheme retrieved successfully", data=_serialize_model(scheme))
+        data = _serialize_model(scheme)
+        # Merge curated citizen-facing presentation metadata on top of the raw
+        # scheme record. Presentation is informational only and never feeds
+        # eligibility or RAG. The primary fields (about / benefits_list) always
+        # come from validated curated metadata — raw extraction is never used as
+        # a fallback for them.
+        presentation = presentation_for_scheme(scheme)
+        if presentation:
+            display_name = presentation.get("display_name")
+            if display_name:
+                data["display_name"] = display_name
+            # Primary citizen-facing fields always come from validated curated
+            # metadata — raw extraction is never a fallback.
+            data["about"] = presentation.get("short_description")
+            data["benefits_list"] = presentation.get("benefits") or []
+            data["eligibility_summary_needs_review"] = bool(
+                presentation.get("eligibility_summary_needs_review")
+            )
+            data["who_it_is_for"] = presentation.get("who_it_is_for")
+            data["documents"] = presentation.get("documents") or []
+            data["application"] = presentation.get("application") or []
+            # Eligibility summary: the curated informational summary when it
+            # exists, otherwise the legacy column only if it is clean.
+            curated_summary = presentation.get("eligibility_summary")
+            legacy_summary = data.get("eligibility_summary")
+            if curated_summary:
+                data["eligibility_summary"] = curated_summary
+            elif legacy_summary and not is_valid_presentation_text(legacy_summary):
+                data["eligibility_summary"] = None
+        # Legacy text columns stay for backward compatibility, but obvious
+        # PDF/OCR extraction noise is never shipped to a client.
+        for legacy_key in (
+            "description",
+            "benefits",
+            "eligibility_summary",
+            "required_documents",
+            "application_process",
+        ):
+            legacy_value = data.get(legacy_key)
+            if legacy_value and not is_valid_presentation_text(legacy_value):
+                data[legacy_key] = None
+        return SuccessResponse(success=True, message="Scheme retrieved successfully", data=data)
     except AppException as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.to_dict()) from exc
 

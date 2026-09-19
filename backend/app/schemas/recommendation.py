@@ -92,11 +92,24 @@ class RecommendationMatchResponse(BaseModel):
     semantic_query: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
+    # ── Structured citizen presentation fields (additive, backward compatible)
+    # Source: backend/data/scheme_presentation.json (curated, PDF-grounded).
+    # `display_name` is a clean human-readable name; `short_description` is a
+    # short citizen-friendly summary; `benefits_list` holds short readable
+    # benefit bullets. The legacy `benefits` string is kept sanitized for old
+    # clients. Raw PDF extraction is never placed in these fields — when no
+    # clean summary exists, `short_description` is the safe fallback text
+    # "Information about this scheme is being prepared."
+    display_name: Optional[str] = None
+    short_description: Optional[str] = None
+    benefits_list: Optional[list[str]] = None
     # Centralized evidence checklist (one entry per engine requirement:
     # document -> upload option(s), profile_info -> profile prompt,
     # manual -> unsupported/manual evidence). Optional so older cached
     # payloads still parse; backend always populates it on fresh reads.
     evidence_checklist: Optional[list[dict[str, Any]]] = None
+    mandatory_rules_total: int = 0
+    mandatory_rules_passed: int = 0
 
 
 class RecommendationHistoryResponse(BaseModel):
@@ -167,6 +180,15 @@ class EligibilityCheckResponse(BaseModel):
     required_documents: list[str]
     application_ready: bool
     reasoning: str
+    # Additive citizen-presentation fields (all optional so older clients
+    # and cached payloads still parse). Structured evaluator counts let
+    # the UI render "N of M conditions met" instead of a misleading
+    # "eligibility percentage"; the evidence checklist carries
+    # human-readable document labels so the UI never renders snake_case
+    # requirement keys.
+    mandatory_rules_total: int = 0
+    mandatory_rules_passed: int = 0
+    evidence_checklist: Optional[list[dict[str, Any]]] = None
 
 
 class EligibilityPreviewResponse(BaseModel):

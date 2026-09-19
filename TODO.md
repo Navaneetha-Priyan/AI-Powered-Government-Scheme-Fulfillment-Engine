@@ -35,16 +35,39 @@
 - [x] 7. Update this TODO / report results
 
 ---
----
 # STEP 5: Integrate Document Upload + DigiLocker Sync with Profile Enrichment
 ## Backend
 - [x] 1. Audit existing DigiLocker sync, citizen upload, auth, and mock-data flows
-- [x] 2. Route `DigiLockerService.sync()` through the canonical pipeline: GovernmentDocument → DocumentProfileExtractor → DocumentProfileMapper → ProfileEnrichmentService (per-parcel land records; no direct MOCK_PROFILES dump)
+- [x] 2. Route `DigiLockerService.sync()` through the canonical pipeline: GovernmentDocument -> DocumentProfileExtractor -> DocumentProfileMapper -> ProfileEnrichmentService (per-parcel land records; no direct MOCK_PROFILES dump)
 - [x] 3. Emit per-parcel `land_record` documents in `mock_digilocker_data.py` (both 123/2A and 456/1B) and add `religion` to community-cert metadata
-- [x] 4. Extend extractor field spec + mapper to carry `religion` → `citizen_profiles.religion`
-- [x] 5. Wire `citizen_routes.upload_land_record()` to run the created GovernmentDocument through `enrich_document()` (no-op when no structured metadata — real OCR is Step 8)
+- [x] 4. Extend extractor field spec + mapper to carry `religion` -> `citizen_profiles.religion`
+- [x] 5. Wire `citizen_routes.upload_land_record()` to run the created GovernmentDocument through `enrich_document()` (no-op when no structured metadata - real OCR is Step 8)
 - [x] 6. Add integration suite `backend/tests/integration/test_document_enrichment_integration.py` (PART L: sync, per-doc enrichment, land aggregation, idempotency, sync contract, login-triggered sync, upload path)
 - [x] 7. Run new integration tests + full backend pytest suite (286 passed; `test_scheme_api.py` excluded due to pre-existing missing `fitz` dependency)
+
+---
+# STEP 6: Citizen-Facing Eligibility Presentation Accuracy
+## Backend
+- [x] 1. Audit the three parallel eligibility paths and the citizen-facing output contract
+- [x] 2. Add additive presentation fields (`mandatory_rules_total`, `mandatory_rules_passed`, `evidence_checklist`) to `EligibilityCheckResponse`
+- [x] 3. Add `_condition_counts()` in `recommendation_service.py` (excludes optional + `NOT_APPLICABLE`; legacy `passed` fallback)
+- [x] 4. Extract shared `_build_evidence_checklist()` so stored matches and live `/eligibility/check` emit identical human-readable labels
+- [x] 5. Refresh `profile_completion_percentage` on BOTH profile write paths (`PUT /api/citizen/profile`, `PUT /api/auth/profile`) via the single-source `calculate_profile_completion` helper
+- [x] 6. Add unit tests `backend/tests/unit/test_recommendation_presentation.py` + `backend/tests/unit/test_profile_completion_refresh.py`
+- [x] 7. Run full backend pytest suite (512 passed)
+
+## Flutter
+- [x] 8. Extend `EligibilityRuleResult` / `EligibilityCheck` / `RecommendationMatch` with structured `result` / `notes` / `mandatory` and condition counts
+- [x] 9. Rewrite `EligibilityPresentationPresenter` to present PASS/FAIL/UNKNOWN faithfully (missing info is never fabricated into a failure)
+- [x] 10. Update recommendation + scheme screens to render the factual "N of M conditions met" count and human-readable labels
+- [x] 11. Add `test/recommendation_model_test.dart`; update `eligibility_presenter_test.dart` + `recommendation_card_test.dart`
+- [x] 12. Run `flutter analyze` (no issues) and `flutter test` (55 passed)
+
+## Follow-up (DEFERRED - not implemented yet)
+- [ ] Consolidate the three parallel evaluation paths behind ONE engine. `app/models/scheme_eligibility.py` already owns the canonical `EligibilityResult` / `EligibilityConditionResult` shapes plus `determine_status()`, so any consolidation must REUSE those models rather than add a fourth definition.
+- [ ] Decide the single long-term owner of the `EligibilityStatus` vocabulary (DB model vs `eligibility_catalog_service` vs API layer).
+- [ ] Route the voice `eligibility_query` path through the same canonical decision used by recommendations.
+- [x] Test-isolation gap (resolved): `tests/integration/test_scheme_api.py::test_upload_process_and_search_scheme_document` called the real `government_scheme_service.upload()`, which rewrote the tracked fixture `backend/storage/schemes/agriculture/pm-kisan-support/pm-kisan-support_v1.pdf` on every run. Fixed by monkeypatching `settings.SCHEME_STORAGE_DIR` to `tmp_path / "schemes"`; a full 512-test run now leaves `git status` clean.
 
 ---
 # Phase 5: Voice → Personalized Government Scheme Recommendation

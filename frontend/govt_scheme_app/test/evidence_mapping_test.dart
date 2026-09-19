@@ -107,4 +107,28 @@ void main() {
     expect(entry.status, EvidenceStatus.needed);
     expect(entry.documentTypes, ['land_document']);
   });
+
+  test('backend verified and pending statuses are held evidence', () {
+    final verified = EvidenceChecklistEntry.fromJson(const {
+      'requirement': 'aadhaar',
+      'label': 'Aadhaar',
+      'kind': 'document',
+      'status': 'verified',
+      'document_types': ['aadhaar_card'],
+      'matched_document_type': 'aadhaar_card',
+    });
+    final pending = EvidenceChecklistEntry.fromJson(const {
+      'requirement': 'land_record',
+      'label': 'Land record',
+      'kind': 'document',
+      'status': 'pending',
+      'document_types': ['land_document'],
+      'matched_document_type': 'land_document',
+    });
+
+    expect(verified.status, EvidenceStatus.verified);
+    expect(verified.status.isHeld, isTrue);
+    expect(pending.status, EvidenceStatus.pending);
+    expect(pending.status.isHeld, isTrue);
+  });
 }

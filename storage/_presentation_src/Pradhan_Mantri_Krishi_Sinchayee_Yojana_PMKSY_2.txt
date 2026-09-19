@@ -1,0 +1,234 @@
+--- p1 ---
+Template for 
+District Irrigation Plan
+Foreword: ( by District Collector):
+Index:
+Executive summary 
+I. 
+Introduction:
+i. 
+Background,
+ii. 
+Vision,
+iii. 
+Objective,
+iv. 
+Strategy /approach,
+v. 
+Rationale/ Justification Statement: In reference to the status and need of 
+irrigation
+Chapter-I: General Information of the District:
+1.1 District Profile: 
+Any specific information of the district for its identification,
+latitude and longitude, historical or other importance, etc. if any, Administrative 
+setup
+Table No: 1.1 of Annexure I
+Source: Gazetteer, Census Report, any other source of government
+1.2 Demography: Male, female, children, SC/ST, General, Total 
+Table No: 1.2 of Annexure I
+Source: Census of India
+1.3 Biomass and Livestock: Green cover, Availability of fuel wood, Biomass yield, 
+Fodder Yield, Small and Large Livestock, Milk production.
+Table No: 1.3 of Annexure I 
+Source: Livestock Census of India
+1.4 Agro-Ecology, Climate, Hydrology and Topography: Agroecological zone, type of 
+terrain, normal annual rainfall, average monthly rainfall, no. of rainy days,
+
+--- p2 ---
+maximum rainfall intensity, season wise average weekly temperature, potential 
+Evapo-transpiration (PET), elevation.
+Table No.: 1.4 of Annexure I
+Source: IMD, regional ICAR centre(s), SAUs, KVKs etc
+1.5 Soil Profile : Major soil classes and land slope classification
+Table No.: 1.5 of Annexure I
+Source: SLUSI, NBSS, Indian Institute of Soil Science, Department of Land 
+Resources
+1.6 Soil Erosion and Runoff Status: Erosion, peak rate of runoff, frequency of peak, 
+total runoff volume, flood and drought
+Table: 1.6 of Annexure I
+Source No.: ICAR regional centre and sediment monitoring station
+NB: This information is optional and may be provided if available for the district
+1.7 Land Use Pattern: Total geographical area, area under agriculture, forest, wasteland 
+and other uses
+Table No: 1.7 of Annexure I 
+Source: DAP, PPR, Land Use Plan
+Chap-II: District Water Profile:
+2.1 Area Wise, Crop Wise irrigation Status: crop type, area under Kharif, Rabi and 
+summer , horticulture and plantation crops and irrigation for each type of crop
+Table No: 2.1 of Annexure I
+Source: Department of agriculture, agriculture statistic of state, agristat.
+2.2 Production and Productivity of Major Crops: season wise crop sown, production 
+productivity and cost of cultivated of crops under rainfed and irrigated conditions
+Table No: 2.2 of Annexure I
+Source: DAP, agriculture statistics
+
+--- p3 ---
+2.3 Irrigation based classification: gross irrigated area , net irrigated area, area under 
+protective irrigation, unirrigated or totally rainfed area
+Table No: 2.3 of Annexure I
+Source: Agriculture statistics, irrigation statistics of CWC, Indian statistics, open 
+government data platform
+Chap III: Water Availability:
+3.1: Status of Water Availability: Crop season wise sources of irrigation 
+Table No: 3.1 of Annexure I
+Source: CWC, CGWB, District Irrigation and Agriculture office records 
+3.2: Status of Ground Water Availability: Status of block, draft, recharge and gaps 
+Table No: 3.2 of Annexure I 
+Source: CGWB
+3.3: Status of Command Area: 
+Village wise information of canal command,
+information on other services command, total developed and under developed 
+command.
+Table No: 3.3 of Annexure I 
+Source: CADA, CGWB
+3.4: Existing Type of Irrigation: Surface, ground water, lift, treated effluent from STP, 
+other sources including traditional water harvesting structure.
+Table No: 3.4 of Annexure I
+Source: NWDA, CGG
+
+--- p4 ---
+Chap IV: Water Requirement /Demand:
+4.1: 
+Domestic Water Demand: population in 2015, projected population by 2020 and 
+Gross Water demand
+Table No: 4.1 of Annexure I
+Source: CWC, Department of Water Resources in District and Status Report
+4.2: Crop Water Demand: Crop wise water demand, existing water potential and water 
+potential to be created
+Table No: 4.2 of Annexure I
+4.3: Livestock Water Demand: Present water demand, water demand by 2020, water 
+potential to be created
+Table No: 4.3 of Annexure I
+4.4: Industrial Water Demand: Present water demand, water demand by 2020, water 
+potential to be created
+Table No: 4.4 of Annexure I
+4.5: Water Demand for Power Generation: Present water demand, water demand by 
+2020, water potential to be created
+Table No: 4.5 of Annexure I
+4.6: Total Water Demand of the District for Various sectors: Total Water Demand at 
+Present, Water demand by 2020 for all components.
+Table No: 4.6 of Annexure I
+4.7: Water Budget: Water availability, water demand and gaps
+Table No: 4.7 of Annexure I
+
+--- p5 ---
+Chapter V: Strategic Action Plan for Irrigation in District under PMKSY
+Table No. V: Block/ Sub District Wise, component wise activities, estimated cost and 
+period of implementation.
+Appendix A : District Map with *available layer of attributes:
+i. 
+Land Use of the District
+ii. 
+Soil Type of the District
+iii. 
+Cultivable Command Area (Kharif, Rabi, Zayad)
+iv. 
+Cropping Pattern (Kharif, Rabi, Zayad)
+v. 
+Surface and subsurface water
+vi. 
+Sub basin & Watershed
+vii. 
+Irrigation- canals and other sources, Irrigated area
+viii. 
+Industries & Sewage treatment Plant
+ix. 
+Urban and peri urban agriculture zone
+Source: NRSA, SRSA, WRIS, Bhuvan Application of ISRO
+*NB: Layers of attributes available may be provided for the district.
+Annexure I: Tables for collating information on DIP
+
+--- p6 ---
+Annexure I Tables for collating information on DIP
+Chapter I: General Information of the District:
+1.1 District Profile 
+Source: Gazetteer, Census Report, any other source of Government
+S No
+Name of the District
+District code
+Latitude
+Longitude
+1
+2
+1.2 Demography 
+Source: Census of India
+Name of the State:
+Name of District :
+Name of the Block:
+Name of the 
+Gram 
+Panchayat
+Name of 
+the
+Villages
+Covered
+Code of 
+Villages 
+covered
+Population
+SC
+ST
+General
+Total
+M
+F
+CH*
+Total
+No. of 
+household
+No. of 
+Members
+No. of 
+household
+No. of 
+Members
+No. of 
+household
+No. of 
+Members
+No. of 
+household
+No. of 
+Members
+* 1-14 years Age Bracket
+1.3 Biomass and Livestock
+Source: Livestock Census of India
+Name of the State
+Name of the District
+Name of the Block
+Small Animals
+Large Animals
+Any
+other
+Poultry
+(No.)
+Ducks
+(No.)
+Pigs
+(Nos.)
+Goats
+(Nos.)
+Sheeps
+(Nos.)
+Indigenous 
+Cow (Nos.)
+Hybrid
+Cow
+(Nos.)
+In
+descriptive
+Buffalo
+(Nos.)
+Hybrid
+Buffalo
+(Nos.)
+Milch
+or
+Meat
+Animal
+(Nos.)
+Draft Animal 
+(Buffalo/yak/bulls/any 
+other (Nos.)
+1
+

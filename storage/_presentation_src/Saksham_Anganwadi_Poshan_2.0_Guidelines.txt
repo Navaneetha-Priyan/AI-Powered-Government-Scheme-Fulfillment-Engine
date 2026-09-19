@@ -1,0 +1,375 @@
+--- p1 ---
+Saksham Anganwadi and Poshan 2.0 
+ 
+ 
+ 
+ 
+ 
+ 
+Mission Saksham 
+Anganwadi and 
+Poshan 2.0 
+ 
+Scheme Guidelines 
+ 
+ 
+ 
+ 
+Ministry of Women and Child Development 
+Government of India 
+ 
+
+--- p2 ---
+Saksham Anganwadi and Poshan 2.0 
+ 
+ 
+Contents 
+1. 
+INTRODUCTION ................................................................................ 3 
+1.1 
+Vision ..................................................................................................................... 4 
+1.2 
+Objectives .............................................................................................................. 4 
+1.3 
+Important components of Saksham Anganwadi and Poshan 2.0 ............................. 5 
+2. 
+INSTITUTIONAL FRAMEWORK FOR IMPLEMENTATION ............. 7 
+2.1 
+Framework at Central Level ................................................................................... 7 
+2.2 
+Roles and responsibilities of State Administration ................................................... 8 
+2.3 
+Roles and responsibilities of District Administration ................................................ 8 
+2.4 
+Roles and Responsibilities of Anganwadi Workers ................................................. 9 
+2.5 
+Roles and responsibilities of Anganwadi Helpers .................................................. 11 
+2.6 
+Poshan Tracker.................................................................................................... 12 
+2.7 
+Fund Flow ............................................................................................................ 12 
+2.8 
+Funding Pattern ................................................................................................... 12 
+2.9 
+Social Audit .......................................................................................................... 12 
+2.10 
+Evaluation ............................................................................................................ 13 
+3. 
+ANGANWADI SERVICES SCHEME ............................................... 14 
+3.1 
+Package of Services ............................................................................................ 14 
+3.1 
+Salient Features ................................................................................................... 14 
+3.2 
+Anganwadi Workers and Helpers: Qualification and Benefits under the Scheme ... 16 
+3.3 
+Supplementary Nutrition ....................................................................................... 17 
+3.2.1 Nutritional Norms ................................................................ 18 
+3.2.2 Cost Norms: ........................................................................ 18 
+
+--- p3 ---
+Saksham Anganwadi and Poshan 2.0 
+ 
+3.4 
+Diet Diversity including Integration of Fortified Rice and Millets ............................. 18 
+3.5 
+Hot Cooked Meals ............................................................................................... 19 
+3.6 
+Take Home Ration (not raw ration) ....................................................................... 19 
+3.7 
+Periodicity of distribution of THR .......................................................................... 20 
+3.8 
+Development of Community Food Habits ............................................................. 20 
+3.9 
+Procurement of Supplementary Nutrition .............................................................. 20 
+3.10 
+Quality Testing ..................................................................................................... 21 
+3.11 
+Role of Panchayats .............................................................................................. 22 
+3.11.1    Outline of activities centered on Poshan Panchayats 22 
+3.12 
+PoshanVatikas ..................................................................................................... 24 
+3.13 
+Leveraging Traditional Knowledge........................................................................ 25 
+3.14 
+Governance ......................................................................................................... 26 
+3.15 
+Early Childhood Care and Education (ECCE) ....................................................... 26 
+3.16 
+Construction of AWCs .......................................................................................... 27 
+3.17 
+Saksham Anganwadis .......................................................................................... 28 
+3.18 
+Road-Map for 5 years .......................................................................................... 28 
+4. 
+POSHAN ABHIYAAN ...................................................................... 29 
+4.1 
+Community Mobilization &Behavioural Change .................................................... 29 
+4.2 
+Community Based Events (CBEs) ........................................................................ 30 
+4.3 
+Jan Andolan ......................................................................................................... 30 
+4.4 
+Incentives and Awards ......................................................................................... 31 
+4.4.1 Incentives: ........................................................................... 31 
+4.4.2 Awards: ................................................................................ 31 
+4.5 
+Technology – Procurement of remaining Smartphones and GMDs ....................... 31 
+
+--- p4 ---
+Saksham Anganwadi and Poshan 2.0 
+ 
+4.6 
+Best Practices ...................................................................................................... 32 
+4.7 
+Convergence with Ministries/Departments/Organizations ..................................... 33 
+5. 
+SCHEME FOR ADOLESCENT GIRLS ............................................ 34 
+5.1 
+Objective of the Scheme ...................................................................................... 34 
+5.2 
+Coverage of the Scheme ...................................................................................... 34 
+5.3 
+Eligibility............................................................................................................... 34 
+5.4 
+Nutritional Benefits under the Scheme.................................................................. 35 
+5.5 
+Convergence under Non-Nutrition Component ..................................................... 35 
+6. 
+TRAINING OF ANGANWADI FUNCTIONARIES ............................ 38 
+APPENDIX: Cost Components ................................................................. 39 
+ANNEXURE I: ROADMAP FOR 5 YEARS ................................................. 44 
+ANNEXURE II: ............................................................................................ 45 
+COMPONENTS OF POSHAN ABHIYAAN ................................................. 45 
+The manpower details and organization at State (SPMU), District (DPMU) and Block (BPMU) 
+levels ................................................................................................................... 54 
+Remunerations to Manpower Hired on Contractual Basis at State/UT Level ....................... 57 
+Details of Contractual Posts at District Level Help Desk ..................................................... 57 
+Details of Contractual Posts at Block Level Help Desk ....................................................... 58 
+Costing Norms for SPMU Office ......................................................................................... 58 
+ANNEXURE III: CONVERGENCE .............................................................. 59 
+ANNEXURE IV: TRAINING ......................................................................... 69 
+ANNEXURE V: STREAMLINED GUIDELINES .......................................... 73 
+
+--- p5 ---
+Saksham Anganwadi and Poshan 2.0 
+1
+ 
+ 
+ 
+ 
+ 
+1.  
+AFHC  
+- 
+Adolescent Friendly Health Clinics 
+2.  
+ANM   
+- 
+Anganwadi Nurse Midwife  
+3.   
+ASHA   
+- 
+Accredited Social Health Activist 
+4.    
+AWWs 
+-  
+Anganwadi Workers 
+5.   
+AWHs  
+-  
+Anganwadi Helpers 
+6.  
+AYUSH  
+- 
+Ayurveda Unani Siddha Homeopathy 
+7.  
+BDO   
+- 
+Block Development Officer 
+8.  
+CBE   
+- 
+Community Based Events 
+9.  
+CDPO  
+-  
+Child Development Project Officer 
+10.  
+CGWB  
+- 
+Central Ground Water Board  
+11.  
+CPMU  
+- 
+Central Project Management Unit 
+12.  
+DD    
+- 
+Dietary Diversity 
+13.  
+DM  
+ 
+- 
+District Magistrate 
+14.  
+DPO   
+- 
+District Programme Officer 
+15.  
+FSSAI   
+- 
+Food Safety and Standards Authority of India 
+16.   GEM   
+- 
+Government e Marketplace  
+17.  
+GMDs  
+- 
+Growth Monitoring Devices 
+18.  
+HCM    
+- 
+Hot Cooked Meals 
+19.  
+IFA 
+ 
+- 
+ Iron and Folic Acid 
+20.   KSY    
+- 
+Kishori Shakti Yojana 
+21.  
+MAM   
+- 
+Moderately Acute Malnourished 
+ABBREVIATIONS 
+
+--- p6 ---
+Saksham Anganwadi and Poshan 2.0 
+2
+ 
+ 
+ 
+22.  
+MO  
+ 
+- 
+Medical Officers 
+23.  
+MSDP  
+-  
+Multi-sectoral Development Programme 
+24.  
+NeGD   
+- 
+National e-Governance Division 
+25. 
+NFHS  
+- 
+National Family Health Survey 
+26.  
+NFSA   
+- 
+National Food Security Act 
+27.  
+NHE   
+-  
+Nutrition & Health Education 
+28. 
+NHM  
+- 
+National Health Mission 
+29.      NREGA        -          National Rural Employment Guarantee 
+30.  
+POL   
+-  
+Petrol, Oil and Lubricant  
+31.  
+PPI  
+ 
+-  
+Pulse Polio Immunization 
+32.  
+PRI   
+- 
+Panchayati Raj Institution  
+33.  
+PW&LM   
+- 
+Pregnant Women and Lactating mothers 
+34.  
+RCH   
+- 
+Reproductive and Child Health 
+35.  
+RDA   
+-  
+Recommended Dietary Allowance 
+36.   SAM   
+-  
+Severely Acute Malnourished 
+37.  
+SDM   
+- 
+Sub Divisional Magistrate  
+38.  
+SHG   
+- 
+Self Help Group  
+39.  
+SPMU  
+- 
+State project Management Unit4 
+40.  
+SSDMs  
+-  
+State Skill Development Missions 
+41.  
+THR   
+-  
+Take Home Ration 
+42.  
+VHSNC   
+- 
+Village Health Sanitation and Nutrition Committee 
+ 
+ 
+
+--- p8 ---
+Saksham Anganwadi and Poshan 2.0 
+4
+ 
+ 
+ 
+better nutrition. Focus of the current program has largely been driven by calorie intake 
+rather than on balanced diets with absence of micro-nutrients in Take-Home Ration (THR) 
+and Hot Cooked Meals (HCM). Traditional wisdom in nutritional practices have not been 
+leveraged. Scheme execution and implementation have been affected by absence of 
+effective participation of beneficiaries and local stakeholders pointing to weak community 
+ownership or stake in local Anganwadi activities. A critical challenge faced is poor 
+implementation with absence of last-mile tracking.  
+Poshan 2.0 is designed to address the above challenges through transparency, 
+accountability, balanced diets, diet diversity and quality, greater grassroots involvement 
+and last-mile delivery of services supported by key strategies, viz., corrective strategies 
+to address nutrition related deficiencies, nutrition awareness strategies to develop good 
+eating habits for sustainable health and well-being, strategies for communication and 
+development of green eco-systems such as Poshan Vatikas. 
+1.1 
+Vision 
+Poshan 2.0 seeks to address the challenging situation of malnutrition among children 
+up to the age of 6 years, adolescent girls (14-18 years) and pregnant and lactating 
+women.  
+Poshan 2.0 is crucial for India’s development as women and children comprise over two-
+thirds of India’s population.  The achievement of the Sustainable Development Goals 
+lies at the fore-front of this programme design. Poshan 2.0 shall contribute to the SDGs, 
+specifically, SDG 2 on Zero Hunger and SDG 4 on Quality Education.  
+The Mission will focus on the fundamental importance of nutrition and early childhood 
+care and education for the well-being, growth and development of children into healthy 
+and productive adults.  
+1.2 
+Objectives 
+To prepare a comprehensive strategy to address the challenge of malnutrition, the 
+Supplementary Nutrition Programme under Anganwadi Services, Scheme for Adolescent 
+Girls and Poshan Abhiyaan have been aligned under Poshan 2.0 as an Integrated 
+Nutrition Support Programme. The objectives of Poshan 2.0 are as f

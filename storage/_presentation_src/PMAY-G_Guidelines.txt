@@ -1,0 +1,506 @@
+--- p1 ---
+Framework For Implementation 
+of 
+Pradhan Mantri Awaas Yojana- Gramin 
+(PMAY-G) 
+ 
+(2022) 
+ 
+
+--- p2 ---
+TABLE OF CONTENTS 
+Chapter 
+Content and Sub-heads 
+Page 
+No. 
+ 
+Executive Summary 
+(i)- (iv) 
+ 
+List of Abbreviations 
+(v)- (viii) 
+1 
+History of Rural Housing Programme in India 
+1-2 
+2 
+Key Features of PMAY-G 
+3-5 
+2.1 
+Aim and Objective 
+3 
+2.2 
+Key features of PMAY-G 
+3 
+3 
+Financial Arrangement and Targets 
+6-11 
+3.1 
+Sharing of the Scheme Cost 
+6 
+3.2 
+Allocation of Scheme funds 
+6 
+3.3 
+Administrative funds 
+6 
+3.4 
+Earmarking of Targets 
+8 
+3.5 
+Empowered Committee 
+10 
+3.6 
+Annual Action Plan 
+11 
+4 
+Identification and Selection of Beneficiaries 
+12-17 
+4.1 
+Universe of Eligible Beneficiaries 
+12 
+4.2 
+Prioritization within the Universe 
+12 
+4.3 
+Preparation of Priority Lists 
+13 
+4.4 
+Verification of Priority Lists by Gram Sabha (or 
+Village Sabha or the lowest unit of local self-government as 
+recognized by the respective State/UT Panchayat Act) 
+13 
+4.5 
+Grievance Redressal 
+15 
+4.6 
+Updation of Permanent Wait list 
+16 
+4.7 
+Preparation of Annual Select Lists 
+17 
+5 
+Construction of House 
+18-23 
+5.1 
+Unit Assistance to the Beneficiary 
+18 
+5.2 
+Tagging of Land and Mapping of Field Functionary 
+ 
+and Mason to Beneficiary 
+19 
+5.3 
+Issue of Sanction letter to Beneficiary 
+20 
+5.4 
+Release of first instalment to Beneficiary 
+21 
+5.5 
+Mode of Construction 
+21 
+5.6 
+Time limit for completion of House by the 
+ 
+beneficiary 
+21 
+5.7 
+Release of assistance to the beneficiaries 
+22 
+6 
+Beneficiary Support Services 
+24-30 
+6.2.1 Sensitization of the beneficiaries 
+24 
+6.2.2 Development and provision of house design 
+ 
+typologies 
+25 
+6.2.3 Training of Masons and Skill Certification 
+27 
+6.2.4 Sourcing of construction material 
+29 
+
+--- p3 ---
+6.2.5 Support to old and beneficiaries with disabilities 
+29 
+6.2.6 Facilitating loan of up to Rs.70,000 from Banks 
+29 
+7 
+Implementation and Support Mechanism 
+31-38 
+7.1 
+National Technical Support Agency for  Rural 
+ 
+Housing 
+31 
+7.2 
+Technical Support at the State Level 
+32 
+7.3 
+State Programme Management Units 
+32 
+7.4 
+Committees at the State and District level 
+36 
+7.5 
+Role of Gram Panchayat 
+36 
+7.6 
+Role of Self-Help Group accredited to NRLM 
+38 
+8 
+Convergence 
+39-41 
+9 
+Reporting and Monitoring Performance 
+42- 
+9.1 
+Reporting 
+42 
+9.2 
+Performance 
+42 
+9.3 
+Monitoring 
+43 
+9.3.1   Monitoring by Government of India 
+43 
+9.3.2   Monitoring by State/UT Governments 
+44 
+9.4 
+Community/Participatory Monitoring 
+45 
+9.5 
+Audit 
+45 
+9.6 
+Social Audit 
+45 
+10 
+Fund Management and Release 
+47-58 
+10.1 Fund Management- Basic Principles 
+47 
+10.2 Fund Release and Accounting 
+49 
+10.3 Submission of proposals and release of funds 
+50 
+10.4 Procedure for release of first instalment 
+52 
+10.5 Procedure for release of second instalment 
+52 
+10.6 Transfer of Central Share to Single Nodal Account 
+57 
+10.7 Release of State share 
+58 
+10.8 Reallocation 
+58 
+10.9 Penalty Provision 
+58 
+11 
+Special Projects 
+59-60 
+11.1 Allocation for Special Projects 
+59 
+11.2 Proposal for Special Projects 
+60 
+11.3 Funds for Special Projects 
+60 
+12 
+Grievance Redressal 
+61 
+13 
+e-Governance in PMAY-G 
+62-75 
+13.1 AwaasSoft 
+62 
+13.1.1 Features of AwaasSoft 
+63 
+13.1.2  Functions handled by various user levels on 
+AwaasSoft /AwaasApp 
+67 
+13.2 Managing PMAY-G at different levels 
+68 
+13.3 Process of data entry 
+69 
+
+--- p4 ---
+13.4 Fund flow through AwaasSoft 
+70 
+13.5 Monitoring Progress on AwaasSoft 
+73 
+13.6   Transactions through PFMS 
+73 
+13.7    Mobile Application: AwaasApp 
+74 
+13.8    Dedicated Micro-Monitoring Dashboard 
+75 
+14 
+Greening PMAY-G 
+76-78 
+14.1 The Vision 
+76 
+14.2 What is a green building 
+77 
+14.3 Objectives of Green housing under PMAY-G 
+77 
+14.4 How to choose Green Materials &Technologies 
+77 
+14.5 Incentives and Promotion of Green Housing 
+78 
+15 
+Annexures 
+ 
+ 
+Annexure I  
+ Exclusion 
+process 
+for 
+beneficiary 
+selection 
+79 
+ 
+Annexure II (A) 
+  Checklist for release of 2nd instalment 
+(Housing Funds) 
+80-82 
+ 
+Annexure II (B) 
+Checklist for release of 2nd instalment 
+(Administrative Funds) 
+83-85 
+ 
+Annexure III (A)  Proforma for submission of proposal 
+for release of 2ndinstallment (Housing 
+Funds) 
+86-87 
+ 
+Annexure III (B) 
+Proforma for submission of proposal 
+for 
+release 
+of 
+2ndinstallment 
+(Administrative Funds) 
+88-89 
+ 
+Annexure IV
+ 
+ 
+Format for Utilisation Certificate for 
+PMAY-G (Housing Funds) 
+90-91 
+ 
+Annexure V 
+Format for Expenditure Statement for 
+the current financial year - PMAY-G 
+(Housing Funds) 
+92-93 
+ 
+Annexure VI
+ 
+ 
+Format for Utilisation Certificate for 
+PMAY-G (Administrative Funds) 
+94-95 
+ 
+Annexure VII
+ 
+ 
+Format for Expenditure Statement for 
+the current financial year - PMAY-G 
+(Administrative Funds) 
+96-97 
+ 
+Annexure VIII 
+(A) 
+Formation of Committee-I for Revision 
+of Framework of implementation of 
+PMAY-G 
+98-99 
+ 
+Annexure VIII 
+(B) 
+Formation 
+of 
+Committee-II 
+for 
+finalisation 
+of 
+Framework 
+of 
+implementation of PMAY-G (2022) 
+100-102 
+ 
+Annexure IX (A) 
+Prakriti Hunar Lokvidya – PAHAL and 
+PAHAL Vol. II 
+103 
+ 
+Annexure IX (B) 
+Procedure to be adopted for dealing 
+104-106 
+
+--- p5 ---
+with unwilling beneficiary cases 
+ 
+Annexure IX (C) 
+Death of beneficiary under PMAY-G - 
+Procedure for dealing  
+with 
+cases 
+where PMAYG  
+beneficiary has died 
+107-111 
+ 
+Annexure IX (D) Procedure to be adopted for  dealing 
+with cases of permanent and temporary 
+migration of  
+beneficiaries 
+112-113 
+ 
+Annexure IX (E) Guidelines for construction of  demo 
+houses 
+114 
+ 
+Annexure IX (F) 
+Guidelines on social Audit under 
+PMAY-G 
+114 
+ 
+Annexure IX (G) Guidelines for Rural Mason Training 
+under PMAY-G 
+114 
+ 
+Annexure IX (H) Workflow and processes involved  in 
+deletion of households from  PWL and 
+remanding cases to Gram Sabha / 
+Remand Module 
+115-123 
+ 
+Annexure IX (I) 
+Guidelines on Muster Roll generation 
+under 
+MGNREGS 
+for 
+PMAY-G 
+beneficiaries 
+124-125 
+ 
+Annexure IX (J) 
+User Manual For Target Fixing And 
+Sanction Of Houses From Awaas+ 
+Lists Under PMAY-G 
+126-141 
+ 
+Annexure X  
+Format for submission of undertaking 
+for interest remittance 
+142 
+ 
+Annexure XI 
+Penalty 
+Provision/Deduction 
+in 
+Administrative 
+Fund 
+Provided 
+by 
+Government of India due to delay in 
+activities undertaken in Pradhan Mantri 
+Awaas Yojana - Gramin 
+143-144 
+ 
+SCHEDULE 
+145 
+ 
+ 
+
+--- p6 ---
+i 
+ 
+Executive Summary 
+1. 
+Public housing programme in the country started with the rehabilitation of 
+refugees immediately after independence and since then, it has been a major 
+focus area of the Government as an instrument of poverty alleviation. Rural 
+housing program, as an independent programme, started with Indira 
+AwaasYojana (IAY) in January 1996. Although IAY addressed the housing 
+needs in the rural areas, certain gaps were identified during the concurrent 
+evaluations and the Performance Audit by Comptroller and Auditor General 
+(CAG) of India in 2014. These gaps, i.e. non-assessment of housing shortage, 
+lack of transparency in selection of beneficiaries, low quality of house and lack 
+of technical supervision, lack of convergence, loans not availed by beneficiaries 
+and weak mechanism for monitoring, were limiting the impact and outcomes of 
+the programme. 
+2. 
+Government has committed to provide “Housing for All” by 2024. To fulfil 
+the Government’s commitment and address rural housing gaps, Pradhan 
+Mantri Awaas Yojana- Gramin (PMAY-G) is being implemented w.e.f. 1st 
+April, 2016. 
+3. 
+PMAY-G aims to provide pucca houses with basic amenities to all eligible houseless 
+households and households living in kutcha and dilapidated house in rural areas by 
+2024. To achieve the objective of “Housing for All” the target number of houses to 
+be constructed by the year 2023-24, is 2.95 Crore.  In the first phase, 1.00 crore 
+houses were taken up for construction in 3 years, i.e., 2016-17 to 2018-19. To 
+complete the overall target of 2.95 crore houses under PMAY-G, the remaining 
+houses are to be completed by March, 2024.The minimum size of the house has 
+been increased to 25 sq.mt. (from 20 sq.mt.) with a hygienic cooking space. The 
+unit assistance has been increased from Rs. 70,000 to Rs. 1.20 lakh in plains and 
+from Rs 75,000 to Rs.1.30 lakh in Hillstates/UTs of J&K and Ladakh, North 
+Eastern States, difficult areas and IAP/worst affected Left-Wing Extremism 
+(LWE) districts. The beneficiary is entitled to 90/95 person days of unskilled 
+labour from MGNREGS. The assistance for construction of toilet shall be 
+leveraged through convergence with SBM-G, MGNREGS or any other dedicated 
+source of funding. Convergence for piped drinking water, electricity connection, 
+LPG gas connection etc. under different Government programmes is also to be 
+attempted. 
+4. 
+The cost of unit assistance is to be shared between Central and State 
+Governments in the ratio 60:40 in plain areas and 90:10 for 2 Hill States 
+
+--- p7 ---
+ii 
+ 
+(Himachal Pradesh and Uttarakhand) and UT of Jammu and Kashmir. In 
+respect of other Union Territories, 100% cost is borne by Government of 
+India. From the annual provision of funds for PMAY-G, 95% of funds are 
+earmarked for construction of new houses. This includes 2% allocation 
+towards administrative funds for administering the scheme at the Central and 
+State level.  However, any changes in the administrative funds would be 
+notified by the Ministry.For Special Projects, 5% of the total funds would be 
+retained at the Central Level as reserve fund. The annual financial allocation to 
+the states is to be based on the Annual Action Plan (AAP) approved by the 
+Empowered Committee and the funds to States / UTs is to be released in two 
+equal installments. 
+5. 
+One of the most important features of PMAY-G is the selection of beneficiary. 
+To ensure that assistance is targeted at those who are genuinely deprived and 
+that the selection is objective and verifiable, PMAY-G, selects beneficiaries 
+using housing deprivation parameters in the Socio Economic and Caste 
+Census (SECC), 2011 data which is to be verified by the Gram Sabhas. The SECC 
+data captures specific deprivation related to housing among households. Using 
+the data households that are houseless and living in 0, 1 and 2 kutcha wall and 
+kutcha roof houses can be segregated and targeted. The Permanent Wait List so 
+generated also ensures that the states have ready list of households to be covered 
+under the scheme (through Annual Select Lists) leading to better planning of 
+implementation. To address grievances in beneficiary selection, an appellate 
+process has also been put in place. 
+6. 
+In addition, a mobile application, Awaas+, has been developed to capture 
+details of potentially eligible households, including geo-tagged photograph of 
+the present dwelling and the proposed site for construction of PMAY-G 
+house. The Awaas+ survey was conducted during January 2018- March 2019 
+and the details of the potential households captured using the mobile 
+application would be verified and validated and the final list of households 
+prepared thereafter could be included in the Permanent Wait List. 
+7. 
+To provide technical support in achieving the target of Housing for All, a 
+National Technical Support Agency (NTSA) is being set up at the national 
+level.The activities of the Agency, inter-alia, would include ensuring quality 
+construction,  promoting green housing, supporting the Ministry and States 
+for adoption of green construction norms, monitoring of implementation, 
+management of extra budgetary resources, Information Education and 
+Communication (IEC) activities, development and management of e-
+

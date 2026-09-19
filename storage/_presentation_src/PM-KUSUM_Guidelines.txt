@@ -1,0 +1,193 @@
+--- p1 ---
+Page 1  
+ 
+ 
+ 
+ 
+
+--- p2 ---
+Page 2  
+ 
+Ministry of New and Renewable Energy 
+ 
+Guidelines for Implementation of Pradhan Mantri Kisan Urja Suraksha evem Utthan 
+Mahabhiyan (PM KUSUM) Scheme 
+ 
+  
+1. 
+Background 
+  
+As a part of Intended Nationally Determined Contributions (INDCs), India has committed to 
+increase the share of installed capacity of electric power from non-fossil-fuel sources to 40% 
+by 2030.  
+  
+The Cabinet had approved scaling-up of solar power target from 20,000 MW of Grid 
+Connected Solar power Projects to 1,00,000 MW by 2022.  
+  
+While Large Scale Solar power generation projects are being installed to achieve the ambitious 
+target of 100 GW of Solar Power generation by 2022, it has been planned to simultaneously 
+develop decentralized Solar energy and other renewable energy generation Plants of capacity 
+up to 2 MW which could be connected directly to existing 33/11 kV or 66/11 kV or 110/11 kV 
+sub-stations of Distribution Company, thus saving in transmission system requirement apart 
+from T&D losses. Such plants near these sub-stations may be developed, preferably by farmers, 
+giving them an opportunity to increase their income by utilising their barren and uncultivable 
+land for solar or other renewable energy based power plants. Cultivable land may also be used 
+if the Solar plants are set up on stilts where crops can be grown below the stilts and sell RE 
+power to DISCOMs. 
+  
+Besides, developing decentralized renewable power, it is planned to replace Agriculture Diesel 
+pumps with Solar Water pumps and Solarise Grid connected Agriculture pumps. At present, 
+over 30 million agricultural pumps are installed in India, out of which nearly 10 million pumps 
+are diesel based. The Distribution Companies (DISCOMs) are not in a position to energize 
+these pumps through grid connection as seen from the long waiting lists with such Distribution 
+Companies. Hence there is a need to provide energy to these pumps through solar energy. Also, 
+over 20 million grid-connected agriculture water pumps installed in the country consume more 
+than 17 percent of total annual electricity consumption of the country. Solarization of the same 
+can reduce dependence of these pumps on conventional sources of energy supplied by 
+DISCOMs and thus reducing their burden of subsidy on agriculture consumption of Electricity. 
+This will also provide additional source of income to farmers who will be in a position to sell 
+the surplus power to DISCOMs.  
+  
+The new Scheme has provision for the decentralised renewable energy plants, Solar agriculture 
+water pumps and solarisation of existing Grid connected Agriculture pumps. 
+ 
+2. 
+Approval of the New Scheme for Farmers 
+  
+The Government of India has launched New Scheme for Farmers with following components:  
+i. 
+Component-A: Setting up of 10,000 MW of Decentralized Ground/ Stilt Mounted Grid 
+Connected Solar or other Renewable Energy based Power Plants; 
+ii. 
+Component-B: Installation of 17.50 Lakh Stand-alone Solar Agriculture Pumps; and 
+
+--- p3 ---
+Page 3  
+ 
+iii. 
+Component-C: Solarisation of 10 Lakh Grid Connected Agriculture Pumps. 
+  
+The Component-A and Component-C will be implemented initially on pilot mode for 1000 
+MW capacity and one lakh grid connected agriculture pumps respectively and Component-B 
+will be implemented in full-fledged manner with total Central Government support of Rs. 
+19,036.5 Crore.  
+  
+After successful implementation of pilot project of Components A and C, the same shall be 
+scaled up with necessary modifications based on the learning from the pilot phase with total 
+Central Government support of ₹ 15,385.5 Crores. 
+  
+All three components of the scheme aim to add Solar capacity of 25,750 MW by 2022 with the 
+total Central Financial Support of ₹ 34,422 crore. 
+  
+3. 
+Implementation mechanism: 
+  
+These guidelines have been formulated to provide broad implementation framework of the 
+Scheme. 
+I. Component A: Setting up of 10,000 MW of Decentralized Ground/Stilt Mounted Grid 
+Connected Solar or other Renewable Energy based Power Plants 
+Under this component, solar or other renewable energy based power plants (REPP) of capacity 
+500 kW to 2 MW will be setup by individual farmers/ group of farmers/ cooperatives/ 
+panchayats/ Farmer Producer Organisations (FPO)/Water User associations (WUA) hereinafter 
+called Renewable Power Generator (RPG). However, States/DISCOMs may allow setting-up 
+of solar or other renewable energy based power plants of capacity less than 500 kW in specific 
+cases. The REPP will be preferably installed within five km radius of the sub-stations in order 
+to avoid high cost of sub-transmission lines and to reduce transmission losses.  
+  
+The Distribution companies (DISCOMs) will notify sub-station wise surplus capacity which 
+can be fed from such RE power plants to the Grid and shall invite applications from interested 
+beneficiaries for setting up the renewable energy plants. The renewable power generated will 
+be purchased by DISCOMs at a pre-fixed levelised tariff. In case, the aggregate capacity 
+offered by Applicants is more than notified capacity for a particular sub-station, bidding route 
+will be followed by DISCOMs to select Renewable Power generator and in such cases the pre-
+fixed levelised tariff will be the ceiling tariff for bidding. Selection of bidders will be based on 
+the lowest tariff offered in the ascending order as quoted by the bidders in the closed bid or e-
+reverse auction as the case may be. A model PPA (Power Purchase Agreement) to be executed 
+between RPG and DISCOMs has been prepared by MNRE and attached at Annexure-I. The 
+duration of PPA will be 25 years from Commercial Operation Date (COD) of the project. The 
+total energy purchased from these RE plants will be accounted for fulfillment of RPO by the 
+DISCOM.  
+  
+In case the farmers/ group of farmers/ cooperatives/ panchayats/ Farmer Producer 
+Organisations (FPO)/ Water User associations (WUA) etc. are not able to arrange equity 
+required for setting up the REPP, they can opt for developing the REPP through developer(s) 
+or even through local DISCOM, which will be considered as RPG in this case. In such a case, 
+the land owner will get lease rent as mutually agreed between the parties. The lease rent may 
+be in terms of Rs per year per acre of land or in terms of Rs per unit energy generated per acre 
+
+--- p4 ---
+Page 4  
+ 
+of land area. The farmer(s) may opt for payment of lease rent directly in their bank account by 
+the DISCOM, from the payment due to the developer. A model Land Lease Agreement to 
+facilitate the beneficiaries has been prepared by MNRE and is attached at Annexure-II. 
+However, the terms of Land Lease Agreement may be finalised on mutual consent of concerned 
+parties. 
+  
+The REPP under the scheme would be implemented primarily on Barren / uncultivable 
+land.  Agricultural land is also permitted under the scheme provided that solar plants are 
+installed in stilt fashion (i.e. raised structure for installation of Solar panels) and with adequate 
+spacing between panel rows for ensuring that farming activity is not affected. The RPG would 
+be free to adopt any renewable energy source or technology while responding to the bid. 
+However, in case of cultivable land with solar plants, the same may be installed on stilts, so 
+that the farmers continue to cultivate the land, apart from getting the benefit of lease rent. In 
+such a case DISCOM may also float bids (in case of specific substations) where setting up of 
+solar projects on stilts may be mandatorily required, and bids for energy tariff invited 
+accordingly. 
+ 
+A. Selection and Implementation of Decentralised Renewable Energy Power Plants 
+a. Notification of sub-station wise generation capacity  
+DISCOM shall assess and notify RE generation capacity that can be injected in to all 33/11 kV 
+or 66/11 kV or 110/11 kV sub-station of rural areas and place such notification on its website 
+for information of all stakeholders. To facilitate farmers willing to lease out their land for 
+development of RE plants near above notified substation(s), as per provisions of this scheme, 
+DISCOM may also place list of such farmers on their website. However, the leasing of land of 
+any farmers will be a bi-partite agreement between the farmer and the developer and DISCOM 
+will not be held responsible for failure in getting the land leased out to a developer. To meet 
+additional demand DISCOM will augment the capacity of sub-station under IPDS or any other 
+scheme. 
+b. Expression of Interest (EoI) for Short-listing of RPG 
+DISCOM or any agency authorized by the DISCOM shall invite 33/11 kV or 66/11 kV or 
+110/11 kV sub-station wise EoI from RPG to participate in selection process for development 
+of decentralised renewable power plants. The RPG shall submit their interest against the EoI 
+as per the schedule notified by DISCOM. An RPG will not be allowed to apply for more than 
+one renewable power plant for a particular 33/11 kV sub-station.  The EoI of an RPG will also 
+be disqualified if it is found that its proprietor/partner/director/member has also filed EoI as 
+proprietor/partner/director /member for another RPG for the same sub-station.  
+The DISCOM or any agency authorized by the DISCOM may request to submit non-refundable 
+processing fee from the interested RPGs, which in no case shall be higher than Rs. 5000 per 
+MW or part thereof of the capacity applied for.  
+In order to ensure only quality systems are installed, prevailing MNRE/BIS specifications and 
+quality control orders applicable for solar modules, inverters, BoS and other equipment shall 
+be followed. 
+In case of REPP being developed by a developer, the Net-Worth of the developer should not 
+be less than Rs. 1.00 Crore per MW (of the capacity applied). This shall not be applicable for 
+
+--- p5 ---
+Page 5  
+ 
+farmers cooperative or panchayats or Farmer Producer Organisations (FPO) /Water User 
+associations (WUA) or farmers setting up REPP in their own lands. 
+c. Selection of REPP 
+In case the total aggregate capacity of eligible applications received for a particular sub-station 
+is less than or equal to the capacity notified for connectivity at the sub-station, LoA will be 
+awarded to all eligible applicants for procurement of renewable power at a pre-fixed levelised 
+tariff. 
+In case the total aggregate capacity of eligible application received for a particular sub-station 
+is more than the capacity notified for connectivity at the sub-station, then DISCOM or any 
+agency authorized by the DISCOM shall invite Bids from all these applicants. All eligible 
+applicants will have to submit tariff bids within a prescribed time. Selection of bidders will be 
+based on the lowest tariff offered in the ascending order as quoted by the bidders in the closed 
+bid or e-reverse auction as the case may be. LoA will be awarded to all successful bidders. 
+d. Connectivity with the sub-station 
+REPP of capacity up to 2 MW may be connected at 11 kV side of sub-station and the selected 
+RPG will be responsible for laying of dedicated 11 kV line from REPP to sub-station, 
+construction of bay and related switchgear at sub-station where the plant is connected to the 
+grid and metering is done. The DISCOM will facilitate the RPG in getting right of way for 
+laying of 11 kV line. Alternatively, RPG can get constructed the 11 kV lines through DISCOM 
+by paying the applicable cost and other charges. RPG will be responsible for maintaining this 
+dedicated 11 kV line. In case more than one bidders are awarded projects to be connected to 
+same Sub-station, they shall be permitted to co-ordinate with each other for setting up common 
+transmission line for feeding to Sub-Station if they so desire and with the approval of DISCOM. 
+However, in North Eastern States, Sikkim, Jammu & Kashmir, Himachal Pradesh and 
+Uttarakhand, Lakshadweep and A&N Islands, where States/UTs allows RE plants of capacity 

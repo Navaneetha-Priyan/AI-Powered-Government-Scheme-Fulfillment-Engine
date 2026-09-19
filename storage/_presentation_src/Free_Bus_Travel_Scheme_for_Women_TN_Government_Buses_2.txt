@@ -1,0 +1,76 @@
+--- p1 ---
+Online ticket Booking flow menthod. 
+ 
+1.Go to tnstc.in website 
+ 
+ 
+ 
+ 
+ 
+ 
+2.Select form where to where you want to service and select date of journey. 
+ 
+ 
+ 
+
+--- p2 ---
+ 
+3.after search bus service service will be shown. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- p3 ---
+4. Select the which time you want to service. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- p4 ---
+ 
+5.After that we  need to select the seat number and how many seat to want. 
+ 
+ 
+6.Enter the Passenger information,(I,e Name ,mobile number ,age ,Aadhar number Select gender also) 
+ 
+ 
+ 
+7.After submit it coming for trip details. Then select notification box. 
+
+--- p5 ---
+ 
+ 
+8.Then Defautly it was selected payment method(I,e BILLDESK AND BASIS PAY)  
+ 
+9.Then we need to select make payment  
+ 
+ 
+10.After “Ok” It’s going to payment details (I,e credit card ,netbanking,UPI,and wallet.) 
+
+--- p6 ---
+ 
+Whichever we want we need to select and enter card details or UPI details. 
+ 
+      1.Credit card and debit card details. 
+ 
+        2.Netbanking details (There we need to select which bank) 
+ 
+UPI method 
+ 
+

@@ -135,6 +135,65 @@ def get_mapping(requirement: str) -> EvidenceMapping | None:
     return _PROFILE_MAPPINGS.get(key)
 
 
+# Canonical-alias helpers. ``resolve_evidence_checklist`` receives raw upload
+# slots (``aadhaar_card``), canonical keys (``aadhaar``) or a state map, so it
+# must expand them through the same alias table the canonical evidence layer
+# uses. Unknown types return ``None`` and are never defaulted: only positively
+# recognised equivalences are merged here.
+_CANONICAL_ALIASES: dict[str, str] = {
+    "aadhaar_card": "aadhaar",
+    "aadhaar": "aadhaar",
+    "aadhar": "aadhaar",
+    "smart_ration_card": "smart_ration_card",
+    "ration_card": "smart_ration_card",
+    "income_certificate": "income_certificate",
+    "income_proof": "income_certificate",
+    "community_certificate": "community_certificate",
+    "caste_certificate": "caste_certificate",
+    "land_document": "land_record",
+    "land_record": "land_record",
+    "land_patta": "land_record",
+    "farmer_document": "farmer_id",
+    "farmer_id": "farmer_id",
+    "farmer_card": "farmer_id",
+    "farmer_certificate": "farmer_id",
+    "farmer_registration": "farmer_id",
+    "disability_certificate": "disability_certificate",
+    "bank_passbook": "bank_passbook",
+    "bank_account": "bank_passbook",
+    "education_certificate": "education_certificate",
+    "residence_certificate": "residence_certificate",
+    "birth_certificate": "birth_certificate",
+    "address_proof": "aadhaar",
+    "identity_proof": "aadhaar",
+}
+
+
+def _canonical_for_match(raw: str) -> str | None:
+    key = (raw or "").strip().lower()
+    if not key:
+        return None
+    if key in SUPPORTED_DOCUMENT_TYPES:
+        return _CANONICAL_ALIASES.get(key, key)
+    return _CANONICAL_ALIASES.get(key)
+
+
+def _match_mapping_documents(
+    mapping: EvidenceMapping,
+    uploaded_raw: set[str],
+    uploaded_canonical: set[str],
+) -> str | None:
+    """Return the matched upload slot for one mapping, or ``None`` if missing."""
+    for slot in mapping.document_types:
+        slot_key = (slot or "").strip().lower()
+        if slot_key in uploaded_raw:
+            return slot
+        canonical_slot = _canonical_for_match(slot_key)
+        if canonical_slot is not None and canonical_slot in uploaded_canonical:
+            return slot
+    return None
+
+
 def humanize_requirement(requirement: str) -> str:
     mapping = get_mapping(requirement)
     if mapping is not None:
@@ -174,7 +233,20 @@ def resolve_evidence_checklist(
     uploaded_document_types: Iterable[str] | Mapping[str, object] | None,
     *,
     missing_only: Sequence[str] | None = None,
+    verified_document_types: Iterable[str] | None = None,
 ) -> list[EvidenceChecklistItem]:
+    """Resolve each engine evidence requirement to a citizen-facing status.
+
+    ``uploaded_document_types`` is the set of document types the citizen holds.
+    ``verified_document_types`` is the subset of those that are confirmed
+    (Build My Profile "Verified" / DigiLocker verified). When it is supplied,
+    a satisfied requirement reports ``verified`` or ``pending`` instead of the
+    coarse ``available``, so the UI never shows a verified Aadhaar as missing.
+
+    Raw document types are matched here because ``evidence_mapping_service``
+    owns the requirement -> upload-slot mapping. Canonical evidence typing is
+    handled one layer up by ``citizen_evidence_service``.
+    """
     raw: list[str] = []
     for item in requirements or []:
         key = str(item or "").strip().lower()
@@ -188,9 +260,58 @@ def resolve_evidence_checklist(
             str(t or "").strip().lower() for t in uploaded_document_types or []
         }
 
+    # ``None`` keeps the legacy coarse ``available`` status for callers that
+    # cannot distinguish verification state.
+    verified: set[str] | None = None
+    if verified_document_types is not None:
+        verified = {
+            str(t or "").strip().lower() for t in verified_document_types or []
+        }
+
     missing: set[str] | None = None
     if missing_only is not None:
         missing = {str(m or "").strip().lower() for m in missing_only}
+
+    # ``uploaded_document_types`` may carry raw upload slots
+    # (``aadhaar_card``), canonical keys (``aadhaar``) or a state map. Expand
+    # them through the canonical alias table so an uploaded+verified Aadhaar
+    # is never reported as missing evidence.
+    uploaded_canonical: set[str] = set()
+    if isinstance(uploaded_document_types, Mapping):
+        uploaded_raw = {str(k).strip().lower() for k in uploaded_document_types}
+    else:
+        uploaded_raw = {
+            str(t or "").strip().lower() for t in uploaded_document_types or []
+        }
+    for key in set(uploaded_raw):
+        canonical_upload = _canonical_for_match(key)
+        if canonical_upload is not None:
+            uploaded_canonical.add(canonical_upload)
+
+    # ``None`` keeps the legacy coarse ``available`` status for callers that
+    # cannot distinguish verification state.
+    verified: set[str] | None = None
+    if verified_document_types is not None:
+        if isinstance(verified_document_types, Mapping):
+            verified = {
+                str(k).strip().lower() for k in verified_document_types
+            }
+        else:
+            verified = {
+                str(t or "").strip().lower() for t in verified_document_types or []
+            }
+    elif isinstance(uploaded_document_types, Mapping):
+        verified = {
+            str(k).strip().lower()
+            for k, state in uploaded_document_types.items()
+            if str(state or "").strip().lower() == "verified"
+        }
+    verified_canonical = (
+        None
+        if verified is None
+        else {_canonical_for_match(key) or key for key in verified}
+    )
+    verified_canonical.discard("") if verified_canonical is not None else None
 
     items: list[EvidenceChecklistItem] = []
     for key in raw:
@@ -215,14 +336,17 @@ def resolve_evidence_checklist(
                 profile_prompt=mapping.profile_prompt,
             ))
             continue
-        matched = next(
-            (doc for doc in mapping.document_types if doc in uploaded),
-            None,
-        )
-        if missing is not None and key not in missing:
-            status = "available" if matched else "manual"
+        matched = _match_mapping_documents(mapping, uploaded_raw, uploaded_canonical)
+        if matched is None:
+            status = (
+                "needed" if (missing is None or key in missing) else "manual"
+            )
+        elif verified is None and verified_canonical is None:
+            status = "available"
+        elif matched in (verified_canonical or set()) or _canonical_for_match(matched) in (verified_canonical or set()):
+            status = "verified"
         else:
-            status = "available" if matched else "needed"
+            status = "pending"
         items.append(EvidenceChecklistItem(
             requirement=key,
             label=mapping.label,

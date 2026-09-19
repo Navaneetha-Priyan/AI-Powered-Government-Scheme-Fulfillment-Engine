@@ -1,0 +1,493 @@
+--- p1 ---
+ 
+ 
+ 
+OPERATIONAL GUIDELINES 
+ 
+ 
+ 
+FOR 
+ 
+ 
+PRADHAN MANTRI RASHTRIYA KRISHI VIKAS YOJANA 
+(PM-RKVY) 
+ 
+ 
+ 
+Department of Agriculture & Farmers welfare 
+Ministry of Agriculture & Farmers Welfare 
+Government of India 
+Krishi Bhawan, NewDelhi-110001 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- p2 ---
+1 
+ 
+*** PM-RKVY Guidelines *** 
+Contents 
+ 
+Sl. No. 
+Particulars 
+Page no. 
+1 
+Introduction 
+8 
+2 
+Objectives  
+9-13 
+3 
+Eligibility criteria  
+14 
+4 
+Interstate Allocation 
+14 
+5 
+Cost norms and Pattern of assistance 
+14 
+6 
+Nodal Department of PM-RKVY 
+14-15 
+7 
+State Level Sanctioning Committee (SLSC) 
+15 
+8 
+Project Approval Committee (PAC) 
+16 
+9 
+Planning and Sanctioning of schemes 
+16-18 
+10 
+Release of funds 
+18 
+11 
+Pradhan Mantri Janjatiya Unnat Gram Abhiyan 
+19 
+12 
+Aspirational Districts and Vibrant Villages 
+19 
+13 
+Timeline 
+19 
+14 
+Implementation of PM- RKVY 
+20 
+A 
+DPR Component 
+20-22 
+B 
+AAP Component 
+23 
+I 
+PDMC 
+23-56 
+II 
+SMAM 
+57-75 
+III 
+CRM 
+76-87 
+IV 
+SH&F 
+88-97 
+V 
+PKVY 
+98-108 
+VI 
+RAD 
+109-120 
+VII 
+Agro Forestry 
+121-129 
+VIII 
+CDP 
+130-135 
+C 
+Agri Startup and Accelerator Fund 
+135 
+15 
+Administrative Expenses & Contingencies 
+136 
+16 
+Monitoring & Evaluation 
+136 
+17 
+Convergence 
+137 
+18 
+Changes in  PM-RKVY  
+137 
+19 
+Applicability of the guidelines 
+137 
+20 
+Annexures: 
+ 
+
+--- p3 ---
+2 
+ 
+*** PM-RKVY Guidelines *** 
+Annexure I 
+Format for submission of  Minutes of SLSC 
+138 
+Annexure II 
+Details of activities/projects as approved by SLSC 
+139-140 
+Annexure III 
+Form of Utilization Certificate 
+141 
+Annexure IV 
+Inter State Allocation of the funds under RKVY-RAFTAAR 
+142 
+Annexure V 
+Composition of State Level Sanctioning Committee (SLSC) 
+143 
+Annexure VI 
+Illustrative List Of Projects/Activities That Should Not Be 
+Funded Under RKVY- DPR Component 
+144 
+Annexure VII 
+Detailed Project Report 
+145 
+Annexure VIII 
+Illustrative List of Projects that can be funded under RKVY-
+RAFTAAR (Infrastructure & Assets) 
+146-147 
+Annexure IX 
+Activities relating to Production stream under RKVY- DPR 
+component 
+148 
+Annexure X 
+Recommended norms for use of treated sewage quality for 
+specific activities at point of use 
+149 
+Annexure XI 
+Format for Annual Action Plan– Per Drop More Crop (PDMC) 
+150-153 
+Annexure XII a 
+Format for Physical Progress Monitoring Report for Per Drop 
+More Crop (Micro Irrigation) 
+154 
+Annexure XII b 
+Format for Financial Progress Monitoring Report for Per Drop 
+More Crop (Micro Irrigation) 
+155 
+Annexure XIII a 
+Drip Irrigation Technology-Indicative Bill of Quantities 0.2 ha 
+156 
+Annexure XIII b Drip Irrigation Technology-Indicative Bill of Quantities 0.4 ha 
+157 
+Annexure XIII c 
+Drip Irrigation Technology-Indicative Bill of Quantities1.0 ha 
+158 
+Annexure XIII d Drip Irrigation Technology-Indicative Bill of Quantities2.0 ha 
+159 
+Annexure XIII e 
+Drip Irrigation Technology-Indicative Bill of Quantities3.0 ha 
+160 
+Annexure XIII f 
+Drip Irrigation Technology-Indicative Bill of Quantities4.0 ha 
+161 
+Annexure XIII g Drip Irrigation Technology-Indicative Bill of Quantities5.0 ha 
+162 
+Annexure XIII h NEH States -Drip Irrigation Technology-Indicative Bill of 
+Quantities0.2 ha 
+163 
+Annexure XIII i 
+NEH States -Drip Irrigation Technology-Indicative Bill of 
+Quantities0.4 ha 
+164 
+Annexure XIII j 
+NEH States -Drip Irrigation Technology-Indicative Bill of 
+Quantities 1.0 ha 
+165 
+Annexure XIII k NEH States -Drip Irrigation Technology-Indicative Bill of 
+Quantities 2.0 ha 
+166 
+Annexure XIII l 
+NEH States -Drip Irrigation Technology-Indicative Bill of 
+Quantities 3.0 ha 
+167 
+Annexure XIII m NEH States -Drip Irrigation Technology-Indicative Bill of 
+Quantities 4.0ha 
+168 
+Annexure XIII n NEH States -Drip Irrigation Technology-Indicative Bill of 
+Quantities 5.0ha 
+169 
+Annexure XIV 
+Indicative Bill of Quantities (BoQ) for Portable Sprinkler 
+Irrigation System 
+170 
+
+--- p4 ---
+3 
+ 
+*** PM-RKVY Guidelines *** 
+Annexure XV 
+Indicative Bill of Quantities (BoQ) for Micro Sprinkler Irrigation 
+System 
+171 
+Annexure XVI 
+Indicative Bill of Quantities (BoQ) for Mini Sprinkler Irrigation 
+System 
+172 
+Annexure XVII 
+Indicative Bill of Quantities (BoQ) for Semi Permanent Sprinkler 
+Irrigation System 
+173 
+Annexure XVIII Indicative Bill of Quantities (BoQ) for Rain-gun Sprinkler 
+Irrigation System 
+174 
+Annexure XIX 
+Water Quality Criteria In Relation To Clogging 
+175 
+Annexure XX 
+Guidelines for Selection of Filter 
+176 
+Annexure XXI 
+Indicative Price of Optional Components 
+177 
+Annexure XXII 
+Other Interventions to be provided as optional, if and only if a 
+farmer opted to install micro-irrigation System in his/her field 
+178 
+Annexure XXIII Gazette Notification 
+179-182 
+Annexure XXIV List of BIS Standards 
+183-184 
+Annexure-XXV 
+Pattern of Assistance and Maximum Permissible Subsidy  
+185-200 
+Annexure-XXVI Procedure for Credit Linked Capital Subsidy  
+201-202 
+Annexure-XXVII 
+ 
+List of Training Programmes conducted at the Farm Machinery 
+Training & Testing Institutes 
+203-205 
+Annexure-XXVIII 
+ 
+List of institutions approved by the Department for Testing and 
+Certifying Agricultural Machineries and Equipments 
+206-207 
+Annexure-XXIX Pattern of Assistance and Maximum Permissible Subsidy for the 
+Farmers for procurement of crop residue management machines 
+on individual ownership basis 
+208-209 
+Annexure-XXX 
+Pattern of Assistance and Maximum Permissible Subsidy per 
+machine under the projects of Custom Hiring Centres 
+210-211 
+Annexure-XXXI Procedure for Credit Linked Capital Subsidy on the Custom 
+Hiring Centres Projects and Paddy Straw Supply Chain Projects  
+212-213 
+Annexure-XXXII 
+ 
+Indicative Capital Expenditure for Setting up Paddy Straw 
+Supply Chain   
+214-215 
+Annexure-XXXIII Sample Bilateral Agreement  
+216-229 
+Annexure-XXXIV User manual for Mobile application 
+230-280 
+Annexure-XXXV Citizen Charter 
+281-284 
+Annexure- XXXVI Manual for Soil Health Card Portal 
+285-328 
+Annexure-XXXVII Guidelines for setting up of Village Level Soil Testing Labs 
+329-338 
+Annexure-
+XXXVIII 
+Illustrative list of equipment for setting up of Static Soil Testing 
+Laboratory 
+339 
+Annexure-XXXIX Illustrative list of equipment for setting up of Mobile Soil Testing 
+Laboratory 
+340 
+Annexure-XL 
+Items and equipment for Strengthening of Static/ Mobile Soil 
+Testing Laboratory 
+341 
+Annexure-XLI 
+Illustrative list of Equipments for setting up of new State 
+Fertilizer Testing Labs 
+342 
+Annexure-XLII 
+Illustrative list of Equipments for Strengthening of existing State 
+Fertilizer Quality Control Laboratory 
+343 
+
+--- p5 ---
+4 
+ 
+*** PM-RKVY Guidelines *** 
+Annexure-XLIII 
+List of Equipments and Plant and Machinery for Setting up New 
+Bio-fertilizer and Organic Fertilizer (organic manures) Quality 
+Control Laboratory 
+344 
+Annexure-XLIV Rain-fed Area Development (RAD) Cost Norms 
+345 
+Annexure-XLV 
+Format for Annual Action Plan (AAP) of RAD 
+346 
+Annexure-XLVI Rainfed Area Development (RAD) Progress Reporting Format 
+347 
+Annexure-XLVII Functions of National/State/District Project Management Team 
+(PMT) 
+348 
+Annexure-XLVIII Essential qualifications for Support Agency 
+349 
+Annexure-XLIX Roles and Responsibilities of Support Agency 
+350 
+Annexure-XLX 
+Eligible Criteria for Regional Councils 
+351 
+Annexure-XLXI Roles and Responsibilities of Regional Councils as Agencies 
+endorsing PGS Certification Process 
+352 
+Annexure-XLXII Roles and Responsibilities of Lead Resource Persons (LRPs) 
+353 
+Annexure-XLXIII Methodology for providing certification assistance to individual 
+farmers/small farmer groups and large contiguous area under 
+traditional/default organic farming 
+354 
+ 
+ 
+
+--- p6 ---
+5 
+ 
+*** PM-RKVY Guidelines *** 
+Abbreviations 
+AAP 
+Annual action Plan 
+AIBP 
+Accelerated Irrigation Benefit Programme 
+ATMA 
+Agriculture Technology Management Agency 
+BIS 
+Bureau of Indian Standards 
+BOQCL 
+Bio-fertilizer and Organic Fertilizer (organic manures) Quality Control Laboratory 
+CAFRI 
+ICAR-Central Agroforestry Research Institute 
+CDP 
+Crop Diversification Programme 
+CHC 
+Custom Hiring Centre 
+CIPET 
+Central Institute of Plastics Engineering and Technology 
+CRM  
+Crop Residue Management 
+CSIR 
+Council of Scientific and Industrial Research 
+CST 
+Central Sales Tax 
+DA&FW 
+Department of Agriculture & Farmers Welfare 
+DAPST 
+Development Action Plan for Scheduled Tribes 
+DBT  
+Direct Benefit Transfer 
+DIP 
+District Irrigation Plan 
+DLIC 
+District Level Implementation Committee 
+DoLR 
+Department of Land Resources 
+DONER  
+Development of North Eastern Region  
+DPR 
+Detailed Project Report 
+DRDA 
+District Rural Development Agency 
+EC 
+Executive Committee  
+EMD 
+Earnest Money Deposit  
+FMBs 
+Farm Machinery Banks 
+FMTTI 
+Farm Machinery Training and Testing Institutes  
+FPOs 
+Farmer Producer Organizations  
+FQCLs 
+Fertilizer Quality Control Laboratories 
+FRA 
+Forest Right Act 
+GoI 
+Government of India 
+HDPE 
+High Density Polyethylene 
+HP  
+Horse Power 
+HRD 
+Human Resource Development 
+ICAR 
+Indian Council of Agricultural Research 
+ICAR. 
+Indian Council of Agricultural Research 
+ICFRE 
+Indian Council of Forest Research & Education 
+ICRAF 
+International Centre for Research in Agroforestry 
+ICT 
+Information Communication Technology 
+IDWG 
+Inter Departmental Working Group 
+IEC 
+Information Education  and Communication 
+IFS 
+Integrated Farming System 
+
+--- p10 ---
+9 
+ 
+*** PM-RKVY Guidelines *** 
+2. 
+Objectives: 
+ 
+The main objective of PM-RKVY scheme is to provide flexibility & autonomy to States for 
+implementing projects as per the local and farmers’ needs and priorities in agriculture sector to 
+enhance production and productivity for making farming as a remunerative economic 
+activity.  
+The scheme also aims to support and scale up the startups under innovation and 
+entrepreneurship in various fields of agriculture and allied sectors to enhance income of farmers 
+and to create employment opportunities for the youth. 
+Specific objectives of the components under PM-RKVY are as follows: 
+I. 
+DPR: 
+ To strengthen the farmers' efforts through creation of required pre & post-harvest in 
+agriculture and allied sectors that help in supply of quality inputs, storage, market 
+facilities, etc. to farmers.  
+ To provide flexibility and autonomy to States to plan & implement projects as per the 
+local and farmers needs and priorities from a bouquet of activities in agriculture and 
+allied sectors.  
+ To fill the resources, gap of agriculture and allied sectors by providing financial support 
+to States for undertaking various activities to increase overall growth of agriculture and 
+allied sectors and farmers’ income.  
+ To promote agriculture and allied sectors activities of national priorities through 
+specific initiatives as per the needs from time to time to mitigate specific problems to 
+enhance production and productivity.  
+II. PDMC: 
+ To increase the area under Micro Irrigation technologies in agriculture to enhance water 
+use efficiency. 
+ To increase productivity of crops and income of farmers through precision water 
+management. 
+ Promote micro irrigation technologies in water intensive/consuming crops like 
+sugarcane, banana, cotton, paddy etc. and give adequate focus to extend coverage of 
+field crops under micro irrigation technologies. 
+

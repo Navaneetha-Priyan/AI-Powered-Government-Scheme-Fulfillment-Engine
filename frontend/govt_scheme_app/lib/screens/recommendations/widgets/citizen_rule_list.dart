@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/localization/app_strings.dart';
-import '../../../models/recommendation.dart';
-
 @immutable
 class CitizenRuleList extends StatelessWidget {
   const CitizenRuleList({
@@ -19,72 +16,6 @@ class CitizenRuleList extends StatelessWidget {
   final List<String> missingDocuments;
   final List<String> missingInformation;
   final String emptyText;
-
-  static List<String> buildPassedBullets(
-      Iterable<RecommendationRule> rules) {
-    final bullets = <String>[];
-    for (final rule in rules) {
-      final label = AppStrings.citizenFieldRelatedLabel(
-        rule.description,
-        rule.ruleCode,
-      );
-      bullets.add('Your ${label} matches this scheme\'s requirement.');
-      if (bullets.length >= 6) {
-        break;
-      }
-    }
-    return bullets;
-  }
-
-  static List<String> buildMissingDocumentBullets(
-      Iterable<RecommendationRule> rules, Iterable<String> documents) {
-    final seen = <String>{};
-    final bullets = <String>[];
-
-    for (final rule in rules.where((rule) => rule.looksDocumentRelated)) {
-      final expected = rule.expectedValue?.toString().trim() ?? '';
-      final label = expected.isNotEmpty
-          ? expected
-          : AppStrings.citizenRequirementLabel(rule.description, rule.ruleCode);
-      if (label.isNotEmpty && seen.add(label)) {
-        bullets.add('You still need to provide $label.');
-        if (bullets.length >= 6) {
-          break;
-        }
-      }
-    }
-
-    for (final doc in documents) {
-      if (doc.trim().isEmpty) {
-        continue;
-      }
-      if (seen.add(doc.trim())) {
-        bullets.add('You still need to provide ${doc.trim()}.');
-        if (bullets.length >= 6) {
-          break;
-        }
-      }
-    }
-
-    return bullets;
-  }
-
-  static List<String> buildMissingInformationBullets(
-      Iterable<RecommendationRule> rules) {
-    final bullets = <String>[];
-    for (final rule in rules.where((rule) => rule.hasMissingProfileValue)) {
-      final label = AppStrings.citizenFieldRelatedLabel(
-        rule.description,
-        rule.ruleCode,
-      );
-      bullets.add('We need to know ${label} '
-          'before we can confirm your eligibility.');
-      if (bullets.length >= 6) {
-        break;
-      }
-    }
-    return bullets;
-  }
 
   @override
   Widget build(BuildContext context) {

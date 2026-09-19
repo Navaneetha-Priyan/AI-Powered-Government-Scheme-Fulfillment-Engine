@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/localization/app_strings.dart';
+import '../../core/presentation/eligibility_presenter.dart';
 import '../../core/utils/evidence_mapping.dart';
 import '../../core/widgets/app_states.dart';
 import '../../models/recommendation.dart';
@@ -29,14 +30,15 @@ class _RecommendationDetailScreenState
   @override
   void initState() {
     super.initState();
-    if (widget.initialMatch == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _load());
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
   Future<void> _load() async {
     final provider = context.read<RecommendationProvider>();
-    await provider.loadRecommendationDetail(widget.recommendationId);
+    await provider.loadRecommendationDetail(
+      widget.recommendationId,
+      forceRefresh: true,
+    );
     if (!mounted) {
       return;
     }
@@ -76,6 +78,9 @@ class _RecommendationDetailScreenState
         final statusColor = match.isEligible
             ? const Color(0xFF16803C)
             : Theme.of(context).colorScheme.error;
+        final statusLabel = EligibilityPresentationPresenter.citizenStatusLabel(
+          match.eligibilityStatus,
+        );
 
         return Scaffold(
           appBar: AppBar(title: Text('Recommendation')),
@@ -90,7 +95,7 @@ class _RecommendationDetailScreenState
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        match.schemeName,
+                        match.displayTitle,
                         softWrap: true,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
@@ -109,27 +114,22 @@ class _RecommendationDetailScreenState
                               constraints:
                                   const BoxConstraints(maxWidth: 220),
                               child: Text(
-                                match.isEligible ? 'Eligible' : 'Not eligible',
+                                // Citizen label from the presentation layer;
+                                // raw backend statuses are never shown.
+                                statusLabel,
                                 softWrap: true,
                                 style: TextStyle(color: statusColor),
                               ),
                             ),
                           ),
-                          Chip(
-                            avatar: const Icon(Icons.percent_rounded, size: 18),
-                            label: Text(
-                              '${match.eligibilityPercentage.toStringAsFixed(0)}% eligibility',
+                          if (match.conditionSummary != null)
+                            Chip(
+                              avatar: const Icon(
+                                Icons.fact_check_outlined,
+                                size: 18,
+                              ),
+                              label: Text(match.conditionSummary!),
                             ),
-                          ),
-                          Chip(
-                            avatar: const Icon(
-                              Icons.verified_outlined,
-                              size: 18,
-                            ),
-                            label: Text(
-                              '${match.confidenceScore.toStringAsFixed(0)}% confidence',
-                            ),
-                          ),
                           if (match.applicationReady)
                             Chip(
                               avatar: const Icon(
@@ -140,54 +140,123 @@ class _RecommendationDetailScreenState
                             ),
                         ],
                       ),
-                      // Sanitized citizen summary lives on the header card.
-                      // Full raw backend text is never dumped here.
-                      if (match.cardReason != null) ...[
-                        const SizedBox(height: 12),
-                        Text('Why you match:',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(fontWeight: FontWeight.w700)),
-                        const SizedBox(height: 4),
-                        Text(match.cardReason!,
-                            style: Theme.of(context).textTheme.bodyLarge),
-                      ],
                     ],
                   ),
                 ),
               ),
-              if (match.cardReason != null) ...[
+              // â”€â”€ Structured citizen sections: raw recommendation_reason
+              // log strings (e.g. "â€¦ | Benefit: , N | 7%") are never shown.
+              if (match.cardMatchBullets.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _DetailSection(
-                  title: 'Why this was recommended',
-                  icon: Icons.lightbulb_outline,
-                  child: Text(
-                    match.cardReason!,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                   title: 'Why this may be useful for you',
+                   icon: Icons.lightbulb_outline,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final bullet in match.cardMatchBullets)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.check_circle_rounded,
+                                  size: 18, color: Color(0xFF16803C)),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(bullet,
+                                    softWrap: true,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
-              if (match.description != null &&
-                  match.description!.isNotEmpty) ...[
+              if (match.cardMissingBullets.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _DetailSection(
-                  title: 'Scheme description',
-                  icon: Icons.description_outlined,
-                  child: Text(
-                    match.description!,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                  title: 'What information is missing',
+                  icon: Icons.info_outline_rounded,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final bullet in match.cardMissingBullets)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.help_outline_rounded,
+                                  size: 18,
+                                  color:
+                                      Theme.of(context).colorScheme.tertiary),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(bullet,
+                                    softWrap: true,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
-              if (match.matchedRules.isNotEmpty) ...[
+              // "About this scheme": clean curated short description. When
+              // none exists (needs-review schemes), the safe fallback is
+              // shown — raw PDF extraction is never used as fallback.
+              _DetailSection(
+                title: 'About this scheme',
+                icon: Icons.description_outlined,
+                child: Text(
+                  match.cleanShortDescription ??
+                      RecommendationMatch.aboutFallback,
+                  softWrap: true,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+              // "What you get": curated benefit bullets only. Raw DB/RAG-derived
+              // benefit text is never used as a fallback — when no validated
+              // bullets exist the section is omitted entirely.
+              if (match.benefitBullets.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _DetailSection(
-                  title: 'Matched profile attributes',
-                  icon: Icons.person_pin_circle_outlined,
-                  child: _RuleList(
-                    items: match.matchedRules,
-                    emptyText: 'No matched attributes.',
+                  title: 'What you get',
+                  icon: Icons.savings_outlined,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final bullet in match.benefitBullets)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.check_circle_rounded,
+                                  size: 18, color: Color(0xFF16803C)),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(bullet,
+                                    softWrap: true,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
@@ -200,23 +269,9 @@ class _RecommendationDetailScreenState
               // internal field names (income_tax_payer, farmer_registration,
               // ...). _EvidenceChecklistCard above already surfaces every
               // missing item with a human-readable label + next action.
-              // Never fall back to the raw `benefits` string here: when
-              // `cardBenefit` is null the backend text was classified as
-              // retrieval noise, and showing it would reintroduce the dump.
-              if (match.cardBenefit != null) ...[
-                const SizedBox(height: 12),
-                _DetailSection(
-                  title: 'Expected benefits',
-                  icon: Icons.savings_outlined,
-                  child: Text(
-                    match.cardBenefit!,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                ),
-              ],
-              // 'Estimated benefit' raw string is NOT shown separately:
-              // cardBenefit (sanitized estimatedBenefit/benefits) is already
-              // rendered above as 'Expected benefits'.
+              // The curated "What you get" bullets above already carry the
+              // citizen-facing benefit text; the raw `benefits`/`estimated
+              // benefit` strings are intentionally NOT repeated here.
               // Raw retrieval text (semantic_query) is internal debug info and
               // is NEVER shown to citizens.
               const SizedBox(height: 12),
@@ -262,8 +317,7 @@ class _EvidenceChecklistCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = match.evidenceItems;
     if (items.isEmpty) return const SizedBox.shrink();
-    final available =
-        items.where((e) => e.status == EvidenceStatus.available).toList();
+    final available = items.where((e) => e.status.isHeld).toList();
     final neededDocs = items
         .where((e) =>
             e.kind == EvidenceKind.document &&
@@ -290,7 +344,7 @@ class _EvidenceChecklistCard extends StatelessWidget {
               _ChecklistRow(
                 icon: Icons.check_circle_rounded,
                 iconColor: const Color(0xFF16803C),
-                label: '✓ ${entry.label}',
+                label: entry.label,
               ),
             const SizedBox(height: 8),
           ],
@@ -300,7 +354,7 @@ class _EvidenceChecklistCard extends StatelessWidget {
               _ChecklistRow(
                 icon: Icons.upload_rounded,
                 iconColor: Theme.of(context).colorScheme.primary,
-                label: '• ${entry.label}',
+                label: entry.label,
                 note: entry.note,
                 actionLabel: 'Upload document',
                 actionRoute: AppRoutes.documents,
@@ -313,7 +367,7 @@ class _EvidenceChecklistCard extends StatelessWidget {
               _ChecklistRow(
                 icon: Icons.person_pin_circle_outlined,
                 iconColor: Theme.of(context).colorScheme.secondary,
-                label: '• ${entry.profilePrompt ?? entry.label}',
+                label: entry.profilePrompt ?? entry.label,
                 actionLabel: 'Complete profile',
                 actionRoute: AppRoutes.editProfile,
               ),
@@ -325,7 +379,7 @@ class _EvidenceChecklistCard extends StatelessWidget {
               _ChecklistRow(
                 icon: Icons.description_outlined,
                 iconColor: Theme.of(context).colorScheme.outline,
-                label: '• ${entry.label}',
+                label: entry.label,
                 note: entry.note ??
                     'Additional scheme-specific evidence may be required.',
               ),
@@ -455,43 +509,3 @@ class _DetailSection extends StatelessWidget {
   }
 }
 
-class _RuleList extends StatelessWidget {
-  const _RuleList({required this.items, required this.emptyText});
-
-  final List<RecommendationRule> items;
-  final String emptyText;
-
-  @override
-  Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return Text(emptyText, style: Theme.of(context).textTheme.bodyMedium);
-    }
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: items.map((item) {
-        final expected = item.expectedValue?.toString();
-        final actual = item.actualValue?.toString();
-        return ListTile(
-          dense: true,
-          contentPadding: EdgeInsets.zero,
-          leading: Icon(
-            item.passed ? Icons.check_circle_rounded : Icons.cancel_rounded,
-          ),
-          // Title wraps; raw rule internals are never single-line-clamped
-          // into an overflow.
-          title: Text(item.displayTitle, softWrap: true),
-          subtitle: expected == null && actual == null
-              ? null
-              : Text(
-                  [
-                    if (expected != null && expected.isNotEmpty)
-                      'Expected: $expected',
-                    if (actual != null && actual.isNotEmpty) 'Current: $actual',
-                  ].join('\n'),
-                  softWrap: true,
-                ),
-        );
-      }).toList(),
-    );
-  }
-}

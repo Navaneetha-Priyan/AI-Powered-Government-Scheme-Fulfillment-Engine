@@ -1,0 +1,549 @@
+{
+  "metadata": {
+    "version": 1,
+    "source": "backend/data scheme PDFs (see SOURCE_MANIFEST.txt)",
+    "notes": "User-facing scheme presentation metadata, separate from RAG/source content and from eligibility rules. Every description and benefit is grounded in the referenced source PDF. Schemes whose PDF does not provide enough clean information are flagged needs_review or benefits_needs_review and are never auto-summarised."
+  },
+  "schemes": [
+    {
+      "scheme_id": "pm-kisan",
+      "source_document": "PM-KISAN_Operational_Guidelines.pdf",
+      "display_name": "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
+      "short_description": "PM-KISAN gives income support to landholding farmer families to help meet the cost of farm inputs and household needs.",
+      "benefits": [
+        "Rs. 6,000 per year paid directly into the bank account of eligible farmer families",
+        "Support to buy seeds, fertilisers and other farm inputs"
+      ],
+      "who_it_is_for": "Landholding farmer families in India with cultivable land.",
+      "eligibility_summary": "Generally for landholding farmer families. Some categories (e.g. institutional landholders, income-tax payers, certain government employees and pensioners) are excluded. Amounts and exclusions may change — check the official scheme guidelines.",
+      "documents": [
+        "Aadhaar identity proof",
+        "Land ownership / land record",
+        "Bank account details for DBT"
+      ],
+      "application": [
+        "The income support is transferred directly to the bank account of eligible farmer families.",
+        "Farmers need to ensure their land records and bank account details are linked correctly.",
+        "Check the official PM-KISAN portal or your state agriculture department for the latest process."
+      ]
+    },
+    {
+      "scheme_id": "pm-kusum",
+      "source_document": "PM-KUSUM_Guidelines.pdf",
+      "display_name": "PM-KUSUM (Solar Pumps and Solar Power for Farmers)",
+      "short_description": "PM-KUSUM helps farmers set up solar power plants and solar pumps, so farming needs less diesel and grid electricity.",
+      "benefits": [
+        "Financial support for stand-alone solar agriculture pumps",
+        "Solarisation of existing grid-connected agriculture pumps",
+        "Opportunity to earn extra income by selling surplus solar power to the power company",
+        "Use of barren or uncultivable land for solar power generation"
+      ],
+      "who_it_is_for": "Farmers who want to set up solar power plants or solar pumps, including those with barren or uncultivable land.",
+      "eligibility_summary": "Generally for farmers setting up renewable energy projects. Specific component limits, capacity caps and state-level rules apply. Check the official PM-KUSUM guidelines.",
+      "documents": [
+        "Land record / site ownership proof",
+        "ID proof",
+        "Technical details of the proposed solar plant or pump",
+        "DISCOM connection details where relevant"
+      ],
+      "application": [
+        "Apply through the designated state implementing agency or the power distribution company (DISCOM).",
+        "Submit the project proposal and required documents.",
+        "The sanctioned project receives financial support as per the approved guidelines."
+      ]
+    },
+    {
+      "scheme_id": "pmfby",
+      "source_document": "PMFBY_Scheme_Document.pdf",
+      "display_name": "PMFBY (Pradhan Mantri Fasal Bima Yojana)",
+      "short_description": "PMFBY is a crop insurance scheme that protects farmers against crop loss from natural risks.",
+      "benefits": [
+        "Insurance cover for notified crops in the season",
+        "Compensation when crop yield falls below the notified threshold",
+        "Low premium for the farmer, with the rest paid as government subsidy",
+        "Claims settled digitally through the crop insurance portal"
+      ],
+      "who_it_is_for": "Farmers growing notified crops in notified areas, including both loanee and non-loanee farmers.",
+      "eligibility_summary": "Generally for farmers with insured/cultivable land growing notified crops. The farmer pays a small share of the premium; the rest is government subsidy. Aadhaar is required for enrolment. Specific exclusions and conditions apply.",
+      "documents": [
+        "Land record / cultivable land proof",
+        "Aadhaar identity proof",
+        "Details of the crop and notified area",
+        "Bank account for claim payment"
+      ],
+      "application": [
+        "IMD weather data and notified area details determine coverage.",
+        "Farmers enrol through banks, insurance companies or common service centres during the enrolment window.",
+        "In case of crop loss, claims are assessed and paid through the crop insurance portal."
+      ]
+    },
+    {
+      "scheme_id": "pm-rkvy-pkvy",
+      "source_document": "PM-RKVY_and_PKVY_Guidelines.pdf",
+      "display_name": "PM-RKVY and PKVY (Agriculture Development Support)",
+      "short_description": "PM-RKVY supports state-level agriculture projects chosen as per local needs, including micro irrigation, farm mechanisation and organic farming (PKVY).",
+      "benefits": [
+        "Support for agriculture projects suited to local and farmers' needs",
+        "Micro irrigation to improve water use efficiency",
+        "Support for organic farming under PKVY",
+        "Support for agri-startups and higher farmer income"
+      ],
+      "who_it_is_for": "Farmers and groups taking up agriculture development activities, including organic farming (PKVY) and other RKVY projects suited to local needs.",
+      "eligibility_summary": "State-level agriculture projects approved under RKVY. Specific beneficiary rules vary by component and state. Check the official guidelines and your state agriculture department.",
+      "documents": [
+        "Project proposal / Detailed Project Report where required",
+        "Farmer/group identity proof",
+        "Land or activity details",
+        "NOCs or approvals required by the specific component"
+      ],
+      "application": [
+        "Submit the project proposal through the state agriculture department or designated agency.",
+        "The proposal is considered under the Annual Action Plan.",
+        "Approved projects receive support as per the sanctioned guidelines."
+      ]
+    },
+    {
+      "scheme_id": "pmfme",
+      "source_document": "PMFME_Scheme_Guidelines.pdf",
+      "display_name": "PMFME (Support for Small Food Businesses)",
+      "short_description": "PMFME helps small food processing units upgrade their business with loans, subsidy and training, focused on one special product of each district (ODOP).",
+      "benefits": [
+        "Credit-linked subsidy for upgrading micro food processing units",
+        "Support for groups like FPOs, SHGs and producer cooperatives for sorting, grading, packaging and storage",
+        "Branding and marketing support for district products",
+        "Skill training and capacity building"
+      ],
+      "who_it_is_for": "Small and micro food processing enterprises, individuals, groups (FPOs/SHGs/producer cooperatives) and startups working on One District One Product (ODOP) foods.",
+      "eligibility_summary": "Generally for micro food processing units and groups. Specific eligibility, investment limits and ODOP selection criteria apply. Check the official PMFME guidelines.",
+      "documents": [
+        "Identity proof",
+        "Business registration / enterprise proof",
+        "Project report or upgradation plan",
+        "Bank loan details where credit-linked"
+      ],
+      "application": [
+        "Applications are invited at the district level on an ongoing basis.",
+        "Submit the application and required documents to the District Level Committee or State Nodal Agency.",
+        "Approved units receive credit-linked subsidy and other support as per the guidelines."
+      ]
+    },
+    {
+      "scheme_id": "smam",
+      "source_document": "SMAM_Operational_Guidelines_2025.pdf",
+      "display_name": "SMAM (Sub-Mission on Agricultural Mechanization)",
+      "short_description": "SMAM helps farmers buy modern farm machinery by giving subsidy, and supports machine hiring centres in villages.",
+      "benefits": [
+        "Financial assistance of 50% of machine cost for small and marginal farmers, SC/ST farmers, women farmers and farmers of North Eastern and Himalayan States",
+        "Financial assistance of 40% of machine cost for other farmers",
+        "Custom Hiring Centres and Farm Machinery Banks so costly machines can be hired",
+        "Demonstrations and skill training on new machines, technologies and Kisan Drones"
+      ],
+      "who_it_is_for": "Farmers, groups and institutions taking up farm mechanization, including small and marginal farmers, SC/ST farmers, women farmers, and farmers in NE and Himalayan regions.",
+      "eligibility_summary": "Generally for farmers and institutions. Financial assistance is higher (50%) for small/marginal farmers, SC/ST farmers, women farmers and farmers of NE and Himalayan States, and 40% for other farmers. Specific machine-wise caps and state-level rules apply.",
+      "documents": [
+        "Land record / farmer identity proof",
+        "Details of the machine and cost",
+        "Quotations / invoice",
+        "Bank account details"
+      ],
+      "application": [
+        "Apply to the State Government or designated implementing agency through the prescribed online or offline process.",
+        "The assistance is released as a capital subsidy on the machine cost.",
+        "Custom Hiring Centres and Farm Machinery Banks are set up by implementing agencies."
+      ]
+    },
+    {
+      "scheme_id": "midh",
+      "source_document": "MIDH_Operational_Guidelines_2025.pdf",
+      "display_name": "MIDH (Mission for Integrated Development of Horticulture)",
+      "short_description": "MIDH supports the overall growth of horticulture — fruits, vegetables, spices, flowers, coconut, bamboo and other crops.",
+      "benefits": [
+        "Support for quality planting material and area expansion",
+        "Help with post-harvest management, processing and marketing",
+        "Cluster-based horticulture development and Centres of Excellence",
+        "Training and employment opportunities for rural youth"
+      ],
+      "who_it_is_for": "Farmers, farmer groups, FPOs, cooperatives and others taking up horticulture development activities including area expansion, production, post-harvest management and marketing.",
+      "eligibility_summary": "A Centrally Sponsored Scheme implemented through State Horticulture Missions and other agencies. Cost sharing: 60:40 Centre:State (90:10 for NE/Himalayan, 100% for some agencies). State-level rules apply.",
+      "documents": [
+        "Identity proof",
+        "Land/farm details",
+        "Project proposal where required",
+        "Bank account details"
+      ],
+      "application": [
+        "Apply through the State Horticulture Mission or designated implementing agency.",
+        "Projects are approved under the State Annual Action Plan.",
+        "Assistance is released as per the sanctioned component and guidelines."
+      ]
+    },
+    {
+      "scheme_id": "pm-vishwakarma",
+      "source_document": "PM_Vishwakarma_Yojana.pdf",
+      "display_name": "PM Vishwakarma (Support for Artisans and Craftspeople)",
+      "short_description": "PM Vishwakarma supports traditional artisans and craftspeople with recognition, training, modern tools and easy loans.",
+      "benefits": [
+        "Recognition certificate as Vishwakarma",
+        "Skill training and upgradation",
+        "Support for better modern tools",
+        "Collateral-free credit with interest subvention",
+        "Incentives for digital transactions",
+        "Platform for brand promotion and market linkages"
+      ],
+      "who_it_is_for": "Traditional artisans and craftspeople (Vishwakarmas), including self-employed workers and those setting up small-scale ventures, across specified trades.",
+      "eligibility_summary": "Generally for artisans and craftspeople in eligible trades. Specific trade lists, training, tool support and credit terms apply. Check the official PM Vishwakarma guidelines.",
+      "documents": [
+        "Identity proof",
+        "Proof of artisan/craftsperson status or trade",
+        "Bank account details",
+        "Details of tools/equipment where applicable"
+      ],
+      "application": [
+        "Register on the official PM Vishwakarma portal or through the designated channel.",
+        "Submit the required documents and trade details.",
+        "Eligible artisans receive recognition, training, tool support and credit as per the guidelines."
+      ]
+    },
+    {
+      "scheme_id": "pmay-u",
+      "source_document": "Pradhan_Mantri_Awas_Yojana_-_Urban_PMAY-U_2.pdf",
+      "display_name": "PMAY-U 2.0 (Housing for All — Urban)",
+      "short_description": "PMAY-U 2.0 helps urban families get a pucca house with government assistance.",
+      "benefits": [
+        "Government assistance towards a pucca house for eligible urban families",
+        "Affordable housing projects built in partnership with public and private agencies",
+        "Focus on urban poor and low-income households"
+      ],
+      "who_it_is_for": "Urban low-income and economically weaker households that do not own a pucca house, under various verticals including Affordable Housing in Partnership (AHP).",
+      "eligibility_summary": "Generally for eligible urban households without a pucca house. Specific income limits, priority categories and vertical-wise rules apply. Check the official PMAY-U 2.0 guidelines.",
+      "documents": [
+        "Identity proof",
+        "Address / residence proof",
+        "Income proof",
+        "Details of existing house/housing status"
+      ],
+      "application": [
+        "Apply through the designated urban local body, housing board or the official PMAY portal.",
+        "Submit the required documents and housing details.",
+        "Approved beneficiaries receive assistance as per the applicable vertical and guidelines."
+      ]
+    },
+    {
+      "scheme_id": "pmmvy",
+      "source_document": "Pradhan_Mantri_Matru_Vandana_Yojana_PMMVY.pdf",
+      "display_name": "PMMVY (Pradhan Mantri Matru Vandana Yojana)",
+      "short_description": "PMMVY is a maternity benefit programme under Mission Shakti that supports pregnant women and lactating mothers.",
+      "benefits": [],
+      "benefits_needs_review": true,
+      "who_it_is_for": "Pregnant women and lactating mothers, as part of Mission Shakti (Samarthya sub-scheme) for women empowerment.",
+      "eligibility_summary": "A maternity benefit programme under Mission Shakti. Specific beneficiary conditions, age and child-related criteria and state-level rules apply.",
+      "documents": [
+        "Identity proof",
+        "Pregnancy and child-related records where applicable",
+        "Bank account for DBT",
+        "Any additional documents required by the state"
+      ],
+      "application": [
+        "Apply through the designated health/women-and-child development channel or the official portal.",
+        "Submit the required documents.",
+        "The exact procedure may vary — confirm the current process with your local office."
+      ],
+      "eligibility_summary_needs_review": true
+    },
+    {
+      "scheme_id": "pm-svanidhi",
+      "source_document": "PM_Street_Vendor_AtmaNirbhar_Nidhi_PM_SVANidhi_3.pdf",
+      "display_name": "PM SVANidhi (Loan Support for Street Vendors)",
+      "needs_review": true,
+      "who_it_is_for": "Street vendors operating in the informal sector, for micro-credit support to restart and grow their businesses.",
+      "eligibility_summary": "Generally for street vendors.",
+      "documents": [
+        "Identity proof",
+        "Vendor identity/surveillance certificate or equivalent",
+        "Bank account details",
+        "Photograph and any local authority certificate"
+      ],
+      "application": [
+        "Apply through the designated bank or the official PM SVANidhi portal.",
+        "Submit the required documents.",
+        "Check the current operative guidelines before relying on any specific process."
+      ],
+      "eligibility_summary_needs_review": true
+    },
+    {
+      "scheme_id": "pmjdy",
+      "source_document": "Pradhan_Mantri_Jan_Dhan_Yojana_PMJDY_3.pdf",
+      "display_name": "PMJDY (Pradhan Mantri Jan Dhan Yojana)",
+      "short_description": "PMJDY helps every adult open a simple bank account with a RuPay card, so that government benefits can reach the account directly.",
+      "benefits": [
+        "Basic savings bank account for every adult",
+        "RuPay debit card with accident insurance cover of Rs. 2 lakh for accounts opened after 28.8.2018",
+        "Overdraft facility of up to Rs. 10,000 (no conditions for amounts up to Rs. 2,000)",
+        "Government benefits received directly in the account"
+      ],
+      "who_it_is_for": "Every adult citizen, for opening a basic savings bank account and accessing financial services including a RuPay debit card and accidental insurance cover.",
+      "eligibility_summary": "Generally open to every adult. Specific account features, insurance cover amounts and overdraft rules depend on when and how the account is opened. Check the official PMJDY guidelines.",
+      "documents": [
+        "Identity proof (e.g. Aadhaar)",
+        "Address proof where required",
+        "Photograph",
+        "Mobile number linked for notifications"
+      ],
+      "application": [
+        "Visit a participating bank branch or use the prescribed online channel.",
+        "Submit the required documents and open the account.",
+        "The RuPay card and linked benefits are available as per the prevailing rules."
+      ]
+    },
+    {
+      "scheme_id": "pmksy",
+      "source_document": "Pradhan_Mantri_Krishi_Sinchayee_Yojana_PMKSY_2.pdf",
+      "display_name": "PMKSY (Pradhan Mantri Krishi Sinchayee Yojana)",
+      "needs_review": true,
+      "who_it_is_for": "Farmers and areas benefiting from irrigation, through accelerated irrigation projects, on-farm water use efficiency and other PMKSY components.",
+      "documents": [
+        "Land record / farmer details",
+        "Project/activity proposals where applicable",
+        "Water source and command details",
+        "Relevant approvals"
+      ],
+      "application": [
+        "Apply through the designated state water resources/irrigation department or implementing agency.",
+        "Submit the required project/activity details.",
+        "Check the official guidelines before relying on any specific process."
+      ],
+      "eligibility_summary_needs_review": true
+    },
+    {
+      "scheme_id": "pmuy",
+      "source_document": "Pradhan_Mantri_Ujjwala_Yojana_PMUY.pdf",
+      "display_name": "PMUY (Pradhan Mantri Ujjwala Yojana)",
+      "needs_review": true,
+      "who_it_is_for": "Adult women from eligible households, for LPG connections to support clean cooking fuel access.",
+      "eligibility_summary": "Generally for eligible women from households without an LPG connection.",
+      "documents": [
+        "Identity proof",
+        "Address proof",
+        "BPL/eligible household proof where applicable",
+        "Bank account details",
+        "Photograph"
+      ],
+      "application": [
+        "Apply through the designated LPG distributor or the official portal.",
+        "Submit the required documents.",
+        "Check the current operative guidelines before relying on any specific process."
+      ],
+      "eligibility_summary_needs_review": true
+    },
+    {
+      "scheme_id": "jjm",
+      "source_document": "Jal_Jeevan_Mission.pdf",
+      "display_name": "Jal Jeevan Mission (Har Ghar Jal)",
+      "short_description": "Jal Jeevan Mission works to provide a functional tap water connection to every rural household.",
+      "benefits": [
+        "Functional household tap water connections in rural areas",
+        "Community-led operation and maintenance of village water supply",
+        "Water quality testing and monitoring"
+      ],
+      "who_it_is_for": "Rural households that do not yet have a functional tap water connection, under the Har Ghar Jal goal.",
+      "eligibility_summary": "A strategic mission for rural piped water supply. Specific village-level and household-level coverage depends on the state/water supply scheme implementation. Check the official Jal Jeevan Mission guidelines.",
+      "documents": [
+        "Household identity and address details",
+        "Village/water supply scheme details",
+        "Any local authority records required"
+      ],
+      "application": [
+        "Raise the requirement through the local Panchayat, village water and sanitation committee or the designated water supply agency.",
+        "Follow the state/water supply department process for connection.",
+        "Check the official guidelines for the current procedure."
+      ]
+    },
+    {
+      "scheme_id": "pmay-g",
+      "source_document": "PMAY-G_Guidelines.pdf",
+      "display_name": "PMAY-G (Rural Housing — Pradhan Mantri Awaas Yojana Gramin)",
+      "short_description": "PMAY-G gives financial help to rural households without a pucca house to build one.",
+      "benefits": [
+        "Unit assistance of Rs. 1.20 lakh in plains and Rs. 1.30 lakh in hill and North Eastern areas",
+        "90/95 days of unskilled labour wages from MGNREGS",
+        "Support for toilet construction through convergence with SBM-G or MGNREGS",
+        "Facilitation of a bank loan of up to Rs. 70,000",
+        "House design support and mason training"
+      ],
+      "who_it_is_for": "Rural houseless or inadequate-household beneficiaries identified through the Socio Economic and Caste Census (SECC) 2011 data and verified lists, for help to build a pucca house.",
+      "eligibility_summary": "Generally for eligible rural households identified from SECC 2011 and verified Gram Sabha/Annual Select Lists. Specific unit assistance, eligibility and state share rules apply. Check the official PMAY-G guidelines.",
+      "documents": [
+        "Identity proof",
+        "Aadhaar",
+        "Land/site details",
+        "Bank account for DBT",
+        "SECC/eligibility list details where applicable"
+      ],
+      "application": [
+        "Beneficiaries are selected from the verified list; the Gram Panchayat/implementing agency handles identification.",
+        "The beneficiary collaborates with the implementing agency for house construction.",
+        "Assistance is released in instalments as per the guidelines, through DBT."
+      ]
+    },
+    {
+      "scheme_id": "enam",
+      "source_document": "e-NAM_National_Agriculture_Market_3.pdf",
+      "display_name": "e-NAM (National Agriculture Market)",
+      "short_description": "e-NAM is an online national market platform that lets farmers sell their produce in participating APMC mandis across India and get fair, transparent prices.",
+      "benefits": [
+        "Online access to more buyers and markets",
+        "Transparent price discovery based on real demand and supply",
+        "Quality assaying (testing) of produce for informed bidding",
+        "Online payment to farmers"
+      ],
+      "who_it_is_for": "Farmers and traders selling or buying agricultural produce in participating APMC mandis across states integrated with e-NAM.",
+      "eligibility_summary": "Generally for farmers and traders in participating APMC mandis. e-NAM integrates mandis across states; specific market-level rules and reforms (e-trading, single-point market fee, unified registration) apply. Check the official e-NAM portal and APMC rules.",
+      "documents": [
+        "Farmer/trader identity proof",
+        "APMC registration/license where required",
+        "Bank account details",
+        "Produce/lot details for trading"
+      ],
+      "application": [
+        "Register through the e-NAM portal or the participating APMC market.",
+        "Use the online platform for trading, price discovery and payments.",
+        "Check the e-NAM portal and state APMC rules for the current process."
+      ]
+    },
+    {
+      "scheme_id": "nfsa-pds",
+      "source_document": "National_Food_Security_Act_-_Public_Distribution_System_2.pdf",
+      "display_name": "NFSA — Public Distribution System",
+      "short_description": "NFSA provides food grains (wheat, rice and coarse grains) to eligible households through the Public Distribution System.",
+      "benefits": [],
+      "benefits_needs_review": true,
+      "who_it_is_for": "Eligible households under the National Food Security Act, receiving food grains through the Public Distribution System (ration shops).",
+      "eligibility_summary": "Households covered under NFSA receive food grains (wheat, rice and coarse grains) at subsidised prices through the PDS. Specific household eligibility, entitlement quantities and issue prices are set under the Act and state rules.",
+      "documents": [
+        "Ration card / household eligibility proof",
+        "Identity proof",
+        "Aadhaar linkage where applicable",
+        "Bank account for any DBT where applicable"
+      ],
+      "application": [
+        "Hold a valid ration card issued under the state PDS.",
+        "Ensure the ration card is linked to Aadhaar and the correct beneficiaries.",
+        "Collect food grains from the assigned Fair Price Shop as per the PDS rules."
+      ],
+      "eligibility_summary_needs_review": true
+    },
+    {
+      "scheme_id": "post-matric-scholarship",
+      "source_document": "National_Scholarship_Portal_-_Post_Matric_Scholarship_SCSTOBC_2.pdf",
+      "display_name": "Post Matric Scholarship (SC/ST/OBC)",
+      "needs_review": true,
+      "who_it_is_for": "Students from SC/ST/OBC categories pursuing post-matriculation (after 12th/class 10) studies, subject to the scheme rules.",
+      "eligibility_summary": "Post-matric scholarship for eligible SC/ST/OBC students.",
+      "documents": [
+        "Student identity proof",
+        "Caste certificate",
+        "Income certificate",
+        "Admission/study details",
+        "Bank account for DBT"
+      ],
+      "application": [
+        "Apply online through the National Scholarship Portal (NSP) or the state scholarship portal during the application window.",
+        "Submit the required documents and details.",
+        "Approved scholarships are disbursed through DBT as per the guidelines."
+      ],
+      "eligibility_summary_needs_review": true
+    },
+    {
+      "scheme_id": "saksham-anganwadi-poshan",
+      "source_document": "Saksham_Anganwadi_Poshan_2.0_Guidelines.pdf",
+      "display_name": "Saksham Anganwadi and Poshan 2.0",
+      "short_description": "Saksham Anganwadi and Poshan 2.0 provides nutrition, health check-ups and early childhood care through Anganwadi centres for children under 6 years, adolescent girls, and pregnant and lactating women.",
+      "benefits": [
+        "Supplementary nutrition including hot cooked meals and take-home ration",
+        "Growth monitoring and health services through Anganwadi centres",
+        "Early childhood care and education for children under 6",
+        "Nutrition awareness and promotion of kitchen gardens (Poshan Vatikas)"
+      ],
+      "who_it_is_for": "Children under 6 years, adolescent girls, and pregnant and lactating women, through Anganwadi centres (part of Mission Shakti Samarthya).",
+      "eligibility_summary": "Nutrition, health and early childhood care services through Anganwadi centres. Specific beneficiary groups and service norms apply. Check the official Saksham Anganwadi and Poshan 2.0 guidelines.",
+      "documents": [
+        "Identity/age proof for the beneficiary",
+        "Anganwadi registration details",
+        "Health/nutrition records where applicable",
+        "Mother/child details"
+      ],
+      "application": [
+        "Register the beneficiary with the local Anganwadi centre.",
+        "Access the supplementary nutrition, health check-ups and early childhood care services.",
+        "Check the official guidelines for the current services and norms."
+      ]
+    },
+    {
+      "scheme_id": "swachh-bharat-gramin",
+      "source_document": "Swachh_Bharat_Mission_-_Gramin.pdf",
+      "display_name": "Swachh Bharat Mission (Gramin)",
+      "short_description": "Swachh Bharat Mission (Gramin) improves rural sanitation — toilets for households, community toilets and village waste management.",
+      "benefits": [
+        "Support for individual household toilets in rural areas",
+        "Community toilets and solid and liquid waste management in villages",
+        "Awareness and training for sanitation construction"
+      ],
+      "who_it_is_for": "Rural households, villages and communities for sanitation and waste management, including individual household toilets, community toilets and solid/liquid waste management.",
+      "eligibility_summary": "A rural sanitation mission implemented through Panchayati Raj Institutions and state agencies. Specific beneficiary categories, incentives and construction norms apply. Check the official Swachh Bharat Mission (Gramin) guidelines.",
+      "documents": [
+        "Identity proof",
+        "Household/village details",
+        "Beneficiary category proof where applicable",
+        "Land/site details for toilet construction"
+      ],
+      "application": [
+        "Apply through the Gram Panchayat, state sanitation mission or the designated portal.",
+        "Submit the required documents and construction plan.",
+        "Approved beneficiaries receive support as per the guidelines."
+      ]
+    },
+    {
+      "scheme_id": "free-bus-travel-women-tn",
+      "source_document": "Free_Bus_Travel_Scheme_for_Women_TN_Government_Buses.pdf",
+      "display_name": "Free Bus Travel for Women (Tamil Nadu)",
+      "needs_review": true,
+      "who_it_is_for": "Women passengers using Tamil Nadu government buses, under the free bus travel scheme for women.",
+      "eligibility_summary": "Generally for women using Tamil Nadu government bus services.",
+      "documents": [
+        "Identity proof for women passengers",
+        "Travel booking/details as applicable",
+        "Any scheme-specific pass or card"
+      ],
+      "application": [
+        "Travel on Tamil Nadu government buses as per the scheme rules.",
+        "Follow the ticketing/TDR process described in the current user instructions.",
+        "Check the official transport department guidelines for the current scheme rules."
+      ],
+      "eligibility_summary_needs_review": true
+    },
+    {
+      "scheme_id": "unified-package-insurance",
+      "source_document": "Unified_Package_Insurance_Scheme_Guidelines.pdf",
+      "display_name": "Unified Package Insurance Scheme (UPIS)",
+      "short_description": "UPIS is a combined insurance package for farmers that bundles crop insurance with personal accident and life insurance cover.",
+      "benefits": [
+        "Mandatory crop insurance cover (PMFBY or weather-based crop insurance)",
+        "Choice of additional insurance sections such as personal accident and life cover",
+        "One-year combined insurance package offered through banks"
+      ],
+      "who_it_is_for": "Farmers who want a combined insurance package through banks, bundling crop insurance (PMFBY or weather-based) with optional personal accident and life cover.",
+      "eligibility_summary": "Generally for farmers taking crop insurance through banks, with optional additional cover sections. Specific premium, coverage and enrolment rules apply. Check the official UPIS guidelines.",
+      "documents": [
+        "Land record / farmer identity proof",
+        "Aadhaar",
+        "Bank account details",
+        "Details of the desired insurance sections"
+      ],
+      "application": [
+        "Enrol through the bank during the insurance enrolment window.",
+        "Choose the desired sections (crop, personal accident, life, etc.).",
+        "Pay the premium and receive the combined insurance package as per the guidelines."
+      ]
+    }
+  ]
+}

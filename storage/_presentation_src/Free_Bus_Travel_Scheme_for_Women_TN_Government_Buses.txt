@@ -1,0 +1,46 @@
+--- p1 ---
+ 
+Click Track Ticket, then click the TDR flag, and then click Raise TDR. 
+TAMIL : 
+Track Ticket ஐ கிளிக் செய்து, பிறகு TDR flag ஐ கிளிக் செய்து, பின்னர் Raise TDR ஐ கிளிக் 
+செய்யவும். 
+ 
+Enter the booking mobile number or email ID and the OB number or PNR number, then click Get Details. 
+ 
+TAMIL 
+
+--- p2 ---
+புக்கிங் செொபபல் எண் அல்லது இசெயில் ஐடி ெற்றும் OB எண் அல்லது PNR எண்பை 
+உள்ளிட்டு, பிறகு Get Details ஐ கிளிக் செய்யவும். 
+ 
+ 
+The booked passenger data will be displayed. Select the TDR reason and submit it. 
+Tamil translation: 
+புக்கிங் பயைி விவரங்கள் கொைப்படும். TDR கொரைத்பை தைர்வு செய்து Submit 
+செய்யவும். 
+
+--- p3 ---
+ 
+ 
+Click OK, then the TDR Raised number will be displayed. Note the TDR number to check the 
+TDR status. 
+Tamil translation: 
+OK ஐ கிளிக் செய்ை பிறகு TDR Raised எண் கொைப்படும். TDR நிபலபய பொர்க்க அந்ை 
+எண்பை குறித்துக் சகொள்ளவும். 
+ 
+
+--- p4 ---
+ 
+ 
+Using View TDR Status, we can check the status of the entered TDR. 
+Tamil translation: 
+View TDR Status மூலம் நொம் உள்ளிட்ட TDR நிபலபய பொர்க்கலொம். 
+
+--- p5 ---
+ 
+After entering the TDR details and clicking Get Details, the TDR status will be displayed. 
+Tamil translation: 
+TDR விவரங்கபள உள்ளிட்டு Get Details கிளிக் செய்ை பிறகு, TDR நிபல கொைப்படும். 
+ 
+ 
+

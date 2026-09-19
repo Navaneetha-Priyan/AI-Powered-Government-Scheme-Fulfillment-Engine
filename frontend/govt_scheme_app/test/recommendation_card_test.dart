@@ -107,10 +107,12 @@ void main() {
     expect(line.toLowerCase(), isNot(contains('eligibility')));
   });
 
-  test('narrow screen summary line falls back for empty/unknown status', () {
-    expect(cardStatusLine(''), 'View scheme details');
-    expect(cardStatusLine('unknown'), 'View scheme details');
-    expect(cardStatusLine('Potentially Eligible'), 'Potentially Eligible');
+  test('narrow screen summary line maps statuses to citizen labels', () {
+    expect(cardStatusLine(''), 'Information not available');
+    expect(cardStatusLine('unknown'), 'Information not available');
+    expect(cardStatusLine('potentially_eligible'), 'More information needed');
+    expect(cardStatusLine('eligible'), 'You may be eligible');
+    expect(cardStatusLine('not_eligible'), 'You are not currently eligible');
   });
 
   testWidgets('recommendation list does not overflow on narrow screen', (tester) async {
@@ -141,7 +143,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     // Citizen text visible…
-    expect(find.textContaining('Why you match'), findsOneWidget);
+    expect(find.textContaining('Why this may be useful for you'), findsOneWidget);
     expect(find.text('View Scheme'), findsOneWidget);
     // …but raw retrieval dump never rendered on the card.
     expect(find.textContaining('RAW CHUNK'), findsNothing);

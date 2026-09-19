@@ -2,11 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/localization/app_strings.dart';
+import '../../core/presentation/eligibility_presenter.dart';
+import '../../core/utils/evidence_mapping.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/utils/presentation_text.dart';
 import '../../core/widgets/app_states.dart';
 import '../../models/eligibility.dart';
+import '../../models/government_scheme.dart';
 import '../../providers/eligibility_provider.dart';
 import '../../providers/scheme_provider.dart';
+import '../recommendations/widgets/citizen_rule_list.dart';
+
+/// Human-readable document labels from the centralized evidence mapping —
+/// raw snake_case requirement keys are never shown to citizens.
+List<String> checkHumanizedDocuments(EligibilityCheck check) {
+  final labels = <String>[];
+  for (final doc in check.requiredDocuments) {
+    final label =
+        humanizeEvidenceRequirement(doc.trim().toLowerCase());
+    if (label.isNotEmpty && !labels.contains(label)) labels.add(label);
+  }
+  return labels;
+}
+
+/// Safe citizen-facing fallback (shared with the presentation validator).
+/// Raw PDF extraction is never used as a fallback — the section shows this
+/// text instead.
+const String _aboutFallback = schemeAboutFallback;
 
 class SchemeDetailScreen extends StatefulWidget {
   const SchemeDetailScreen({super.key, required this.schemeId});
@@ -37,6 +59,29 @@ class _SchemeDetailScreenState extends State<SchemeDetailScreen> {
     final provider = context.read<EligibilityProvider>();
     _loadedEligibilityVersion = provider.cacheVersion;
     await provider.loadEligibility(widget.schemeId, refresh: refresh);
+  }
+
+  /// "About this scheme": curated presentation text only. The legacy raw
+  /// `description` column (PDF extraction) is NEVER used as a fallback.
+  String _aboutText(GovernmentScheme scheme) =>
+      scheme.cleanAbout ?? _aboutFallback;
+
+  /// "What you get": validated curated benefit bullets. When none exist the
+  /// section is omitted entirely — raw extraction is never displayed.
+  List<String> _benefitsBullets(GovernmentScheme scheme) => scheme.cleanBenefits;
+
+  /// "Documents you may need": curated human-readable document names only.
+  /// The raw `required_documents` column is never used as a fallback.
+  String _documentsBody(GovernmentScheme scheme) {
+    final docs = scheme.cleanDocuments;
+    return docs.isEmpty ? 'Not specified' : docs.join('\n');
+  }
+
+  /// "How to apply": curated application steps only. The raw
+  /// `application_process` column is never used as a fallback.
+  String _applicationBody(GovernmentScheme scheme) {
+    final steps = scheme.cleanApplication;
+    return steps.isEmpty ? 'Not specified' : steps.join('\n');
   }
 
   @override
@@ -70,11 +115,17 @@ class _SchemeDetailScreenState extends State<SchemeDetailScreen> {
         }
 
         return Scaffold(
-          appBar: AppBar(title: Text(selected.schemeName)),
+          appBar: AppBar(title: Text(selected.displayTitle)),
           body: ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              _InfoSection(title: 'Description', body: selected.description),
+              // "About this scheme": curated presentation text only. Raw PDF
+              // extraction (the legacy `description` column) is never used as a
+              // fallback; the safe fallback text is shown instead.
+              _InfoSection(
+                title: 'About this scheme',
+                body: _aboutText(selected),
+              ),
               _EligibilitySection(
                 eligibility: eligibilityProvider.eligibilityFor(
                   widget.schemeId,
@@ -83,24 +134,36 @@ class _SchemeDetailScreenState extends State<SchemeDetailScreen> {
                 errorMessage: eligibilityProvider.errorFor(widget.schemeId),
                 onRefresh: () => _loadEligibility(refresh: true),
               ),
+              if (selected.cleanWhoItIsFor != null)
+                _InfoSection(
+                  title: 'Who this is for',
+                  body: selected.cleanWhoItIsFor!,
+                ),
               _InfoSection(
                 title: 'Eligibility criteria',
-                body: selected.eligibilitySummary ?? 'Not specified',
+                body: selected.cleanEligibilitySummary ?? 'Not specified',
               ),
               _InfoSection(
-                title: 'Required documents',
-                body: selected.requiredDocuments ?? 'Not specified',
+                title: 'Documents you may need',
+                body: _documentsBody(selected),
               ),
+              // "What you get": only rendered when curated, validated benefit
+              // bullets exist. Raw PDF benefits are never displayed, and an
+              // empty list omits the section entirely.
+              if (_benefitsBullets(selected).isNotEmpty)
+                _InfoSection(
+                  title: 'What you get',
+                  body: _benefitsBullets(selected)
+                      .map((benefit) => '• $benefit')
+                      .join('\n'),
+                ),
               _InfoSection(
-                title: 'Benefits',
-                body: selected.benefits ?? 'Not specified',
-              ),
-              _InfoSection(
-                title: 'Application process',
-                body: selected.applicationProcess ?? 'Not specified',
+                title: 'How to apply',
+                body: _applicationBody(selected),
               ),
               _InfoSection(title: 'Department', body: selected.department),
-              _InfoSection(title: 'State', body: selected.state ?? 'All India'),
+              _InfoSection(
+                  title: 'State', body: selected.state ?? 'All India'),
               _InfoSection(
                 title: 'Last updated',
                 body: AppFormatters.displayDateTime(
@@ -192,13 +255,21 @@ class _EligibilitySection extends StatelessWidget {
     }
 
     final colorScheme = Theme.of(context).colorScheme;
-    final isPossible = result.eligibilityStatus == 'possibly_eligible';
-    final statusColor = result.eligible
-        ? const Color(0xFF16803C)
-        : isPossible
-        ? colorScheme.tertiary
-        : colorScheme.error;
-    final percent = result.eligibilityPercentage.clamp(0, 100) / 100;
+    // Citizen-facing presentation: raw percentages, rule internals
+    // ("Expected: true / Current: true") and log-style reasoning are
+    // replaced with structured, human-readable content.
+    final presentation =
+        const EligibilityPresentationPresenter().present(result);
+    final statusColor = switch (presentation.status) {
+      EligibilityStatus.eligible => const Color(0xFF16803C),
+      EligibilityStatus.notEligible => colorScheme.error,
+      EligibilityStatus.insufficientInformation => colorScheme.tertiary,
+      EligibilityStatus.manualReviewRequired => colorScheme.secondary,
+      EligibilityStatus.unknown => colorScheme.outline,
+    };
+    final counts = result.mandatoryConditionCounts;
+    final progress =
+        counts == null || counts.total == 0 ? null : counts.passed / counts.total;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -230,21 +301,21 @@ class _EligibilitySection extends StatelessWidget {
               children: [
                 Chip(
                   avatar: Icon(
-                    result.eligible
+                    presentation.status == EligibilityStatus.eligible
                         ? Icons.check_circle_rounded
-                        : isPossible
+                        : presentation.status ==
+                                EligibilityStatus.insufficientInformation
                         ? Icons.help_outline_rounded
-                        : Icons.cancel_rounded,
+                        : presentation.status == EligibilityStatus.notEligible
+                        ? Icons.cancel_rounded
+                        : Icons.fact_check_outlined,
                     color: statusColor,
                   ),
                   side: BorderSide(color: statusColor),
                   backgroundColor: statusColor.withValues(alpha: 0.12),
                   label: Text(
-                    result.eligible
-                        ? 'Eligible'
-                        : isPossible
-                        ? 'Possibly Eligible'
-                        : 'Not Eligible',
+                    presentation.statusLabel,
+                    softWrap: true,
                   ),
                 ),
                 Chip(
@@ -265,89 +336,41 @@ class _EligibilitySection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            Text(
-              '${result.eligibilityPercentage.toStringAsFixed(0)}%',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 8),
-            LinearProgressIndicator(value: percent.toDouble(), minHeight: 10),
-            const SizedBox(height: 16),
-            if (result.reasoning.isNotEmpty) ...[
+            if (presentation.conditionSummary != null) ...[
               Text(
-                result.reasoning,
-                style: Theme.of(context).textTheme.bodyLarge,
+                presentation.conditionSummary!,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
+              const SizedBox(height: 8),
+              LinearProgressIndicator(value: progress, minHeight: 10),
               const SizedBox(height: 16),
             ],
-            _RuleList(
-              title: 'Matched rules',
-              items: result.matchedRules,
-              emptyText: 'No matched rules were returned.',
+            // The backend `reasoning` field is an internal log string
+            // ("SMAM: Not Eligible | Matched: land_record, ... | 7%") and is
+            // intentionally never rendered to citizens.
+            CitizenRuleList(
+              title: 'Why this may be useful for you',
+              passed: presentation.whyYouMatch,
+              missingDocuments: const [],
+              missingInformation: const [],
+              emptyText:
+                  'Check back after updating your profile or documents.',
             ),
-            _RuleList(
-              title: 'Failed rules',
-              items: result.failedRules,
-              emptyText: 'No failed rules.',
-            ),
-            _RuleList(
-              title: 'Missing profile information',
-              items: result.missingProfileInformation,
-              emptyText: 'No missing profile information detected.',
-            ),
-            _TextList(
-              title: 'Missing documents',
-              items: result.missingDocuments,
-              emptyText: 'No missing documents detected.',
+            CitizenRuleList(
+              title: 'What information is missing',
+              passed: const [],
+              missingDocuments: presentation.missingDocuments,
+              missingInformation: presentation.missingInformation,
+              emptyText: 'Nothing missing — your profile covers this scheme.',
             ),
             _TextList(
-              title: 'Required documents',
-              items: result.requiredDocuments,
-              emptyText: 'No required documents were returned.',
+              title: 'Documents you may need',
+              items: checkHumanizedDocuments(result),
+              emptyText: 'No documents are listed for this scheme.',
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _RuleList extends StatelessWidget {
-  const _RuleList({
-    required this.title,
-    required this.items,
-    required this.emptyText,
-  });
-
-  final String title;
-  final List<EligibilityRuleResult> items;
-  final String emptyText;
-
-  @override
-  Widget build(BuildContext context) {
-    return _ListBlock(
-      title: title,
-      emptyText: emptyText,
-      children: items.map((item) {
-        final expected = item.expectedValue?.toString();
-        final actual = item.actualValue?.toString();
-        return ListTile(
-          dense: true,
-          contentPadding: EdgeInsets.zero,
-          leading: Icon(
-            item.passed ? Icons.check_rounded : Icons.close_rounded,
-          ),
-          title: Text(item.displayTitle),
-          subtitle: expected == null && actual == null
-              ? null
-              : Text(
-                  [
-                    if (expected != null && expected.isNotEmpty)
-                      'Expected: $expected',
-                    if (actual != null && actual.isNotEmpty) 'Current: $actual',
-                  ].join('\n'),
-                ),
-        );
-      }).toList(),
     );
   }
 }
